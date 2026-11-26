@@ -1,7 +1,7 @@
 /**
  * Keyboard shortcuts — a Settings-hub page of its own.
  *
- * Every shortcut Jarvis answers to, in ONE list: the voice keys, the appshot
+ * Every shortcut Sam answers to, in ONE list: the voice keys, the appshot
  * keys, the quick switcher, the zoom steps, the terminal text size, the
  * shortcut overview and the Agentic IDE key menu. Each row says what the
  * shortcut does and where it works, shows its keys in one column, and carries

@@ -1,5 +1,5 @@
 /**
- * The CLI catalog — every command-line tool Jarvis can drive, as one table.
+ * The CLI catalog — every command-line tool Sam can drive, as one table.
  *
  * Same settings surface as Skills, Plugins & MCPs: a quiet table with a row per
  * CLI, and a detail page that replaces the table in place when a row is opened.

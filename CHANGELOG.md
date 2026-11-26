@@ -1,6 +1,8 @@
 # Changelog
 
-All notable changes in Personal Jarvis.
+All notable changes in **Road Dog**.
+
+This project is a rebrand of Personal Jarvis / Hue. The history below is preserved for reference; new releases will be versioned under Road Dog.
 
 Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 versioning per [SemVer](https://semver.org/).
@@ -8,6 +10,11 @@ versioning per [SemVer](https://semver.org/).
 ---
 
 ## [Unreleased]
+
+### Changed
+- Rebranded the product from Personal Jarvis / Hue to **Road Dog**. The AI companion is now **Sam(wise)**.
+- Updated user-facing strings, CLI help, and documentation for the new brand.
+- Preserved the `jarvis` Python package name and CLI alias for compatibility.
 
 ---
 

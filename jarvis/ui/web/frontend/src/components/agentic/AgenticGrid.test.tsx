@@ -37,7 +37,7 @@ vi.mock("@/store/events", () => {
   // Built on each call, never at factory time: this factory is hoisted above
   // the `const pushToast` above it, so reading it eagerly is a TDZ error.
   // `events` too: the chat composer's appshot claim scans the event feed.
-  const state = () => ({ pushToast, assistantName: "Jarvis", events: [] });
+  const state = () => ({ pushToast, assistantName: "Sam", events: [] });
   const useEventStore = (selector: (s: Record<string, unknown>) => unknown) =>
     selector(state());
   useEventStore.getState = state;

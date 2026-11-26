@@ -108,7 +108,7 @@ describe("chat composer attachments", () => {
 
   beforeEach(() => {
     window.localStorage.clear();
-    useEventStore.setState({ connected: true, wsWarming: false, assistantName: "Jarvis" });
+    useEventStore.setState({ connected: true, wsWarming: false, assistantName: "Sam" });
     seed();
     fetchMock = vi.fn(async (url: string) => {
       if (String(url).includes("/api/agent-chat/attachments")) {

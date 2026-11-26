@@ -1,4 +1,4 @@
-"""Jarvis entry point.
+"""Road Dog entry point.
 
 Usage:
     python -m jarvis                # Starts the desktop app: window + voice +
@@ -12,7 +12,7 @@ Usage:
                                     #   e.g. SSH-only hosts)
     python -m jarvis --check        # Show hardware analysis only
     python -m jarvis --plugins      # List the plugin registry
-    python -m jarvis --uninstall    # Remove Jarvis from this machine (folder,
+    python -m jarvis --uninstall    # Remove Road Dog from this machine (folder,
                                     #   login-autostart entry, saved API keys)
 """
 from __future__ import annotations
@@ -92,7 +92,7 @@ if TYPE_CHECKING:
 def _build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         prog="jarvis",
-        description="Personal Jarvis — turn your computer into an AI agent.",
+        description="Road Dog — Your AI. Your crew. Your road. Sam(wise) is your AI agent companion.",
     )
     parser.add_argument("--version", action="version", version=f"%(prog)s {__version__}")
     parser.add_argument("--wizard", action="store_true", help="Restart the setup wizard.")
@@ -165,7 +165,7 @@ def _build_parser() -> argparse.ArgumentParser:
     parser.add_argument(
         "--uninstall",
         action="store_true",
-        help="Remove this Jarvis install from the machine: the install folder, "
+        help="Remove this Road Dog install from the machine: the install folder, "
              "the login-autostart entry, and the API keys saved in the OS "
              "keychain. Asks for confirmation first.",
     )
@@ -238,7 +238,7 @@ def _cmd_phase5_doctor() -> int:
 
     config = cfg.load_config()
     lines: list[str] = []
-    lines.append(f"Jarvis {__version__} — Phase-5-Doctor")
+    lines.append(f"Road Dog {__version__} — Phase-5-Doctor")
     lines.append("=" * 60)
 
     # Entry points
@@ -319,7 +319,7 @@ def _cmd_doctor(as_json: bool = False) -> int:
         ]))
         return 1 if has_failures(findings) else 0
 
-    lines: list[str] = [f"Jarvis {__version__} — Doctor (completeness self-check)",
+    lines: list[str] = [f"Road Dog {__version__} — Doctor (completeness self-check)",
                         "=" * 64]
     last_cat: str | None = None
     for f in findings:
@@ -353,7 +353,7 @@ def _cmd_orb_doctor() -> int:
     orb WOULD spawn under the current ``require_primary`` policy — all
     without opening a Tk window. Useful when the user reports "orb is
     gone" and you need to know whether the persisted pin is the cause
-    before restarting Jarvis.
+    before restarting Road Dog.
     """
     from pathlib import Path
 
@@ -366,7 +366,7 @@ def _cmd_orb_doctor() -> int:
 
     toml_path = Path(cfg.DEFAULT_CONFIG_FILE)
     lines: list[str] = []
-    lines.append(f"Jarvis {__version__} — Orb-Doctor")
+    lines.append(f"Road Dog {__version__} — Orb-Doctor")
     lines.append("=" * 60)
     lines.append(f"Config: {toml_path}")
     lines.append("")
@@ -450,7 +450,7 @@ def _cmd_reset_onboarding() -> int:
 
 
 def _cmd_uninstall(args: argparse.Namespace) -> int:
-    """Remove this Jarvis install from the machine (folder + autostart + keys)."""
+    """Remove this Road Dog install from the machine (folder + autostart + keys)."""
     from jarvis.setup import uninstall
 
     return uninstall.run_uninstall(
@@ -489,7 +489,7 @@ async def _run_tray_app(debug: bool = False) -> int:
     from jarvis.ui.tray import JarvisState, JarvisTray
 
     config = cfg.load_config()
-    print(f"Jarvis {__version__} started (profile: {config.profile.name}).")
+    print(f"Road Dog {__version__} started (profile: {config.profile.name}).")
     if debug:
         print(f"Config file: {cfg.DEFAULT_CONFIG_FILE}")
         print(f"Brain primary: {config.brain.primary}")

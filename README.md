@@ -20,7 +20,9 @@
 </p>
 
 <p align="center">
-  <img src="assets/roaddog-logo.svg" alt="Road Dog logo" width="100%"/>
+  <img src="assets/roaddog-logo.svg" alt="Road Dog logo" width="180"/>
+  <br/>
+  <img src="assets/roaddog-architecture.svg" alt="Road Dog architecture" width="100%"/>
   <br/><sub>Road Dog architecture — Core engine, Agentic IDE, The Crew, Voice, Computer Use, Marketplace and Memory.</sub>
 </p>
 
@@ -41,7 +43,7 @@ git clone https://github.com/tbwcheatwood-hue/Road-Dog.git
 cd Road-Dog
 pip install -e . --no-deps
 pip install -r requirements.txt
-cp jarvis.toml.example jarvis.toml
+cp jarvis.toml.example jarvis.toml   # config file name kept for compatibility
 cp .env.example .env
 ```
 
@@ -49,15 +51,15 @@ cp .env.example .env
 
 ```bash
 # Headless server (works on any machine, no display needed)
-jarvis serve          # opens at http://localhost:8442
-roaddog serve         # same, under the Road Dog name
+roaddog serve         # opens at http://localhost:8442
+# (jarvis serve also works — same entry point, kept for compatibility)
 
 # Full desktop app (Windows / macOS / Linux with a display)
-jarvis                # or double-click the Road Dog desktop shortcut
-roaddog               # same, under the Road Dog name
+roaddog               # or double-click the Road Dog desktop shortcut
+# (jarvis also works)
 ```
 
-On Linux without GTK/pywebview, `jarvis serve` runs headless and you open the printed address in your browser. A `roaddog.desktop` shortcut plus `roaddog-launch` wrapper are installed so Road Dog appears in your application menu.
+On Linux without GTK/pywebview, `roaddog serve` runs headless and you open the printed address in your browser. A `roaddog.desktop` shortcut plus `roaddog-launch` wrapper are installed so Road Dog appears in your application menu.
 
 **Connect a model**
 
@@ -187,7 +189,7 @@ No paid inference requests are made during diagnostics without explicit approval
 - **Installation:** [Windows setup](docs/install/windows.md), [Linux setup](docs/install/linux.md), [macOS setup](docs/install/macos.md), [headless server](docs/headless-server.md)
 - **Sam(wise):** [personality configuration](docs/sam/personality.md), [voice configuration](docs/sam/voice.md)
 - **Everyday use:** [voice](docs/product/everyday-use/voice-conversations.md), [dictation](docs/product/everyday-use/dictation.md), [memory](docs/product/knowledge-and-sharing/wiki-and-memory.md)
-- **Agents and automation:** [agentic IDE](docs/product/extend-and-automate/agentic-ide.md), [The Crew](docs/crew/overview.md), [computer use](docs/product/extend-and-automate/computer-use.md), [plugins](docs/product/extend-and-automate/plugins.md), [MCP](docs/product/extend-and-automate/mcp-connections.md), [CLI](docs/jarvis-cli.md)
+- **Agents and automation:** [agentic IDE](docs/product/extend-and-automate/agentic-ide.md), [The Crew](docs/crew/overview.md), [computer use](docs/product/extend-and-automate/computer-use.md), [plugins](docs/product/extend-and-automate/plugins.md), [MCP](docs/product/extend-and-automate/mcp-connections.md), [CLI](docs/jarvis-cli.md) (CLI still accepts `jarvis` / `roaddog` / `road-dog`)
 - **Models:** [providers](docs/product/personalize-and-connect/providers-and-api-keys.md), [local models](docs/product/personalize-and-connect/local-ai-providers.md)
 - **Resource management:** [cost controls](docs/resource/cost-controls.md), [usage dashboard](docs/resource/usage-dashboard.md)
 - **Running and fixing:** [server](docs/headless-vps-deployment.md), [architecture](docs/architecture-overview.md), [troubleshooting](docs/product/privacy-safety-and-support/troubleshooting.md)

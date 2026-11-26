@@ -117,7 +117,7 @@ const CATALOG: AgentChatCatalog = {
 };
 
 function seed(health: Record<string, ProviderHealth>) {
-  useEventStore.setState({ connected: true, wsWarming: false, assistantName: "Jarvis" });
+  useEventStore.setState({ connected: true, wsWarming: false, assistantName: "Sam" });
   useAgentChatStore.setState({
     catalog: CATALOG,
     connections: [
@@ -258,7 +258,7 @@ describe("the health dot in the provider picker", () => {
       shell: "pwsh",
       providers: [row("claude-api", "Anthropic Claude", "claude-cli"), row("grok", "xAI Grok")],
     };
-    useEventStore.setState({ connected: true, wsWarming: false, assistantName: "Jarvis" });
+    useEventStore.setState({ connected: true, wsWarming: false, assistantName: "Sam" });
     useAgentChatStore.setState({
       catalog,
       connections: [

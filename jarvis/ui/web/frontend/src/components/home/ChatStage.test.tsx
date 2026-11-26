@@ -185,7 +185,7 @@ describe("ChatStage (agent chat)", () => {
       value: vi.fn(),
     });
     window.localStorage.clear();
-    useEventStore.setState({ connected: true, wsWarming: false, assistantName: "Jarvis" });
+    useEventStore.setState({ connected: true, wsWarming: false, assistantName: "Sam" });
     useAgentChatStore.setState(seedState());
     composerDraftsFor(useAgentChatStore).setState({ drafts: new Map() });
     composerDraftsFor(useAgentSessionStore).setState({ drafts: new Map() });

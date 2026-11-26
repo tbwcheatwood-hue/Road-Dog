@@ -45,7 +45,7 @@ function json(body: unknown, status = 200): Response {
 
 describe("AppshotEditorHost", () => {
   beforeEach(() => {
-    useEventStore.setState({ events: [], toasts: [], assistantName: "Jarvis", activeSection: "chats" });
+    useEventStore.setState({ events: [], toasts: [], assistantName: "Sam", activeSection: "chats" });
     useAppshotEditor.setState({ openId: null, revision: 0 });
     vi.stubGlobal("Image", LoadedImage);
     vi.stubGlobal("PointerEvent", TestPointerEvent);

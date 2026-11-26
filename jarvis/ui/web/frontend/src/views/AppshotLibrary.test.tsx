@@ -63,7 +63,7 @@ describe("AppshotLibrary", () => {
 
   beforeEach(async () => {
     await loadLocaleChunk("appshot_editor");
-    useEventStore.setState({ events: [], toasts: [], assistantName: "Jarvis" });
+    useEventStore.setState({ events: [], toasts: [], assistantName: "Sam" });
     useAppshotEditor.setState({ openId: null, revision: 0 });
     items = [EDITED, ORIGINAL, OTHER];
     fetchMock = vi.fn(async (url: string, init?: RequestInit) => {

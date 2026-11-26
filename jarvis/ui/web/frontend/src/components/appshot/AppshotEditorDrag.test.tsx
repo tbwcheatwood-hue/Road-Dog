@@ -50,7 +50,7 @@ describe("the editor's drag handle", () => {
 
   beforeEach(() => {
     posted.length = 0;
-    useEventStore.setState({ events: [], toasts: [], assistantName: "Jarvis" });
+    useEventStore.setState({ events: [], toasts: [], assistantName: "Sam" });
     useAppshotEditor.setState({ openId: null, revision: 0 });
     vi.stubGlobal("Image", LoadedImage);
     vi.stubGlobal("PointerEvent", TestPointerEvent);

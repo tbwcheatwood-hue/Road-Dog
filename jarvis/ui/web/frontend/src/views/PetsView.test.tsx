@@ -115,7 +115,7 @@ function renderView() {
 }
 
 beforeEach(() => {
-  useEventStore.setState({ toasts: [], assistantName: "Jarvis" });
+  useEventStore.setState({ toasts: [], assistantName: "Sam" });
 });
 
 afterEach(() => {

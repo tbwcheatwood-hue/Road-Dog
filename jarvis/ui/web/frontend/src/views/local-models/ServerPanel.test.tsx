@@ -9,7 +9,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 const { mockStore, mockProviders, clipboard } = vi.hoisted(() => ({
-  mockStore: { pushToast: vi.fn(), assistantName: "Jarvis" },
+  mockStore: { pushToast: vi.fn(), assistantName: "Sam" },
   mockProviders: {
     providers: [] as Array<Record<string, unknown>>,
     loading: false,

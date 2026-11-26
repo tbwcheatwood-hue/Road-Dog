@@ -48,7 +48,7 @@ import {
 } from "@/views/PluginsCommunity";
 
 // ---------------------------------------------------------------------------
-// The Jarvis Marketplace, as a section of its own.
+// The Road Dog Marketplace, as a section of its own.
 //
 // Everything published by the community used to be reachable only by knowing
 // where to look: plugins behind the "Community" tab of Skills & Tools, skills

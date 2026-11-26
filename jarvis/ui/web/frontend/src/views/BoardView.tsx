@@ -28,7 +28,7 @@ function readStoredTab(): Tab {
 }
 
 /**
- * The Board: how someone works with Jarvis, from the stores the app already
+ * The Board: how someone works with Road Dog, from the stores the app already
  * keeps on this computer — dictation, voice sessions, chats and the coding
  * agents. Three tabs, each sized to read at a glance.
  */

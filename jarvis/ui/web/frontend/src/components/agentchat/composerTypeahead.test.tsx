@@ -113,7 +113,7 @@ describe("composer typeahead", () => {
 
   beforeEach(() => {
     window.localStorage.clear();
-    useEventStore.setState({ connected: true, wsWarming: false, assistantName: "Jarvis" });
+    useEventStore.setState({ connected: true, wsWarming: false, assistantName: "Sam" });
     sent = [];
     fetchMock = vi.fn(async (url: string) => {
       const u = String(url);

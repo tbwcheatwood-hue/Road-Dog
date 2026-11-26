@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="500" viewBox="0 0 1200 500">
+  <rect width="1200" height="500" fill="#0A0A0A"/>
+  <text x="60" y="70" fill="#FAFAFA" font-family="system-ui, sans-serif" font-size="32" font-weight="700">Road Dog Features</text>
+  <g font-family="system-ui, sans-serif" font-size="16" fill="#FAFAFA">
+    <text x="80" y="140">• Sam(wise) — loyal AI companion</text>
+    <text x="80" y="180">• Agentic IDE with multiple coding agents</text>
+    <text x="80" y="220">• Voice with wake word + offline options</text>
+    <text x="80" y="260">• Computer use & browser control</text>
+    <text x="80" y="300">• Plugin marketplace & MCP</text>
+    <text x="80" y="340">• Persistent memory & knowledge base</text>
+    <text x="80" y="380">• Runs locally — your models, your machine</text>
+  </g>
+  <text x="60" y="460" fill="#8A4BFF" font-size="14">Free & open source · Windows · macOS · Linux</text>
+</svg>

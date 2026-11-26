@@ -34,7 +34,7 @@ describe("AppshotsView", () => {
   let fetchMock: ReturnType<typeof vi.fn>;
 
   beforeEach(() => {
-    useEventStore.setState({ events: [], toasts: [], assistantName: "Jarvis" });
+    useEventStore.setState({ events: [], toasts: [], assistantName: "Sam" });
     fetchMock = vi.fn(async (url: string, init?: RequestInit) => {
       if (url === "/api/appshot/settings" && init?.method === "PUT") {
         return json({ ...SETTINGS, ...JSON.parse(String(init.body)) });
@@ -171,7 +171,7 @@ describe("AppshotsView area appshots", () => {
   let fetchMock: ReturnType<typeof vi.fn>;
 
   beforeEach(() => {
-    useEventStore.setState({ events: [], toasts: [], assistantName: "Jarvis" });
+    useEventStore.setState({ events: [], toasts: [], assistantName: "Sam" });
     fetchMock = vi.fn(async (url: string, _init?: RequestInit) => {
       if (url === "/api/appshot/settings") return json(SETTINGS);
       if (url === "/api/appshot/latest") return json({ appshot: null });
@@ -241,7 +241,7 @@ describe("AppshotsView shortcut recorder", () => {
   let fetchMock: ReturnType<typeof vi.fn>;
 
   beforeEach(() => {
-    useEventStore.setState({ events: [], toasts: [], assistantName: "Jarvis" });
+    useEventStore.setState({ events: [], toasts: [], assistantName: "Sam" });
     fetchMock = vi.fn(async (url: string, init?: RequestInit) => {
       if (url === "/api/appshot/settings" && init?.method === "PUT") {
         return json({ ...SETTINGS, ...JSON.parse(String(init.body)) });
@@ -451,7 +451,7 @@ describe("AppshotsView editor", () => {
   };
 
   beforeEach(() => {
-    useEventStore.setState({ events: [], toasts: [], assistantName: "Jarvis" });
+    useEventStore.setState({ events: [], toasts: [], assistantName: "Sam" });
     useAppshotEditor.setState({ openId: null, revision: 0 });
     vi.stubGlobal(
       "fetch",

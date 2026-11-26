@@ -67,7 +67,7 @@ describe("JarvisXView", () => {
 
   beforeEach(() => {
     items = [...ITEMS];
-    useEventStore.setState({ events: [], toasts: [], assistantName: "Jarvis" });
+    useEventStore.setState({ events: [], toasts: [], assistantName: "Sam" });
     fetchMock = vi.fn(async (url: string, init?: RequestInit) => {
       if (url === "/api/jarvisx/settings" && init?.method === "PUT") {
         const patch = JSON.parse(String(init.body));

@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1000" height="400" viewBox="0 0 1000 400">
+  <rect width="1000" height="400" fill="#0A0A0A"/>
+  <text x="50" y="70" fill="#FAFAFA" font-family="system-ui, sans-serif" font-size="28" font-weight="700">Quick Start</text>
+  <text x="50" y="130" fill="#A1A1A1" font-family="monospace" font-size="16">git clone https://github.com/tbwcheatwood-hue/Road-Dog.git</text>
+  <text x="50" y="170" fill="#A1A1A1" font-family="monospace" font-size="16">cd Road-Dog && pip install -e .</text>
+  <text x="50" y="210" fill="#A1A1A1" font-family="monospace" font-size="16">cp jarvis.toml.example jarvis.toml</text>
+  <text x="50" y="250" fill="#A1A1A1" font-family="monospace" font-size="16">roaddog serve</text>
+  <text x="50" y="330" fill="#8A4BFF" font-family="system-ui, sans-serif" font-size="16">Then open the printed URL and connect your model.</text>
+</svg>

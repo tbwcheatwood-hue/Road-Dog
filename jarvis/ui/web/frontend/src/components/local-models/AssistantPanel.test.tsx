@@ -9,7 +9,7 @@ vi.mock("@/i18n", () => ({
 
 vi.mock("@/store/events", () => ({
   useEventStore: (selector: (s: { assistantName: string }) => unknown) =>
-    selector({ assistantName: "Jarvis" }),
+    selector({ assistantName: "Sam" }),
 }));
 
 // The timeline is covered by its own tests; here only what the panel feeds it matters.

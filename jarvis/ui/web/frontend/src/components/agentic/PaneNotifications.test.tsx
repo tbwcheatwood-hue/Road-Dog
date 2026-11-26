@@ -21,7 +21,7 @@ import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/re
 const pushToast = vi.fn();
 vi.mock("@/store/events", () => ({
   useEventStore: (selector: (s: Record<string, unknown>) => unknown) =>
-    selector({ pushToast, assistantName: "Jarvis" }),
+    selector({ pushToast, assistantName: "Sam" }),
 }));
 
 vi.mock("@/lib/agenticIdeApi", () => ({
