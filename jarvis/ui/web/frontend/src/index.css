@@ -582,10 +582,10 @@ label,
        beside any agent colour the outgoing bubble wears. */
     --chat-bubble-in: 0 0% 93%; /* #EDEDED */
     --chat-bubble-in-foreground: 0 0% 9%;
-    --soul-from: 347 83% 52%;
-    --soul-to: 14 92% 56%;
-    --memory-from: 224 86% 52%;
-    --memory-to: 194 92% 48%;
+    --soul-from: 270 90% 55%;
+    --soul-to: 240 85% 60%;
+    --memory-from: 290 80% 50%;
+    --memory-to: 260 85% 55%;
     --vivid-card-foreground: 0 0% 100%;
     --surface-raised: 0 0% 93%; /* #EDEDED — pressed/selected rows, code blocks */
     --border: 0 0% 86%; /* #DBDBDB — hairline */
@@ -608,14 +608,14 @@ label,
        above `ink` the way the dark one has white above 96% — so --primary and
        --foreground share a value here, and emphasis in running text is
        carried by weight and by --foreground-strong instead. 14.3:1 on paper. */
-    --primary: 0 0% 9%;
+    --primary: 270 90% 55%; /* #8A4BFF — electric purple — the SIGNAL: links, focus, active, selected, info */
     --primary-foreground: 0 0% 100%;
     /* The chat Send control keeps its white fill in both appearances. */
     --chat-send-background: 0 0% 100%;
     --chat-send-foreground: 0 0% 9%;
-    --accent: 212 92% 45%; /* #096CDC — the SIGNAL: links, focus, active, selected, info */
+    --accent: 270 90% 55%; /* #8A4BFF — electric purple — the SIGNAL: links, focus, active, selected, info */
     --accent-foreground: 0 0% 100%;
-    --ring: 212 92% 45%;
+    --ring: 270 90% 55%;
 
     /* --- Status. Colour has jobs again (v3.1, 2026-09-01) ------------------
        The all-neutral product read as dead. Cursor's Anysphere theme is the
@@ -623,10 +623,10 @@ label,
        semantic set — green life, rose fault, amber degraded, cyan info —
        plus coloured diffs and a coloured run graph. Same meanings in both
        themes; the lightness is tuned per ground. */
-    --success: 142 72% 29%; /* #15803D — life */
-    --destructive: 0 72% 45%; /* #C52020 — fault */
+    --success: 142 70% 40%; /* #2E8B57 — sea green — life: running, live, passed */
+    --destructive: 0 75% 50%; /* #DC143C — crimson — fault: failed, blocked, error */
     --destructive-foreground: 0 0% 100%;
-    --warning: 32 95% 34%; /* #A95C04 — degraded */
+    --warning: 38 92% 50%; /* #F59E0B — amber — degraded: stale, modified, attention */
 
     /* Added / removed code in a chat diff. Green and red were always the
        weaker half of this signal: a diff already carries + and - in its
@@ -642,7 +642,7 @@ label,
     /* GitHub's "merged" purple, for the IDE Git tab's merged pull requests and
        merged-into marks. Open, closed and queued reuse success, destructive
        and warning; merged is the one GitHub state the set had no hue for. */
-    --gh-merged: 262 69% 58%; /* #8250DF — GitHub light */
+    --gh-merged: 262 69% 58%; /* #8250DF — Road Dog purple — GitHub light */
 
     --radius: 0.75rem;
 
@@ -650,7 +650,7 @@ label,
     /* The accent as raw channels, for glows / grid lines / halos. Now the ink
        itself: on paper a "glow" means a faint darkening, not a light source,
        so every grid and halo built from this reads as a pencil rule. */
-    --accent-rgb: 9 108 220;
+    --accent-rgb: 138 75 255;
     /* What a translucent overlay DARKENS with (backdrops, vignettes, shadows).
        Warm near-black rather than pure black, so a scrim over paper does not
        turn grey-blue. */
@@ -718,15 +718,15 @@ label,
     --gigi-on-body: 0 0% 100%; /* white eyes on the black body */
     --gigi-trim: 0 0% 9%; /* ink — reads on paper */
 
-    /* Legacy aliases. The names outlived the colour — nothing yellow is left
+    /* Legacy aliases. The names outlived the colour — nothing purple is left
        in either theme — and no rule reads them any more either; they stay
        declared until the last call sites that predate the token set are
        renamed in their own pass, because a rename and a recolour in one
        commit hides both. */
-    --jarvis-yellow: 23 23 23;
-    --jarvis-yellow-dim: 102 102 102;
+    --jarvis-yellow: 138 75 255;
+    --jarvis-yellow-dim: 102 75 255;
     --jarvis-grid: 0 0% 90%;
-    --info: 212 92% 45%; /* = --accent: one signal hue carries counts and hints too */
+    --info: 270 90% 55%; /* = --accent: one signal hue carries counts and hints too */
     --info-foreground: 0 0% 100%;
 
   }
@@ -786,10 +786,10 @@ label,
     --chat-bubble-out-foreground: 0 0% 100%;
     --chat-bubble-in: 0 0% 15%; /* #262626 — see :root */
     --chat-bubble-in-foreground: 0 0% 95%;
-    --soul-from: 347 86% 56%;
-    --soul-to: 14 94% 58%;
-    --memory-from: 226 92% 60%;
-    --memory-to: 194 96% 50%;
+    --soul-from: 270 90% 60%;
+    --soul-to: 240 85% 65%;
+    --memory-from: 290 80% 55%;
+    --memory-to: 260 85% 60%;
     --vivid-card-foreground: 0 0% 100%;
 
     /* --- Rims. A rim is LIGHTER than the fill it encloses ------------------
@@ -813,13 +813,13 @@ label,
        has none above `ink` and keeps the two equal. 19.8:1. */
     --primary: 0 0% 98%;
     --primary-foreground: 0 0% 4%; /* the room */
-    --accent: 212 100% 62%; /* #3D8BFF — the SIGNAL: links, focus, active, selected, info */
+    --accent: 270 100% 65%; /* #8A4BFF — electric purple — the SIGNAL: links, focus, active, selected, info */
     --accent-foreground: 0 0% 100%;
-    --ring: 212 100% 62%;
+    --ring: 270 100% 65%;
     --success: 142 70% 45%; /* #22C35E — life: running, live, passed */
-    --destructive: 0 72% 55%; /* #DF3A3A — fault: failed, blocked, error */
+    --destructive: 0 72% 55%; /* #DC143C — crimson — fault: failed, blocked, error */
     --destructive-foreground: 0 0% 100%;
-    --warning: 38 92% 50%; /* #F59E0B — degraded: stale, modified, attention */
+    --warning: 38 92% 50%; /* #F59E0B — amber — degraded: stale, modified, attention */
 
     /* Added / removed code — see :root. The added line takes the lift so it
        comes forward off the card it sits on; the deleted line takes the card
@@ -829,9 +829,9 @@ label,
     --diff-add-bg: 143 43% 44%; /* #3FA266, read at 18 % */
     --diff-del: 350 96% 71%; /* #FC6B83 */
     --diff-del-bg: 336 100% 36%; /* #B80049, read at 20 % */
-    --gh-merged: 262 89% 72%; /* #A371F7 — GitHub dark; see :root */
+    --gh-merged: 262 89% 72%; /* #A371F7 — Road Dog purple — GitHub dark; see :root */
 
-    --accent-rgb: 61 139 255;
+    --accent-rgb: 138 75 255;
     --scrim-rgb: 0 0 0;
     --sheen-rgb: 255 255 255;
     --shell-rgb: 10 10 10; /* the room, as channels */
@@ -848,14 +848,14 @@ label,
     /* Run-graph node categories — see :root. Ignition and landing take the
        full accent; every step between them is neutral and leaves the telling
        to its glyph. */
-    --viz-trigger: 212 100% 62%; /* blue — the run's ignition */
-    --viz-reasoning: 247 90% 80%; /* lavender — thinking */
+    --viz-trigger: 270 100% 65%; /* electric purple — the run's ignition */
+    --viz-reasoning: 290 90% 75%; /* violet — thinking */
     --viz-terminal: 193 43% 67%; /* cyan — shell */
-    --viz-file: 36 76% 67%; /* amber — writes */
-    --viz-search: 212 100% 76%; /* sky — read/grep/glob */
+    --viz-file: 270 90% 55%; /* electric purple — writes */
+    --viz-search: 270 100% 76%; /* sky — read/grep/glob */
     --viz-web: 193 43% 67%; /* cyan — fetch/web */
     --viz-integration: 308 18% 62%; /* mauve — MCP / external */
-    --viz-agent: 317 63% 75%; /* pink — sub-agents */
+    --viz-agent: 270 90% 65%; /* electric purple — sub-agents */
     --viz-tool: 0 0% 63%; /* neutral — unrecognised tools */
     --viz-result: 143 43% 44%; /* green — the run's landing */
     --viz-deliverable: 36 76% 67%; /* amber — files left behind */
@@ -865,14 +865,14 @@ label,
     --gigi-trim: 0 0% 100%;
 
     /* Legacy aliases — see :root. Declared, read by nothing. */
-    --jarvis-yellow: 255 255 255;
+    --jarvis-yellow: 138 75 255;
     --jarvis-yellow-dim: 161 161 161;
     --jarvis-grid: 0 0% 15%;
 
     /* --- Info. The fourth semantic hue --------------------------------------
        Cursor's badge / untracked / find-match cyan (#88C0D0). It says "note
        this" without saying "something is wrong": counts, new items, hints. */
-    --info: 212 100% 62%; /* = --accent: one signal hue carries counts and hints too */
+    --info: 270 100% 65%; /* = --accent: one signal hue carries counts and hints too */
     --info-foreground: 0 0% 100%;
 
   }

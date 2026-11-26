@@ -51,5 +51,5 @@
   <text x="600" y="352" font-family="system-ui, sans-serif" font-size="13.5" fill="#A1A1AA" text-anchor="middle">Claude Code · Codex · OpenCode · Cursor · Kimi Code · GLM · Grok Build · DeepSeek Harness · Kilo Code · Zed Code</text>
   <text x="600" y="384" font-family="system-ui, sans-serif" font-size="12.5" fill="#888" text-anchor="middle">Set KILOCODE_API_KEY / ZCODE_API_KEY to enable Kilo Code and Zed Code (degrade safely when unset)</text>
 
-  <text x="600" y="485" font-family="system-ui, sans-serif" font-size="14" fill="#666" text-anchor="middle">Hue · open-source AI agent super-app · https://github.com/tbwcheatwood-hue/Hue</text>
+  <text x="600" y="485" font-family="system-ui, sans-serif" font-size="14" fill="#666" text-anchor="middle">Hue · open-source AI agent super-app · https://github.com/tbwcheatwood-hue/Road-Dog</text>
 </svg>

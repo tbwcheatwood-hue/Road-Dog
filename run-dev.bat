@@ -1,8 +1,8 @@
 @echo off
-REM Personal Jarvis — DEV INSTANCE launcher (Windows).
+REM Road Dog — DEV INSTANCE launcher (Windows).
 REM
 REM Starts a SECOND desktop app beside the regular one, from this same checkout:
-REM "Personal Jarvis Dev" — own data dir (data-dev\), own ports (+100), DEV-badged
+REM "Road Dog Dev" — own data dir (data-dev\), own ports (+100), DEV-badged
 REM icon, no wake word / global hotkeys / chat channels / autostart (those stay
 REM with the regular app). Restart it as often as you like; the regular app and
 REM the coding sessions inside it are never touched.

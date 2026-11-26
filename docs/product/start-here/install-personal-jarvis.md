@@ -1,7 +1,7 @@
 ---
-title: "Install Personal Jarvis"
-slug: install-personal-jarvis
-summary: "Install Personal Jarvis on a desktop or headless Linux host, choose an update path, and protect your data during repair."
+title: "Install Road Dog"
+slug: install-road-dog
+summary: "Install Road Dog on a desktop or headless Linux host, choose an update path, and protect your data during repair."
 section: "Start here"
 section_order: 1
 order: 2
@@ -17,7 +17,7 @@ related: [first-run-setup, local-ai-providers, platform-support, troubleshooting
 
 The recommended one-line installer creates a **managed installation** in its
 own Python environment, adds a desktop launcher where supported, and opens the
-app. Managed desktop installs can receive published releases inside Jarvis.
+app. Managed desktop installs can receive published releases inside Road Dog.
 
 No artificial intelligence provider is required for installation. Connect an
 online provider or a compatible local model after the app opens.
@@ -35,7 +35,7 @@ The installer can offer to add Python or Git through a supported system package
 manager. The macOS desktop launcher also needs the Xcode Command Line Tools.
 When automatic setup is unavailable, the installer shows the manual next step.
 
-Node.js 18 or newer enables some Jarvis-Agent worker tools and integrations but
+Node.js 18 or newer enables some agent worker tools and integrations but
 is optional. A graphics processor is also optional.
 
 > [!warning] Enter provider credentials only in **API Keys & Providers** inside
@@ -48,7 +48,7 @@ is optional. A graphics processor is also optional.
 |---|---|---|---|
 | One-line desktop installer | Full app, local voice support, launcher, and managed environment | In-app published releases | Most users |
 | One-line `--headless` installer | Smaller browser-based server | Manual restart and maintenance | Linux without a display |
-| PyPI with `pipx` | Isolated base package and `jarvis serve` | `pipx upgrade personal-jarvis` | Existing `pipx` users |
+| PyPI with `pipx` | Isolated base package and `jarvis serve` | `pipx upgrade road-dog` | Existing `pipx` users |
 | Manual clone or environment | Source and profile you choose | Your Git and Python workflow | Contributors and custom hosts |
 
 Only the official one-line installer marks its checkout as managed. Package and
@@ -62,12 +62,12 @@ manual installs do not show the in-app update button.
 2. Run the official installer:
 
    ```powershell
-   irm https://raw.githubusercontent.com/PersonalJarvis/PersonalJarvis/main/install/install.ps1 | iex
+   irm https://raw.githubusercontent.com/tbwcheatwood-hue/Road-Dog/main/install/install.ps1 | iex
    ```
 
 3. Approve any offer to add Python or Git. The installer checks again and
    continues in the same run.
-4. Keep PowerShell open until **Personal Jarvis is ready** appears. The app
+4. Keep PowerShell open until **Road Dog is ready** appears. The app
    opens and becomes available through Windows Search.
 
 ### macOS or Linux
@@ -77,10 +77,10 @@ manual installs do not show the in-app update button.
 
    ```bash
    # Desktop on macOS or Linux
-   curl -fsSL https://raw.githubusercontent.com/PersonalJarvis/PersonalJarvis/main/install/install.sh | bash
+   curl -fsSL https://raw.githubusercontent.com/tbwcheatwood-hue/Road-Dog/main/install/install.sh | bash
 
    # Headless Linux
-   curl -fsSL https://raw.githubusercontent.com/PersonalJarvis/PersonalJarvis/main/install/install.sh | bash -s -- --headless
+   curl -fsSL https://raw.githubusercontent.com/tbwcheatwood-hue/Road-Dog/main/install/install.sh | bash -s -- --headless
    ```
 
 3. Confirm the installation and review any prerequisite or Linux desktop-
@@ -89,8 +89,8 @@ manual installs do not show the in-app update button.
    application menu. Headless installs print a local browser address.
 
 > [!note] These commands download the current public installer. Review the
-> [Windows source](https://github.com/PersonalJarvis/PersonalJarvis/blob/main/install/install.ps1)
-> or [macOS and Linux source](https://github.com/PersonalJarvis/PersonalJarvis/blob/main/install/install.sh)
+> [Windows source](https://github.com/tbwcheatwood-hue/Road-Dog/blob/main/install/install.ps1)
+> or [macOS and Linux source](https://github.com/tbwcheatwood-hue/Road-Dog/blob/main/install/install.sh)
 > first if you want to inspect it.
 
 ## Install the Isolated PyPI Package
@@ -99,19 +99,19 @@ If you already have `pipx`, install the smaller browser-based server without a
 managed source checkout:
 
 ```bash
-pipx install personal-jarvis
+pipx install road-dog
 jarvis serve
 ```
 
 Open the printed local address. This option has no native desktop launcher or
-in-app updater. Upgrade it with `pipx upgrade personal-jarvis`.
+in-app updater. Upgrade it with `pipx upgrade road-dog`.
 
 On **Intel macOS 13 or later** and **Windows ARM64**, supply the project's
 native package index when installing or upgrading:
 
 ```bash
-pipx install personal-jarvis --pip-args="--find-links https://personaljarvis.github.io/PersonalJarvis/native-crypto/50.0.2-1/simple/cryptography/"
-pipx upgrade personal-jarvis --pip-args="--find-links https://personaljarvis.github.io/PersonalJarvis/native-crypto/50.0.2-1/simple/cryptography/"
+pipx install road-dog --pip-args="--find-links https://tbwcheatwood-hue.github.io/Hue/native-crypto/50.0.2-1/simple/cryptography/"
+pipx upgrade road-dog --pip-args="--find-links https://tbwcheatwood-hue.github.io/Hue/native-crypto/50.0.2-1/simple/cryptography/"
 ```
 
 This provides current cryptography without installing a compiler. The
@@ -125,7 +125,7 @@ standard PyPI command above.
    works without microphone or desktop permissions.
 3. Finish onboarding, then open **API Keys**. The page title is **API Keys &
    Providers**. Connect only the services or local models you need.
-4. On macOS, grant permissions to **Personal Jarvis**, not Terminal or Python,
+4. On macOS, grant permissions to **Road Dog**, not Terminal or Python,
    so they remain attached to the registered app.
 
 Read [First-run setup](first-run-setup) for every choice or [Local AI
@@ -134,12 +134,12 @@ providers](local-ai-providers) to run a compatible model on your computer.
 ## Update or Repair an Installation
 
 Managed desktop installs show **Update available** for a newer **published
-GitHub Release**. The button stages that exact release and restarts Jarvis to
+GitHub Release**. The button stages that exact release and restarts Road Dog to
 refresh dependencies and desktop files. It never offers unpublished `main`
 changes. A failed post-restart installation rolls back and reports the result.
 
 Finish important work first. Restarting interrupts live terminal panes, which
-reattach or resume where supported. Jarvis asks before interrupting missions.
+reattach or resume where supported. The app asks before interrupting missions.
 
 Rerun the original one-line command to repair the managed checkout, Python
 environment, models, or launcher. It keeps completed onboarding. The command
@@ -157,7 +157,7 @@ Wiki content separately.
 
 For other installation types:
 
-- `pipx` follows PyPI through `pipx upgrade personal-jarvis`;
+- `pipx` follows PyPI through `pipx upgrade road-dog`;
 - manual clones follow your Git and Python workflow; and
 - headless Linux needs a maintenance window because it cannot complete the
   desktop restart flow.
@@ -170,14 +170,14 @@ For other installation types:
    local components; headless keeps the smaller server. Incompatible native
    parts are skipped while the rest remains available.
 3. **Setup connects features.** Language and activation feed voice; providers
-   supply chat, speech, and connected capabilities. Jarvis uses another
+   supply chat, speech, and connected capabilities. The app uses another
    compatible configured path or states what is missing.
 4. **The install type controls maintenance.** Managed desktop copies receive
    published releases in-app. PyPI and manual copies use their own workflow.
 
 ## Check That It Works
 
-For desktop, confirm **Personal Jarvis is ready**, then close and reopen the app
+For desktop, confirm **Road Dog is ready**, then close and reopen the app
 from Windows Search, Spotlight, or the Linux application menu.
 
 For headless or `pipx`, open the printed local address and confirm the setup

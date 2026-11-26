@@ -1,4 +1,4 @@
-# Trust roots and rotation procedure — Personal Jarvis Wave 1 + Wave 2 foundation
+# Trust roots and rotation procedure — Road Dog Wave 1 + Wave 2 foundation
 
 > **Audience:** a security-aware reader who wants to know, *exactly*, whose
 > word they're taking when they run the verifying one-liner. No marketing
@@ -13,7 +13,7 @@
 ## 0. TL;DR — whom do you trust when you run the one-liner?
 
 ```
-curl -fsSL https://github.com/PersonalJarvis/PersonalJarvis/releases/download/<TAG>/install-verify.sh | bash
+curl -fsSL https://github.com/tbwcheatwood-hue/Road-Dog/releases/download/<TAG>/install-verify.sh | bash
 ```
 
 Running this binds you to all of the following parties at once:
@@ -22,7 +22,7 @@ Running this binds you to all of the following parties at once:
    release host (serves the `.sh`, `.sig`, `.pem`, `.bundle` bytes).
 2. **The Sigstore project** — Fulcio CA, Rekor transparency log, and the
    `cosign` binary itself.
-3. **The current owners of `PersonalJarvis/PersonalJarvis`** — at the
+3. **The current owners of `tbwcheatwood-hue/Road-Dog`** — at the
    instant of any tag push, whoever can trigger `.github/workflows/sign-installer.yml`
    on this repo can mint a signature that this verifier will accept.
 4. **The cosign release at `v2.4.1`** — pinned by SHA-256 inside
@@ -45,7 +45,7 @@ the entire trust root in one screen of code.
 
 | Constant | Current value (Wave 1) | What it pins | Failure mode if wrong |
 |---|---|---|---|
-| `EXPECTED_REPO` | `PersonalJarvis/PersonalJarvis` | The GitHub repo whose Actions identity is allowed to sign. | An attacker who signs a `install.sh` under a *different* repo's OIDC identity (even with a legitimately-issued Fulcio cert) will fail verification. |
+| `EXPECTED_REPO` | `tbwcheatwood-hue/Road-Dog` | The GitHub repo whose Actions identity is allowed to sign. | An attacker who signs a `install.sh` under a *different* repo's OIDC identity (even with a legitimately-issued Fulcio cert) will fail verification. |
 | `EXPECTED_WORKFLOW_PATH` | `.github/workflows/sign-installer.yml` | The specific workflow file inside `EXPECTED_REPO` whose identity is allowed to sign. | An attacker who pushes a *second* signing workflow to this repo (e.g. via a poisoned PR that survives review) and uses it to mint signatures will be rejected — the regex won't match. |
 | `EXPECTED_OIDC_ISSUER` | `https://token.actions.githubusercontent.com` | The GitHub Actions production OIDC issuer. | An attacker using a different OIDC issuer (a self-hosted Dex, GitLab, etc.) cannot mint a Fulcio cert that satisfies this issuer pin. |
 | `COSIGN_VERSION` | `v2.4.1` | The cosign release we will download. | Combined with the SHA-256 pins below — if the version doesn't match its known-good hash, verification fails before any signature work begins. |
@@ -192,7 +192,7 @@ field). Before expiry, AND any time the key is suspected compromised:
    generate a new Ed25519 keypair in an air-gapped environment.
 2. Set the new private key as the GitHub Actions secret — never commit it:
    `base64 -w0 new-offline.key | gh secret set WAVE2_OFFLINE_KEY_B64 --repo
-   PersonalJarvis/PersonalJarvis`. Keep the offline backup in the password
+   tbwcheatwood-hue/Road-Dog`. Keep the offline backup in the password
    manager.
 3. Overwrite the committed **public** key `install/keys/offline-ceremony.pub`
    and its inlined copy + pinned fingerprint in both verifier scripts.
@@ -255,7 +255,7 @@ slsa-verifier (https://github.com/slsa-framework/slsa-verifier) is the
 reference implementation maintained by the SLSA project. Its only
 non-trivial job from our perspective is `verify-artifact`, which:
 
-1. Reads the SLSA in-toto provenance (`personal-jarvis.intoto.jsonl`).
+1. Reads the SLSA in-toto provenance (`road-dog.intoto.jsonl`).
 2. Verifies the provenance's bundled Sigstore certificate against the
    SLSA generator's pinned issuer + identity.
 3. Confirms the artifact's SHA-256 digest is in the provenance's
@@ -282,14 +282,14 @@ repo-takeover would let an attacker swap the binary under the tag.
 | `SLSA_VERIFIER_SHA256_DARWIN_AMD64` | `f838adf01bbe62b883e7967167fa827bbf7373f83e2d7727ec18e53f725fee93` | Pinned bytes of `slsa-verifier-darwin-amd64`. |
 | `SLSA_VERIFIER_SHA256_DARWIN_ARM64` | `8740e66832fd48bbaa479acd5310986b876ff545460add0cb4a087aec056189c` | Pinned bytes of `slsa-verifier-darwin-arm64`. |
 | `SLSA_VERIFIER_SHA256_WINDOWS` | `37ca29ad748e8ea7be76d3ae766e8fa505362240431f6ea7f0648c727e2f2507` | Pinned bytes of `slsa-verifier-windows-amd64.exe`. |
-| `EXPECTED_SLSA_SOURCE_URI` | `github.com/PersonalJarvis/PersonalJarvis` | Source URI passed to `slsa-verifier verify-artifact`. |
-| `EXPECTED_INTOTO_IDENTITY_REGEXP` | `^https://github\.com/PersonalJarvis/PersonalJarvis/\.github/workflows/sign-installer\.yml@refs/tags/v[0-9]+\.[0-9]+\.[0-9]+(-[A-Za-z0-9._-]+)?$` | Functionary identity_regexp the in-toto layout MUST pin. Catch-all values (`.*`, `.+`, `^.*$`, `^.+$`, `""`) are rejected explicitly. |
-| `SLSA_PROVENANCE_FILENAME` | `personal-jarvis.intoto.jsonl` | Filename the workflow uploads the SLSA L3 provenance under. |
+| `EXPECTED_SLSA_SOURCE_URI` | `github.com/tbwcheatwood-hue/Road-Dog` | Source URI passed to `slsa-verifier verify-artifact`. |
+| `EXPECTED_INTOTO_IDENTITY_REGEXP` | `^https://github\.com/tbwcheatwood-hue/Road-Dog/\.github/workflows/sign-installer\.yml@refs/tags/v[0-9]+\.[0-9]+\.[0-9]+(-[A-Za-z0-9._-]+)?$` | Functionary identity_regexp the in-toto layout MUST pin. Catch-all values (`.*`, `.+`, `^.*$`, `^.+$`, `""`) are rejected explicitly. |
+| `SLSA_PROVENANCE_FILENAME` | `road-dog.intoto.jsonl` | Filename the workflow uploads the SLSA L3 provenance under. |
 | `INTOTO_LAYOUT_FILENAME` | `layout.template.json` | Filename the workflow uploads the in-toto layout template under. |
 
 **Workflow-side (SA-2 scope, summarised here for the trust-root reader):**
 The release workflow uploads three files per release in addition to the
-Wave 1+2 trio: `personal-jarvis.intoto.jsonl` (the SLSA L3 provenance
+Wave 1+2 trio: `road-dog.intoto.jsonl` (the SLSA L3 provenance
 generated by `slsa-framework/slsa-github-generator`), `layout.template.json`
 (the in-toto layout copied from `install/in-toto/layout.template.json`),
 and a checksums manifest that anchors both. The SLSA generator runs in a
@@ -512,7 +512,7 @@ ceremony in `docs/supply-chain/wave2-key-ceremony.md`:
    `openssl pkey -in new.pub.pem -pubin -outform DER | openssl dgst -sha256`.
 3. Set the new private key as the GitHub Actions secret — never commit it:
    `base64 -w0 new.key.pem | gh secret set WAVE4_MLDSA65_KEY_B64 --repo
-   PersonalJarvis/PersonalJarvis`. Keep the offline backup in the password
+   tbwcheatwood-hue/Road-Dog`. Keep the offline backup in the password
    manager.
 4. Overwrite the committed **public** key `install/keys/pq-mldsa65.pub.pem`.
 5. Update the inlined heredoc + `PQ_MLDSA65_PUBKEY_FINGERPRINT` in BOTH
@@ -600,7 +600,7 @@ The OIDC identity verified by `cosign verify-blob` is **not a person**; it
 is a *workflow file path inside a repo*. Specifically:
 
 ```
-https://github.com/PersonalJarvis/PersonalJarvis/.github/workflows/sign-installer.yml@refs/tags/<TAG>
+https://github.com/tbwcheatwood-hue/Road-Dog/.github/workflows/sign-installer.yml@refs/tags/<TAG>
 ```
 
 This means:
@@ -610,7 +610,7 @@ This means:
   **a tag matching `v*.*.*[-suffix]`**.
 - The *person* who pushed the tag is recorded in Rekor but is not gated
   by the verifier. In Wave 1, **any maintainer with `push` permission on
-  `PersonalJarvis/PersonalJarvis` and the ability to push a `v*.*.*`
+  `tbwcheatwood-hue/Road-Dog` and the ability to push a `v*.*.*`
   tag can mint a verifier-accepted signature.**
 - A repo-takeover (account compromise of the repo owner) breaks this
   trust root. Wave 2 mitigates with threshold signing (2-of-N maintainer
@@ -618,7 +618,7 @@ This means:
 
 Today (Wave 1), the maintainer set is `@RubenLuetke` (repo owner) plus any
 collaborators added under
-https://github.com/PersonalJarvis/PersonalJarvis/settings/access. The
+https://github.com/tbwcheatwood-hue/Road-Dog/settings/access. The
 expectation is that this list is short and audited.
 
 ---
@@ -748,7 +748,7 @@ Implementation:
 
 - **Secret scanning + push protection** enabled at the repo level via
   the GitHub Security & Analysis settings (`gh api -X PATCH
-  /repos/PersonalJarvis/PersonalJarvis -F
+  /repos/tbwcheatwood-hue/Road-Dog -F
   security_and_analysis.secret_scanning.status=enabled -F
   security_and_analysis.secret_scanning_push_protection.status=enabled`).
 - **Dependabot** enabled via `.github/dependabot.yml` — weekly updates

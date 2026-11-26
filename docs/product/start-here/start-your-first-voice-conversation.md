@@ -17,11 +17,11 @@ related: [voice-conversations, audio-and-wake-word, dictation, languages-and-voi
 
 A voice conversation lets you speak naturally, hear the answer, and continue
 with follow-up questions. You can begin with your wake phrase, the Call
-shortcut, or the idle Jarvis Bar.
+shortcut, or the idle Voice Bar.
 
-The assistant's displayed name comes from your wake phrase. For example,
-`Hey Nova` displays `Nova`; without a saved name, the neutral fallback is
-`Assistant`. This guide therefore refers to **your assistant**, whatever name
+Sam's displayed name comes from your wake phrase. For example,
+`Hey Sam` displays `Sam`; without a saved name, the neutral fallback is
+`Companion`. This guide therefore refers to **Sam**, whatever name
 you chose.
 
 This is different from [Dictation](dictation), which inserts spoken words as
@@ -60,7 +60,7 @@ Choose one method:
   Wake detection opens the session; it does not interpret the request.
 - **Call shortcut:** Press the configured keys once. Call also works when wake
   activation is off; it is not push-to-talk.
-- **Jarvis Bar:** Select the body of the idle bar.
+- **Voice Bar:** Select the body of the idle bar.
 
 Change **Call (answer / start talking)** and **Hangup** under
 **Settings > Voice Keybinds**. On Wayland, use wake or an in-app control if
@@ -121,7 +121,7 @@ Use any one of these controls:
 
 - Say **hang up** or **end the call**.
 - Press your configured **Hangup** shortcut.
-- Hover over the active Jarvis Bar and select its visible **X** precisely.
+- Hover over the active Voice Bar and select its visible **X** precisely.
 
 Hangup closes the microphone, stops spoken output, and cancels the active turn
 or Computer Use action. A longer background agent mission may continue; check
@@ -141,7 +141,7 @@ its view if you started one. The sidebar returns to **Ready**.
 
 ## Check That It Works
 
-Start one call with your wake phrase, Call shortcut, or the idle Jarvis Bar.
+Start one call with your wake phrase, Call shortcut, or the idle Voice Bar.
 Ask a short question and watch the status move from **Listening** to
 **Thinking** or **Speaking**. You should hear the answer and then see
 **Listening** again. Use Hangup and confirm that the status returns to

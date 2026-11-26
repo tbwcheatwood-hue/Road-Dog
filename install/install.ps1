@@ -1,13 +1,13 @@
-# Personal Jarvis - Windows quick-install bootstrap (Stage 1)
+# Road Dog - Windows quick-install bootstrap (Stage 1)
 #
 # Usage (from PowerShell):
-#   irm https://raw.githubusercontent.com/PersonalJarvis/PersonalJarvis/main/install/install.ps1 | iex
+#   irm https://raw.githubusercontent.com/tbwcheatwood-hue/Road-Dog/main/install/install.ps1 | iex
 #
 # This bootstrap is intentionally small. It:
 #   1. Verifies Python 3.11+ and git are available.
 #   2. Offers to install either missing prerequisite, then re-checks in place.
 #   3. Checks for Node.js 18+ (optional - a missing Node never blocks the install).
-#   4. Clones (or updates) personal-jarvis into ~\.personal-jarvis.
+#   4. Clones (or updates) Road Dog into ~\.road-dog.
 #   5. Creates a Python venv, installs `rich` + `packaging`.
 #   6. Hands control to install/installer.py (the Stage 2 orchestrator).
 #
@@ -180,7 +180,7 @@ $GoldDeep            ╚════╝ ╚═╝  ╚═╝╚═╝  ╚═╝
 
 $Dim     talk to your computer · installs the full profile · launches when done$Rst
 
-$Dim┌$Rst  ${Gold}Personal Jarvis installer$Rst
+$Dim┌$Rst  ${Gold}Road Dog installer$Rst
 "@
     Write-Host $art
 }
@@ -198,14 +198,14 @@ Write-Banner
 # Standalone bootstrap projections of jarvis/core/branding.py. The branding
 # contract test rejects drift because this script runs before Python is installed.
 $OfficialRepoSlug = "$env:JARVIS_OFFICIAL_REPO_SLUG"
-if (-not $OfficialRepoSlug) { $OfficialRepoSlug = 'PersonalJarvis/PersonalJarvis' }
+if (-not $OfficialRepoSlug) { $OfficialRepoSlug = 'tbwcheatwood-hue/Road-Dog' }
 if ($OfficialRepoSlug -notmatch '^[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+$') {
     throw 'JARVIS_OFFICIAL_REPO_SLUG must be an exact owner/repository slug'
 }
 $RepoUrl    = if ($env:JARVIS_INSTALL_REPO) { $env:JARVIS_INSTALL_REPO } else { "https://github.com/$OfficialRepoSlug.git" }
 $ConfigFileName = 'jarvis.toml'
 $Branch     = if ($env:JARVIS_INSTALL_REF)  { $env:JARVIS_INSTALL_REF }  else { 'main' }
-$InstallDir = if ($env:JARVIS_INSTALL_DIR)  { $env:JARVIS_INSTALL_DIR }  else { Join-Path $env:USERPROFILE '.personal-jarvis' }
+$InstallDir = if ($env:JARVIS_INSTALL_DIR)  { $env:JARVIS_INSTALL_DIR }  else { Join-Path $env:USERPROFILE '.road-dog' }
 $PrerequisiteMode = if ($env:JARVIS_INSTALL_PREREQS) { $env:JARVIS_INSTALL_PREREQS.ToLowerInvariant() } else { 'ask' }
 $InitialPath = $env:Path
 
@@ -537,7 +537,7 @@ if ($ExtraArgs -contains '--headless') {
 }
 
 # ----------------------------------------------------------------- clone / update
-Write-Phase '2/6' 'Fetching Personal Jarvis'
+Write-Phase '2/6' 'Fetching Road Dog'
 Write-Note $InstallDir
 
 # On an interactive console, git paints its own "Receiving objects: NN%"
@@ -591,7 +591,7 @@ function Invoke-TarballFallback {
     if (-not (Get-Command tar.exe -ErrorAction SilentlyContinue)) { return $false }
     if ($RepoUrl -notmatch 'github\.com/') { return $false }
     $RepoPath = ($RepoUrl -split 'github\.com/', 2)[1] -replace '\.git$', ''
-    $AssetUrl = "https://github.com/$RepoPath/releases/latest/download/personal-jarvis-src.tar.gz"
+    $AssetUrl = "https://github.com/$RepoPath/releases/latest/download/road-dog-src.tar.gz"
     $SnapshotUrl = "https://codeload.github.com/$RepoPath/tar.gz/refs/heads/$Branch"
     if ($env:JARVIS_PAYLOAD_COMMIT) {
         # A verified install is pinned to ONE signed commit; the "latest"

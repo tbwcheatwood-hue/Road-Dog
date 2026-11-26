@@ -1,16 +1,16 @@
 #!/usr/bin/env bash
-# Personal Jarvis — macOS / Linux uninstaller
+# Road Dog — macOS / Linux uninstaller
 #
-# Usage (from any POSIX shell), on a machine where Jarvis is installed:
-#   bash ~/.personal-jarvis/install/uninstall.sh
-#   bash ~/.personal-jarvis/install/uninstall.sh --dry-run   # preview only
-#   bash ~/.personal-jarvis/install/uninstall.sh --yes       # no prompt
+# Usage (from any POSIX shell), on a machine where Road Dog is installed:
+#   bash ~/.road-dog/install/uninstall.sh
+#   bash ~/.road-dog/install/uninstall.sh --dry-run   # preview only
+#   bash ~/.road-dog/install/uninstall.sh --yes       # no prompt
 #
 # It removes four things a plain folder-delete would miss:
-#   1. the install folder (~/.personal-jarvis)
+#   1. the install folder (~/.road-dog)
 #   2. the macOS app bundle or Linux application-menu entry
 #   3. the login-autostart entry (~/.config/autostart or ~/Library/LaunchAgents)
-#   4. the API keys saved in the OS keychain (service "personal-jarvis")
+#   4. the API keys saved in the OS keychain (service "road-dog")
 #
 # Heavy logic lives in `python -m jarvis --uninstall` (cross-platform, tested).
 # This bootstrap runs that for the autostart + keys (it asks for confirmation),
@@ -20,12 +20,12 @@ set -euo pipefail
 
 # Standalone fallback projections of jarvis/core/branding.py. These remain
 # available even when a broken venv prevents importing the installed package.
-DEFAULT_INSTALL_DIR_NAME=".personal-jarvis"
-MACOS_APP_DIR_NAME="Personal Jarvis.app"
-MACOS_BUNDLE_ID="com.personal-jarvis.desktop"
-MACOS_AUTOSTART_LABEL="com.personal-jarvis.autostart"
-LINUX_DESKTOP_ENTRY_FILE_NAME="personal-jarvis.desktop"
-KEYRING_SERVICE_NAME="personal-jarvis"
+DEFAULT_INSTALL_DIR_NAME=".road-dog"
+MACOS_APP_DIR_NAME="Road Dog.app"
+MACOS_BUNDLE_ID="com.road-dog.desktop"
+MACOS_AUTOSTART_LABEL="com.road-dog.autostart"
+LINUX_DESKTOP_ENTRY_FILE_NAME="roaddog.desktop"
+KEYRING_SERVICE_NAME="road-dog"
 
 INSTALL_DIR="${JARVIS_INSTALL_DIR:-$HOME/$DEFAULT_INSTALL_DIR_NAME}"
 VENV_PYTHON="$INSTALL_DIR/.venv/bin/python"
@@ -95,10 +95,10 @@ stop_running_instances() {
         sleep 1
     fi
     n=$(echo "$pids" | wc -w | tr -d ' ')
-    ok "Stopped the running Jarvis app ($n process(es))."
+    ok "Stopped the running Road Dog app ($n process(es))."
 }
 
-step 'Uninstall Personal Jarvis'
+step 'Uninstall Road Dog'
 note "$INSTALL_DIR"
 
 # Is this a dry run? Then never touch the folder. --yes/-y skips every prompt
@@ -189,9 +189,9 @@ if [ "$DRY_RUN" -eq 0 ]; then
     stop_running_instances "$INSTALL_DIR"
     if ! rm -rf "$INSTALL_DIR"; then
         err "Could not fully remove $INSTALL_DIR — something is still using files inside it."
-        note 'Close every Jarvis window, then run this uninstaller again.'
+        note 'Close every Road Dog window, then run this uninstaller again.'
         exit 3
     fi
     ok "Removed $INSTALL_DIR"
-    step 'Done. Personal Jarvis has been uninstalled.'
+    step 'Done. Road Dog has been uninstalled.'
 fi

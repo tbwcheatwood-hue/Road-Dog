@@ -1,18 +1,18 @@
 # `install/` — Quick-install bootstrap
 
-This directory ships the one-liner installer for Personal Jarvis. Users
+This directory ships the one-liner installer for Road Dog. Users
 never read these files; they just paste the URL into their shell.
 
 ## End-user one-liner
 
 ```powershell
 # Windows (PowerShell)
-irm https://raw.githubusercontent.com/PersonalJarvis/PersonalJarvis/main/install/install.ps1 | iex
+irm https://raw.githubusercontent.com/tbwcheatwood-hue/Road-Dog/main/install/install.ps1 | iex
 ```
 
 ```bash
 # macOS / Linux
-curl -fsSL https://raw.githubusercontent.com/PersonalJarvis/PersonalJarvis/main/install/install.sh | bash
+curl -fsSL https://raw.githubusercontent.com/tbwcheatwood-hue/Road-Dog/main/install/install.sh | bash
 ```
 
 When Python 3.11+ and Git are already present, the installer is fully
@@ -29,7 +29,7 @@ app as its last action. Re-running the one-liner updates in place and never
 re-runs setup. `--headless` keeps the minimal torch-free base (the tiny-VPS /
 advanced path).
 
-GUI installs also register Personal Jarvis with the current desktop shell:
+GUI installs also register Road Dog with the current desktop shell:
 Windows Search and Installed Apps, Spotlight via a per-user macOS app bundle,
 or the Linux application menu. The in-app updater and first desktop launch
 repair these artifacts, and uninstall removes them again. Developer checkouts
@@ -38,7 +38,7 @@ and headless Linux hosts are deliberately not registered.
 On macOS, every launch path enters through the same app bundle so privacy
 grants stay attached to one identity. The source installer compiles a small
 native launcher (`jarvis/setup/macos_stub_launcher.c`) into
-`Personal Jarvis.app`, signs it with a per-user code-signing certificate it
+`Road Dog.app`, signs it with a per-user code-signing certificate it
 creates on the first run (macOS asks for the login password once to trust
 it; grants then survive every rebuild and update), verifies the identity from
 inside a LaunchServices process, and preserves the bundle unchanged across
@@ -49,8 +49,8 @@ claiming success if the full profile or app-bundle registration fails.
 
 Apple does not permit an installer to silently grant Microphone, Screen
 Recording, Accessibility, Input Monitoring or input-control access, so the
-installer asks for none of them and neither does the first launch. Personal
-Jarvis asks at the moment a feature you start needs a permission: the first
+installer asks for none of them and neither does the first launch. Road Dog
+asks at the moment a feature you start needs a permission: the first
 dictation asks for the microphone, the first screen capture asks for Screen
 Recording, and so on, each through Apple's own dialog or System Settings pane.
 If you decline, only that one feature is unavailable, with one click to the
@@ -71,7 +71,7 @@ helper use the same reviewed builds.
 For a manual source checkout, use `python scripts/pip_install.py -e '.[full]'`
 to select the supplemental index automatically. A raw `pip` or `pipx` install
 on Intel macOS or Windows ARM64 needs
-`--find-links https://personaljarvis.github.io/PersonalJarvis/native-crypto/50.0.2-1/simple/cryptography/`
+`--find-links https://tbwcheatwood-hue.github.io/Hue/native-crypto/50.0.2-1/simple/cryptography/`
 (pass it through `pipx --pip-args` when using pipx).
 
 Maintainers build both native wheels with the **Native cryptography wheels**
@@ -94,13 +94,13 @@ its `requirements.in`, enforced by `check_requirements_sync.py`.
 ```bash
 uv pip compile --universal --generate-hashes --emit-find-links \
   --python-version 3.11 --output-file=requirements.txt pyproject.toml \
-  --find-links https://personaljarvis.github.io/PersonalJarvis/native-crypto/50.0.2-1/simple/cryptography/ \
+  --find-links https://tbwcheatwood-hue.github.io/Hue/native-crypto/50.0.2-1/simple/cryptography/ \
   --config-file packaging/native-crypto-uv.toml \
   --default-index https://pypi.org/simple --keyring-provider disabled --no-progress --color never
 uv pip compile jarvis/assets/browser/pyproject.toml --universal --generate-hashes --emit-find-links \
   --python-version 3.12 --no-header --output-file=jarvis/assets/browser/requirements.lock \
   --config-file packaging/native-crypto-uv.toml \
-  --find-links https://personaljarvis.github.io/PersonalJarvis/native-crypto/50.0.2-1/simple/cryptography/ \
+  --find-links https://tbwcheatwood-hue.github.io/Hue/native-crypto/50.0.2-1/simple/cryptography/ \
   --default-index https://pypi.org/simple --keyring-provider disabled
 uv lock --config-file packaging/native-crypto-uv.toml --default-index https://pypi.org/simple
 ```
@@ -146,8 +146,8 @@ shell and PowerShell version. The safest pattern for ad-hoc testing is to
 clone manually and call `installer.py` directly:
 
 ```bash
-git clone https://github.com/PersonalJarvis/PersonalJarvis ~/.personal-jarvis
-cd ~/.personal-jarvis && python -m venv .venv
+git clone https://github.com/tbwcheatwood-hue/Road-Dog ~/.road-dog
+cd ~/.road-dog && python -m venv .venv
 . .venv/bin/activate           # Windows: .\.venv\Scripts\Activate.ps1
 pip install rich packaging
 python install/installer.py --dry-run
@@ -161,12 +161,12 @@ previews, `--yes` skips the confirmation:
 
 ```powershell
 # Windows (PowerShell)
-& "$env:USERPROFILE\.personal-jarvis\install\uninstall.ps1"
+& "$env:USERPROFILE\.road-dog\install\uninstall.ps1"
 ```
 
 ```bash
 # macOS / Linux
-bash ~/.personal-jarvis/install/uninstall.sh
+bash ~/.road-dog/install/uninstall.sh
 ```
 
 If that script is missing or refuses to start, the app uninstalls itself. This
@@ -176,12 +176,12 @@ on macOS at all:
 
 ```bash
 # macOS / Linux
-~/.personal-jarvis/.venv/bin/python -m jarvis --uninstall
+~/.road-dog/.venv/bin/python -m jarvis --uninstall
 ```
 
 ```powershell
 # Windows (PowerShell)
-& "$env:USERPROFILE\.personal-jarvis\.venv\Scripts\python.exe" -m jarvis --uninstall
+& "$env:USERPROFILE\.road-dog\.venv\Scripts\python.exe" -m jarvis --uninstall
 ```
 
 ## Environment overrides
@@ -190,7 +190,7 @@ on macOS at all:
 |---------------------------|--------|
 | `JARVIS_INSTALL_REPO`     | Clone from a fork instead of the upstream repo. |
 | `JARVIS_INSTALL_REF`      | Use a branch/tag/SHA other than `main`. |
-| `JARVIS_INSTALL_DIR`      | Install to a directory other than `~/.personal-jarvis`. |
+| `JARVIS_INSTALL_DIR`      | Install to a directory other than `~/.road-dog`. |
 | `JARVIS_INSTALL_PREREQS`  | `ask` (default), `auto` (explicit unattended consent), or `never`. |
 | `JARVIS_PYTHON`           | Use one explicit Python interpreter; the pin is authoritative. |
 | `JARVIS_INSTALL_NO_PIP`   | Skip the pip steps (re-run only prefetch / launch). |
@@ -219,10 +219,10 @@ Before that flip:
 2. Strip Maintainer-only paths: `data/_final_verdict_runtime/`, `data/workspace/`, `data/sessions.db` removed from history (consider `git filter-repo`).
 3. Confirm `.env` is in `.gitignore` and never committed.
 4. Smoke-test the one-liner on a clean VM (Win11 fresh box, Ubuntu 22.04 server, macOS).
-5. Flip visibility: `gh repo edit PersonalJarvis/PersonalJarvis --visibility public --accept-visibility-change-consequences`.
+5. Flip visibility: `gh repo edit tbwcheatwood-hue/Road-Dog --visibility public --accept-visibility-change-consequences`.
 
 ## Future work (not in this PR)
 
 - CI smoke workflow `.github/workflows/install-test.yml` — fresh runner per platform, fakes API keys, asserts exit code 0.
-- `personal-jarvis update` console script — opencode parity.
-- Vercel shortener `jarvis-install.vercel.app` → raw.githubusercontent.com.
+- `road-dog update` console script — opencode parity.
+- Vercel shortener `road-dog-install.vercel.app` → raw.githubusercontent.com.

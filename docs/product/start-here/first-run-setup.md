@@ -1,7 +1,7 @@
 ---
 title: "Complete First-Run Setup"
 slug: first-run-setup
-summary: "Your pet explains the app, then you add one key, connect a subscription, pick a wake word and try ten first steps."
+summary: "Sam walks you through setup, then you add one key, pick a wake word and try ten first steps."
 section: "Start here"
 section_order: 1
 order: 3
@@ -16,10 +16,9 @@ related: [providers-and-api-keys, audio-and-wake-word, permissions, start-your-f
 ---
 
 First-run setup happens inside the real app. There is no separate setup
-screen: the window dims and your desktop pet (chosen under **Settings > My
-Pets**) walks you to the places where each thing is really set, explains them
-in a speech bubble, and waits there. A short tour and ten small first steps
-follow and let you try the assistant for real.
+screen: the window dims and Sam walks you to the places where each thing is
+really set, explains them in a speech bubble, and waits there. A short tour and
+ten small first steps follow and let you try the companion for real.
 
 ## Before You Start
 
@@ -50,14 +49,14 @@ at once; it is recorded as done and the app restarts once.
 
 ### 2. How it works
 
-Before anything is set up, the pet walks the real interface and explains how
-everything runs through one assistant: you talk to it in the composer, it
+Before anything is set up, Sam walks the real interface and explains how
+everything runs through one companion: you talk to Sam in the composer, Sam
 thinks with an AI model, uses tools (your computer, the browser and connected
 apps from **Plugins**), hands bigger jobs to **Agents**, works with coding
 agents in the **Agentic IDE**, keeps results in **Artifacts**, remembers what
 matters, and asks before anything with real consequences. **Next** and
 **Back** move through it, the dots show where you are, **Skip** goes straight
-to the keys. Nothing is changed while the pet explains.
+to the keys. Nothing is changed while Sam explains.
 
 ### 3. Add one API key
 
@@ -93,8 +92,8 @@ once there is one. **I'll connect one later** moves on.
 ### 5. Choose your wake word
 
 Setup opens **Settings** at the **Wake Word** group. **Hey** is fixed; type
-your own word after it and save. The word also becomes the assistant's name,
-for example **Hey Nova** makes an assistant called Nova. The card confirms when
+your own word after it and save. The word also becomes Sam's name,
+for example **Hey Sam** makes the companion called Sam. The card confirms when
 the wake word is on, and **Continue** unlocks once one is saved. Without a
 wake word, choose **Skip, I'll use the Call shortcut**; the Call keyboard
 shortcut then starts a conversation. On a Mac, switching the wake word on is
@@ -111,7 +110,7 @@ it. **Show me around** starts the tour.
 ## Take the Tour
 
 The tour follows setup straight away. It dims the window, lights up one part
-of the real interface at a time, and the pet explains it: the voice bar, a new
+of the real interface at a time, and Sam explains it: the voice bar, a new
 chat, the agents' world, Voice, and Settings. What the setup walk already
 covered is not repeated.
 
@@ -122,24 +121,24 @@ covered is not repeated.
 - When the tour ends (or is skipped), setup is saved and the app restarts once
   so every choice takes effect together.
 - Do it all again anytime under **Settings > App > Do the onboarding again**.
-  The replay starts at the pet's explanation and never restarts anything.
+  The replay starts at Sam's explanation and never restarts anything.
 
 ## Try the First Steps
 
-After the first tour, the pet stays in the bottom-right corner with ten small
-things to try for real: wake the assistant, ask a first question, let it use a
-tool, let it look at your screen, teach it something, have it make an
+After the first tour, Sam stays in the bottom-right corner with ten small
+things to try for real: wake Sam, ask a first question, let Sam use a
+tool, let Sam look at your screen, teach Sam something, have Sam make an
 artifact, hand a big job to an agent, meet your agents, connect an app, and
 open the Agentic IDE.
 
 - Each step shows one example. **Send it for me** sends exactly that message;
   it is a real request and bills your connected model like any other.
-- The pet waits until the app reports that the step really happened, then
+- Sam waits until the app reports that the step really happened, then
   explains what went on and where to see the result.
-- **Skip this one** moves on; the arrow tucks the pet into a small pill; the
+- **Skip this one** moves on; the arrow tucks Sam into a small pill; the
   cross closes the guide. It never blocks the app.
 - Start it again under **Settings > App > First steps**.
-- Stuck at any point? Ask the assistant; it can open any part of the app for
+- Stuck at any point? Ask Sam; Sam can open any part of the app for
   you.
 
 ## Recover a Skipped or Deferred Choice
@@ -148,7 +147,7 @@ open the Agentic IDE.
 - Connect and test models under **API Keys**; the same page connects coding
   agents by key or subscription.
 - Repair macOS access in **System Settings > Privacy & Security**; when a feature
-  you started needs a permission, Personal Jarvis shows one short message with a
+  you started needs a permission, Road Dog shows one short message with a
   button that opens it. [App Permissions](permissions) explains how to start over.
 - Change the phrase, spoken wake language, activation switch, or local wake
   pack under **Settings > Wake Word**, and the Call shortcut under **Settings >
@@ -162,7 +161,7 @@ open the Agentic IDE.
    later, so what you learn on day one is where things live.
 3. One key is enough to start. A starter plan points live voice and its
    thinking model at the same key; any other single Brain key works too.
-4. The wake phrase supplies both local activation and the assistant's name.
+4. The wake phrase supplies both local activation and Sam's name.
    The Call shortcut starts voice without an always-listening wake engine.
 5. Permissions allow an operating-system capability; they do not approve a
    later Computer Use action or bypass its safety check.

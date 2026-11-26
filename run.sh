@@ -1,12 +1,12 @@
 #!/usr/bin/env sh
-# Personal Jarvis - POSIX launcher (macOS + Linux). Parity twin of run.bat.
+# Road Dog - POSIX launcher (macOS + Linux). Parity twin of run.bat.
 #
 # Usage: ./run.sh [--debug|--headless|--dev]
 #   --debug     verbose logging, foreground console
 #   --headless  API/WS backend only, no desktop window or voice
 #   --dev       frontend served from the Vite dev server (port 5173)
 #
-# Runs in the foreground (Ctrl+C stops Jarvis); append `&` to detach.
+# Runs in the foreground (Ctrl+C stops Road Dog); append `&` to detach.
 set -u
 cd "$(dirname "$0")" || exit 1
 

@@ -1,4 +1,4 @@
-"""Personal Jarvis Stage-2 installer.
+"""Road Dog Stage-2 installer.
 
 The Stage-1 shell bootstraps a venv with ``rich`` + ``packaging`` and then
 ``exec``s this script with the venv's Python. From here we own the full
@@ -828,7 +828,7 @@ def step_launch(*, headless: bool, dry_run: bool) -> None:
 
 
 def step_cli_links(*, dry_run: bool) -> None:
-    """Make `jarvis` / `personal-jarvis` plain terminal commands on every OS.
+    """Make `jarvis` / `road-dog` plain terminal commands on every OS.
 
     The venv's console scripts are linked (macOS/Linux, ``~/.local/bin``) or
     copied (Windows, ``<install>\\bin``) onto the user's PATH — see
@@ -904,7 +904,7 @@ def step_summary(*, no_launch: bool, update: bool, headless: bool) -> None:
     # Most installs never find their way back to the repo page; one quiet line
     # in the finale is the only place a new user learns how to support it.
     rows.append(("Like it?", "a GitHub star helps others find it:", "muted"))
-    rows.append(("", "github.com/PersonalJarvis/PersonalJarvis", "brand"))
+    rows.append(("", "github.com/tbwcheatwood-hue/Road-Dog", "brand"))
 
     title = f"{PRODUCT_NAME} is {'updated' if update else 'ready'}"
     key_w = 13

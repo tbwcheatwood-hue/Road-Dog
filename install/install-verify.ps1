@@ -1,7 +1,7 @@
-# Personal Jarvis — verifying one-liner for Windows (Wave 3 supply-chain).
+# Road Dog — verifying one-liner for Windows (Wave 3 supply-chain).
 #
 # Usage:
-#   irm https://github.com/PersonalJarvis/PersonalJarvis/releases/download/<TAG>/install-verify.ps1 | iex
+#   irm https://github.com/tbwcheatwood-hue/Road-Dog/releases/download/<TAG>/install-verify.ps1 | iex
 #
 # Wave 3 demands 3-of-3 independent trust axes — all must validate or the
 # verifier refuses to hand off to install.ps1:
@@ -18,7 +18,7 @@
 #                               install.ps1.cosign.sig (Wave 2 addition).
 #
 #   Axis C (build-env, SLSA L3 + in-toto layout): slsa-verifier checks the
-#                               SLSA L3 provenance (personal-jarvis.intoto.jsonl)
+#                               SLSA L3 provenance (road-dog.intoto.jsonl)
 #                               for the installer artifact AND the verifier
 #                               cross-checks the in-toto layout's pinned
 #                               functionary identity-regexp against the
@@ -51,7 +51,7 @@ $ErrorActionPreference = 'Stop'
 
 # ------------------------------------------------------------------- pins
 $EXPECTED_REPO = "$env:JARVIS_OFFICIAL_REPO_SLUG"
-if (-not $EXPECTED_REPO) { $EXPECTED_REPO = 'PersonalJarvis/PersonalJarvis' }
+if (-not $EXPECTED_REPO) { $EXPECTED_REPO = 'tbwcheatwood-hue/Road-Dog' }
 if ($EXPECTED_REPO -notmatch '^[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+$') {
     throw 'JARVIS_OFFICIAL_REPO_SLUG must be an exact owner/repository slug'
 }
@@ -168,7 +168,7 @@ $EXPECTED_INTOTO_IDENTITY_REGEXP = "^https://github\.com/$ExpectedRepoRegex/\.gi
 
 # Filename of the SLSA L3 provenance attestation. The release uploads
 # this file under exactly this name; SA-2 owns the workflow contract.
-$SLSA_PROVENANCE_FILENAME = 'personal-jarvis.intoto.jsonl'
+$SLSA_PROVENANCE_FILENAME = 'road-dog.intoto.jsonl'
 
 # Filename of the content-anchor layout assertion uploaded to the release.
 # Wave-5 audit Finding 3 renamed this from `layout.template.json` to

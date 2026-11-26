@@ -18,15 +18,15 @@ def default_core_memory() -> dict[str, Any]:
     """Minimal defaults for the first run. Overridden by the user via wizard/runtime."""
     return {
         "persona": {
-            "name": "Jarvis",
-            "role": "Voice-gesteuerter Meta-Orchestrator",
-            "style": "hilfsbereit, präzise, auf Deutsch",  # i18n-allow
+            "name": "Sam",
+            "role": "AI companion",
+            "style": "loyal, resourceful, knowledgeable, dependable",
         },
         "user_facts": {},
         "preferences": {
             "confirmation_fatigue": "low",
-            "language_default": "de",
-            "voice": "Algieba",
+            "language_default": "en",
+            "voice": "male",
         },
         "current_projects": {},
     }

@@ -1,7 +1,7 @@
 # Resolver-only metadata for the isolated Python 3.12 browser environment.
 # requirements.in mirrors these dependencies; the dependency-sync gate checks it.
 [project]
-name = "personal-jarvis-browser-lock"
+name = "road-dog-browser-lock"
 version = "0"
 requires-python = ">=3.12"
 dependencies = [
@@ -16,5 +16,5 @@ cryptography = { index = "native-crypto" }
 
 [[tool.uv.index]]
 name = "native-crypto"
-url = "https://personaljarvis.github.io/PersonalJarvis/native-crypto/50.0.2-1/simple/"
+url = "https://tbwcheatwood-hue.github.io/Hue/native-crypto/50.0.2-1/simple/"
 explicit = true

@@ -1,29 +1,28 @@
 @echo off
-REM Personal Jarvis — Windows Launcher
-REM Startet Jarvis im User-Context (kein Admin nötig)
+REM Road Dog — Windows Launcher
+REM Starts Road Dog in the user context (no admin required)
 
 setlocal
 cd /d "%~dp0"
 
-REM Aktiviere venv wenn vorhanden
+REM Activate venv when present
 if exist ".venv\Scripts\activate.bat" (
     call .venv\Scripts\activate.bat
 )
 
-REM Pre-Boot-Drift-Check: restore any tracked files that vanished from
-REM the working tree (see scripts/check-working-tree.ps1 docblock for the
-REM 2026-05-14 incident this guards against). Always exits 0; never blocks
-REM boot. Skipped silently when PowerShell is unavailable.
+REM Pre-boot drift check: restore any tracked files that vanished from
+REM the working tree. Always exits 0; never blocks boot. Skipped silently
+REM when PowerShell is unavailable.
 if exist "scripts\check-working-tree.ps1" (
     powershell -NoProfile -ExecutionPolicy Bypass -File "scripts\check-working-tree.ps1"
 )
 
-REM Starte Jarvis Desktop-App (Phase 1a: FastAPI + pywebview + React).
-REM --debug → Console sichtbar, --headless → nur Backend ohne Fenster,
-REM --dev → Frontend aus Vite-Dev-Server (Port 5173) statt dist/.
+REM Start Road Dog desktop app (FastAPI + pywebview + React).
+REM --debug → Console visible, --headless → backend only without window,
+REM --dev → Frontend from Vite dev server (port 5173) instead of dist/.
 if "%1"=="--debug" (
-    REM --debug ist batch-lokal: Console sichtbar + Verbose-Logging.
-    REM Weiterreichen an den Launcher wuerde argparse-Fehler ausloesen.
+    REM --debug is batch-local: console visible + verbose logging.
+    REM Forwarding it to the launcher would trip argparse.
     set JARVIS_DEBUG=1
     python -m jarvis.ui.web.launcher
 ) else if "%1"=="--headless" (

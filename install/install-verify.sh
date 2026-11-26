@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
-# Personal Jarvis — verifying one-liner (Wave 3 supply-chain).
+# Road Dog — verifying one-liner (Wave 3 supply-chain).
 #
 # The user runs:
-#   curl -fsSL https://github.com/PersonalJarvis/PersonalJarvis/releases/download/<TAG>/install-verify.sh | bash
+#   curl -fsSL https://github.com/tbwcheatwood-hue/Road-Dog/releases/download/<TAG>/install-verify.sh | bash
 #
 # Wave 3 demands 3-of-3 independent trust axes — all must validate or the
 # verifier refuses to hand off to install.sh:
@@ -19,7 +19,7 @@
 #                               install.sh.cosign.sig (Wave 2 addition).
 #
 #   Axis C (build-env, SLSA L3 + in-toto layout): slsa-verifier checks the
-#                               SLSA L3 provenance (personal-jarvis.intoto.jsonl)
+#                               SLSA L3 provenance (road-dog.intoto.jsonl)
 #                               for the installer artifact AND the verifier
 #                               cross-checks the in-toto layout's pinned
 #                               functionary identity-regexp against the Fulcio
@@ -67,7 +67,7 @@ set -euo pipefail
 
 # Owning repo (for the OIDC identity regex). The override supports an official
 # repository move while keeping the current identity as the fail-closed default.
-readonly DEFAULT_OFFICIAL_REPO_SLUG="PersonalJarvis/PersonalJarvis"
+readonly DEFAULT_OFFICIAL_REPO_SLUG="tbwcheatwood-hue/Road-Dog"
 EXPECTED_REPO="${JARVIS_OFFICIAL_REPO_SLUG:-$DEFAULT_OFFICIAL_REPO_SLUG}"
 if [[ ! "$EXPECTED_REPO" =~ ^[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+$ ]]; then
     printf 'JARVIS_OFFICIAL_REPO_SLUG must be an exact owner/repository slug\n' >&2
@@ -249,7 +249,7 @@ unset _expected_repo_regex
 # Filename of the SLSA L3 provenance attestation emitted by the workflow.
 # Decoupled from the artifact name so the verifier survives a workflow
 # rename; the release uploads the file under exactly this name.
-readonly SLSA_PROVENANCE_FILENAME="personal-jarvis.intoto.jsonl"
+readonly SLSA_PROVENANCE_FILENAME="road-dog.intoto.jsonl"
 
 # Filename of the content-anchor layout assertion uploaded to the
 # release. Wave-5 audit Finding 3 renamed this from `layout.template.json`

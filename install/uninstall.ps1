@@ -1,16 +1,16 @@
-# Personal Jarvis - Windows uninstaller
+# Road Dog - Windows uninstaller
 #
-# Usage (from PowerShell), on a machine where Jarvis is installed:
-#   & "$env:USERPROFILE\.personal-jarvis\install\uninstall.ps1"
-#   & "$env:USERPROFILE\.personal-jarvis\install\uninstall.ps1" --dry-run   # preview
-#   & "$env:USERPROFILE\.personal-jarvis\install\uninstall.ps1" --yes       # no prompt
+# Usage (from PowerShell), on a machine where Road Dog is installed:
+#   & "$env:USERPROFILE\.road-dog\install\uninstall.ps1"
+#   & "$env:USERPROFILE\.road-dog\install\uninstall.ps1" --dry-run   # preview
+#   & "$env:USERPROFILE\.road-dog\install\uninstall.ps1" --yes       # no prompt
 #
 # It removes four things a plain folder-delete would miss:
-#   1. the install folder (~\.personal-jarvis)
+#   1. the install folder (~\.road-dog)
 #   2. the Start-menu launcher and Installed Apps registration
 #   3. the login-autostart entry (a logon scheduled task / Startup shortcut)
 #   4. the API keys saved in the OS keychain (Windows Credential Manager, service
-#      "personal-jarvis")
+#      "road-dog")
 #
 # Heavy logic lives in `python -m jarvis --uninstall` (cross-platform, tested).
 # This bootstrap runs that for the autostart + keys (it asks for confirmation),
@@ -55,20 +55,20 @@ function Stop-JarvisProcesses([string]$Root) {
     foreach ($p in $Procs) {
         try { Wait-Process -Id $p.Id -Timeout 10 -ErrorAction SilentlyContinue } catch {}
     }
-    Write-Ok "Stopped the running Jarvis app ($($Procs.Count) process(es))."
+    Write-Ok "Stopped the running Road Dog app ($($Procs.Count) process(es))."
 }
 
 # Standalone fallback projections of jarvis/core/branding.py. These remain
 # available even when a broken venv prevents importing the installed package.
-$DefaultInstallDirName = '.personal-jarvis'
-$WindowsShortcutFileName = 'Personal Jarvis.lnk'
-$WindowsUninstallRegistrySubkey = 'Software\Microsoft\Windows\CurrentVersion\Uninstall\PersonalJarvis'
-$WindowsAppUserModelId = 'PersonalJarvis.PersonalJarvis'
+$DefaultInstallDirName = '.road-dog'
+$WindowsShortcutFileName = 'Road Dog.lnk'
+$WindowsUninstallRegistrySubkey = 'Software\Microsoft\Windows\CurrentVersion\Uninstall\RoadDog'
+$WindowsAppUserModelId = 'RoadDog.RoadDog'
 
 $InstallDir = if ($env:JARVIS_INSTALL_DIR) { $env:JARVIS_INSTALL_DIR } else { Join-Path $env:USERPROFILE $DefaultInstallDirName }
 $VenvPython = Join-Path $InstallDir '.venv\Scripts\python.exe'
 
-Write-Step 'Uninstall Personal Jarvis'
+Write-Step 'Uninstall Road Dog'
 Write-Note $InstallDir
 
 $DryRun    = $args -contains '--dry-run'
@@ -132,10 +132,10 @@ if (-not $DryRun) {
     }
     if (-not $Deleted -and (Test-Path -LiteralPath $InstallDir)) {
         Write-Err "Could not fully remove $InstallDir - a program is still using files inside it."
-        Write-Note 'Close every Jarvis window (including the tray icon near the clock) and any terminal opened inside that folder, then run this uninstaller again.'
+        Write-Note 'Close every Road Dog window (including the tray icon near the clock) and any terminal opened inside that folder, then run this uninstaller again.'
         Write-Note 'Signing out of Windows and back in also releases leftover file locks.'
         exit 3
     }
     Write-Ok "Removed $InstallDir"
-    Write-Step 'Done. Personal Jarvis has been uninstalled.'
+    Write-Step 'Done. Road Dog has been uninstalled.'
 }

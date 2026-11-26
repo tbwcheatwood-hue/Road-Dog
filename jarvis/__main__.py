@@ -130,6 +130,11 @@ def _build_parser() -> argparse.ArgumentParser:
                              "(phantom tools, dead harness config, sub-agent "
                              "worker CLI, brain provider). Exits non-zero on a "
                              "hard failure.")
+    parser.add_argument("--readiness", action="store_true", dest="readiness",
+                        help="First-run readiness dashboard: model connectivity, "
+                             "inference, voice, tools, agents, computer-use "
+                             "permissions, storage, and optional integrations. "
+                             "Use --readiness --json for machine-readable output.")
     parser.add_argument(
         "--reset-onboarding",
         action="store_true",
@@ -619,6 +624,29 @@ def main(argv: list[str] | None = None) -> int:
         return _cmd_orb_doctor()
     if args.doctor:
         return _cmd_doctor(as_json=args.json_output)
+    if args.readiness:
+        from jarvis.setup.readiness import run_all_checks
+        import json as _json
+        if args.json_output:
+            print(_json.dumps(run_all_checks(), indent=2))
+        else:
+            report = run_all_checks()
+            print(f"Road Dog {__version__} — Readiness Dashboard")
+            print("=" * 60)
+            for area, data in report.items():
+                if area.startswith("_"):
+                    continue
+                icon = {"ok": "[ OK ]", "warn": "[WARN]", "fail": "[FAIL]", "skip": "[ -- ]"}.get(data["overall"], "[ ?? ]")
+                print(f"\n{icon} {area.replace('_', ' ').title()}")
+                for c in data["checks"]:
+                    cicon = {"ok": "   [OK ]", "warn": "   [WARN]", "fail": "   [FAIL]", "skip": "   [ -- ]"}.get(c["status"], "   [ ?? ]")
+                    print(f"{cicon} {c['name']} — {c['detail']}")
+                    if c["fix"]:
+                        print(f"            → {c['fix']}")
+            print("\n" + "=" * 60)
+            print(f"Overall: {report['_overall'].upper()}")
+            print(f"Sam says: {report['_sam_greeting']}")
+            return 1 if report["_overall"] == "fail" else 0
     if args.install_admin_helper:
         return _cmd_install_admin_helper()
     if args.uninstall:

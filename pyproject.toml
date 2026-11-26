@@ -8,9 +8,9 @@ requires = ["setuptools>=83", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "personal-jarvis"
-version = "3.1.1"
-description = "Turn your computer into an AI agent that coordinates apps, tools, models, and other agents"
+name = "road-dog"
+version = "1.0.0"
+description = "Road Dog — Your AI. Your crew. Your road. Sam(wise) is your AI agent companion for the desktop."
 requires-python = ">=3.11,<3.15"
 readme = "README.md"
 # Apache-2.0 from 2.0.0 on. Releases up to 1.6.0 shipped MIT and stay MIT —
@@ -257,11 +257,11 @@ dependencies = [
 # These are the sidebar of the PyPI project page — for many visitors the first
 # and only place they meet the project, so every route out of it is listed.
 [project.urls]
-Homepage = "https://github.com/PersonalJarvis/PersonalJarvis"
-Repository = "https://github.com/PersonalJarvis/PersonalJarvis"
-Issues = "https://github.com/PersonalJarvis/PersonalJarvis/issues"
-Documentation = "https://github.com/PersonalJarvis/PersonalJarvis/blob/main/README.md"
-Changelog = "https://github.com/PersonalJarvis/PersonalJarvis/blob/main/CHANGELOG.md"
+Homepage = "https://github.com/tbwcheatwood-hue/Road-Dog"
+Repository = "https://github.com/tbwcheatwood-hue/Road-Dog"
+Issues = "https://github.com/tbwcheatwood-hue/Road-Dog/issues"
+Documentation = "https://github.com/tbwcheatwood-hue/Road-Dog/blob/main/README.md"
+Changelog = "https://github.com/tbwcheatwood-hue/Road-Dog/blob/main/CHANGELOG.md"
 Discord = "https://discord.gg/x7USduHxbc"
 
 [project.optional-dependencies]
@@ -272,7 +272,7 @@ dev = [
     # packages were base dependencies until the cloud-first split; tests still
     # construct them, so the dev/CI environment keeps them via this self-reference
     # while the base install stays lean.
-    "personal-jarvis[desktop,local-voice]",
+    "road-dog[desktop,local-voice]",
     "pytest>=8.3",
     "pytest-asyncio>=0.24",
     "pytest-cov>=6.0",
@@ -289,7 +289,7 @@ dev = [
 # native-engine-minimal floor for CI and tiny headless servers; users are pointed
 # at [full].
 full = [
-    "personal-jarvis[desktop,desktop-macos,telephony,channels,local-voice]",
+    "road-dog[desktop,desktop-macos,telephony,channels,local-voice]",
 ]
 # Twilio telephony voice agent (call Jarvis on a phone number). Optional extra
 # per the cloud-first doctrine: the base install must boot without it, and the
@@ -394,7 +394,7 @@ desktop = [
 # into [full] would break the one advertised install path on a stock
 # python:3.11-slim image — exactly what the cloud-first rule forbids. So it
 # lives here: a Linux desktop user who wants a global dictation/call shortcut
-# installs ``personal-jarvis[desktop-linux]`` (needs a C compiler and
+# installs ``road-dog[desktop-linux]`` (needs a C compiler and
 # linux-headers), and everyone else gets the honest, logged no-op instead of a
 # failed install.
 #
@@ -500,16 +500,15 @@ tts-eval = [
 
 [project.scripts]
 jarvis = "jarvis.__main__:main"
-# Same entry point under the product name, so `personal-jarvis` in a terminal
-# starts (and `personal-jarvis update` updates) the app exactly like `jarvis`.
-# Never add a `personaljarvis` alias: Windows paths ignore case, and the venv's
-# Scripts folder already holds `PersonalJarvis.exe`, the branded launcher.
-personal-jarvis = "jarvis.__main__:main"
+roaddog = "jarvis.__main__:main"
+# Same entry point under the product name, so `road-dog` in a terminal
+# starts (and `road-dog update` updates) the app exactly like `jarvis`.
+road-dog = "jarvis.__main__:main"
 # Phase 8.5 — Review-Pipeline-Run-GC (Plan §6.5).
 jarvis-review-gc = "jarvis.cli.review_gc:main"
 # Phase 8.6 — Review-Pipeline-Eval-Harness (Plan §6.6).
 jarvis-review-eval = "jarvis.cli.review_eval:main"
-# jarvisctl — control CLI for a running Personal Jarvis instance.
+# roaddogctl — control CLI for a running Road Dog instance.
 jarvisctl = "jarvis.cli_ctl.__main__:main"
 jctl = "jarvis.cli_ctl.__main__:main"
 
@@ -937,7 +936,7 @@ jarvis = [
 ]
 
 [tool.setuptools.data-files]
-"share/personal-jarvis/docs" = ["docs/product/**/*.md"]
+"share/road-dog/docs" = ["docs/product/**/*.md"]
 
 [tool.ruff]
 line-length = 100
@@ -976,7 +975,7 @@ markers = [
 # Only cryptography may resolve through the reviewed native wheel index.
 [[tool.uv.index]]
 name = "native-crypto"
-url = "https://personaljarvis.github.io/PersonalJarvis/native-crypto/50.0.2-1/simple/"
+url = "https://tbwcheatwood-hue.github.io/Hue/native-crypto/50.0.2-1/simple/"
 explicit = true
 
 [tool.uv.sources]
