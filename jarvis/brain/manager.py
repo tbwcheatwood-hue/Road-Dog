@@ -3730,6 +3730,10 @@ class BrainManager:
         ``_cu_context_lines`` reads).
         """
         tools = tools_override if tools_override is not None else self._tools
+        if self._chat_hides_society():
+            from jarvis.society.chat_gate import drop_society_hands
+
+            tools = drop_society_hands(tools)
         system_prompt = self._build_system_prompt()
         history = _TURN_HISTORY_OVERRIDE.get()
         if history is None:
@@ -4450,7 +4454,10 @@ class BrainManager:
         # briefing (TurnOverride.system_extra), and a specialist must not be
         # told it is the lead.
         _turn_override = _TURN_OVERRIDE.get()
-        if _turn_override is None or not _turn_override.system_extra:
+        if (
+            (_turn_override is None or not _turn_override.system_extra)
+            and not self._chat_hides_society()
+        ):
             try:
                 from jarvis.society.lead_card import lead_card_section
 
@@ -5191,6 +5198,16 @@ class BrainManager:
         self._jarvis_agent_status_fn = status_fn
         self._jarvis_agent_cancel_fn = cancel_fn
 
+    def _chat_hides_society(self) -> bool:
+        """Front-page chat turns drop society hands while that switch is off."""
+        from jarvis.society.chat_gate import chat_turn_hides_society
+
+        override = _TURN_OVERRIDE.get()
+        origin = ""
+        if override is not None:
+            origin = str(override.tool_context.get("tool_origin") or "")
+        return chat_turn_hides_society(origin)
+
     def _live_tool_names(self) -> tuple[str, ...]:
         """Names of every tool attached RIGHT NOW — the honest-refusal evidence.
 
@@ -5243,6 +5260,10 @@ class BrainManager:
         # five tool names no provider request carries.
         hidden = set(getattr(self, "_local_action_tools", None) or {})
         names = [n for n in self._live_tool_names() if n not in hidden]
+        if self._chat_hides_society():
+            from jarvis.society.chat_gate import is_society_hand
+
+            names = [n for n in names if not is_society_hand(n)]
         if not names:
             return ""
 

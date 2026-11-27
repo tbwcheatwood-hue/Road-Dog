@@ -67,6 +67,39 @@ RECOMMENDED_VISION_PULL = "qwen3-vl"
 # for minutes — hence the wide read timeout.
 CLIENT_TIMEOUT = httpx.Timeout(connect=2.0, read=120.0, write=30.0, pool=30.0)
 
+# Ollama 0.40 allocates this many tokens when a model has no ``num_ctx``
+# parameter. The GGUF's ``context_length`` is the maximum, not the allocation.
+# Live check: ``/api/ps`` reported ``context_length: 4096`` for an otherwise
+# untouched import whose architecture window is 131072.
+_OLLAMA_DEFAULT_NUM_CTX = 4096
+
+
+def _same_model_tag(left: str, right: str) -> bool:
+    """True when two Ollama tags name the same model, ignoring ``:latest``."""
+
+    def _norm(tag: str) -> str:
+        tag = tag.strip()
+        return tag[:-7] if tag.endswith(":latest") else tag
+
+    left_norm = _norm(left)
+    return bool(left_norm) and left_norm == _norm(right)
+
+
+def _parameter_num_ctx(parameters: object) -> int | None:
+    """Read ``num_ctx`` from an ``/api/show`` parameters block, if it is set."""
+    if not isinstance(parameters, str):
+        return None
+    for line in parameters.splitlines():
+        parts = line.split()
+        if len(parts) >= 2 and parts[0] == "num_ctx":
+            try:
+                value = int(parts[1])
+            except ValueError:
+                continue
+            if value > 0:
+                return value
+    return None
+
 
 def normalize_server_root(url: str) -> str:
     """Normalize a user/env-supplied Ollama address to a bare server root.
@@ -212,9 +245,13 @@ class OllamaBrain:
             self._client = AsyncOpenAI(
                 # A local Ollama ignores the key entirely, but the SDK insists
                 # on a non-empty one; a team proxy swaps in its real token.
+                # Read is longer than CLIENT_TIMEOUT: a CPU box evaluating the
+                # ~20k-token chat prompt sends no byte until that finishes, and
+                # 120s expires first (live 2026-11-27). Connect stays at 2s so
+                # a dead server still fails fast.
                 api_key=self._credential or "ollama",
                 base_url=f"{root}/v1",
-                timeout=CLIENT_TIMEOUT,
+                timeout=httpx.Timeout(connect=2.0, read=600.0, write=120.0, pool=30.0),
                 max_retries=0,
             )
         return self._client
@@ -432,6 +469,64 @@ class OllamaBrain:
                 or provider.models.get(model.removesuffix(":latest"))
                 or provider.models.get(f"{model}:latest"))
 
+    async def _context_ceiling(self, model: str) -> tuple[int, int] | None:
+        """``(allocated, native)`` context for ``model``, or ``None`` if unknown.
+
+        ``allocated`` is what the next request gets today: the running
+        ``/api/ps`` window, else the modelfile ``num_ctx``, else Ollama's
+        4096 default. ``native`` is the architecture maximum and is never
+        below ``allocated``. A server that cannot be asked returns ``None``
+        so the turn still runs on the base model.
+        """
+        root = self._resolve_root()
+        try:
+            async with httpx.AsyncClient(
+                timeout=httpx.Timeout(connect=2.0, read=5.0, write=5.0, pool=5.0),
+                headers=self._native_headers(),
+            ) as client:
+                running = await client.get(f"{root}/api/ps")
+                running.raise_for_status()
+                allocated_running: int | None = None
+                for row in running.json().get("models") or []:
+                    if not isinstance(row, dict):
+                        continue
+                    name = str(row.get("name") or row.get("model") or "")
+                    if not _same_model_tag(name, model):
+                        continue
+                    ctx = row.get("context_length")
+                    if isinstance(ctx, int) and not isinstance(ctx, bool) and ctx > 0:
+                        allocated_running = ctx
+                        break
+                # The running window is the allocation, not the architecture
+                # maximum. /api/show still has to supply that maximum so a
+                # 4096 load of a 128k model can be raised.
+                shown = await client.post(f"{root}/api/show", json={"model": model})
+                if shown.status_code == 404:
+                    if allocated_running is None:
+                        return None
+                    return allocated_running, allocated_running
+                shown.raise_for_status()
+                body = shown.json()
+        except Exception:  # noqa: BLE001 — an unread window must not kill the turn
+            log.debug("ollama: context lookup failed for %s", model, exc_info=True)
+            return None
+        if not isinstance(body, dict):
+            return None
+        from jarvis.brain.ollama_inventory import native_context_length
+
+        explicit = _parameter_num_ctx(body.get("parameters"))
+        native = native_context_length(body.get("model_info"))
+        if allocated_running is not None:
+            allocated = allocated_running
+        elif explicit is not None:
+            allocated = explicit
+        else:
+            allocated = _OLLAMA_DEFAULT_NUM_CTX
+        cap = native if native is not None and native > 0 else allocated
+        if cap < allocated:
+            cap = allocated
+        return allocated, cap
+
     async def _apply_model_options(self, model: str, req: BrainRequest) -> tuple[str, BrainRequest]:
         """Turn the per-model options into ``(model to stream, request)``.
 
@@ -444,6 +539,29 @@ class OllamaBrain:
         against the real window instead of the class floor.
         """
         opts = self._model_options(model)
+        # The manager budgets against ``context_window`` (32_768 unless the
+        # user set ``num_ctx``). Ollama does not allocate that: a GGUF with no
+        # ``num_ctx`` parameter loads at 4096 (Ollama 0.40, live /api/ps), and
+        # ``/v1`` cannot raise it per request. A turn the manager already
+        # fitted then dies with "exceeds the available context size (4096)".
+        # Bake the budgeted window into a profile unless the user named one
+        # or the server is already at least that large. Never ask for more
+        # than the model's own context length.
+        if self._requested_context_window is None and (opts is None or not opts.num_ctx):
+            ceiling = await self._context_ceiling(model)
+            if ceiling is not None:
+                allocated, native = ceiling
+                target = int(self.context_window)
+                if native > 0:
+                    target = min(target, native)
+                if allocated < target:
+                    log.info(
+                        "ollama: %s is allocated %s tokens; raising it to %s",
+                        model,
+                        allocated,
+                        target,
+                    )
+                    self.set_context_window(target)
         if self._requested_context_window is not None:
             if opts is not None and opts.num_ctx and opts.num_ctx < self._requested_context_window:
                 raise RuntimeError("The local model context changed. Start the turn again.")

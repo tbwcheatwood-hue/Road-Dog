@@ -12,7 +12,8 @@ from the roster snapshot and the capability catalog — no model call, no
 database read on the hot path — that:
 
 * the brain appends to its system prompt (``BrainManager._build_system_prompt``),
-  so the typed front-page chat and every delegated voice turn see it;
+  so delegated voice turns see it. The typed front-page chat skips it while
+  ``jarvis.society.chat_gate.ENABLED`` is off;
 * the realtime session condenses into a per-turn directive
   (``RealtimeVoiceSession._society_directive``) so the live model routes a
   named agent to its action function instead of "I do not know who that is";

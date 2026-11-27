@@ -489,10 +489,17 @@ def wired(monkeypatch):
     from jarvis.brain import ollama_profiles
     from jarvis.plugins.brain import ollama as plugin
 
+    async def _unknown_ceiling(self, model):
+        return None
+
     monkeypatch.setattr(openai, "AsyncOpenAI", _FakeOpenAI)
     monkeypatch.setattr(plugin, "stream_complete", _FakeStreamer.stream)
     monkeypatch.setattr(ollama_profiles, "ensure_profile", _FakeProfiles.ensure_profile)
     monkeypatch.setattr(ollama_profiles, "warm", _FakeProfiles.warm)
+    # Existing cases pin "no num_ctx means no profile". The live server probe
+    # is a separate test; leave it unknown here so a running Ollama cannot
+    # change the result.
+    monkeypatch.setattr(plugin.OllamaBrain, "_context_ceiling", _unknown_ceiling)
     monkeypatch.delenv("OLLAMA_HOST", raising=False)
     _FakeStreamer.calls = []
     _FakeProfiles.ensured = []
@@ -571,6 +578,92 @@ async def test_profile_failure_degrades_to_the_base_model(monkeypatch, wired) ->
     model, _ = _FakeStreamer.calls[0]
     assert model == "qwen3.5:9b"
     assert brain.context_window == 8192
+
+
+async def test_a_smaller_server_context_is_raised_to_the_budget(monkeypatch, wired) -> None:
+    _config_with_options(monkeypatch, {})
+    brain = OllamaBrain(model="qwen3.5:9b")
+
+    async def ceiling(model: str) -> tuple[int, int]:
+        assert model == "qwen3.5:9b"
+        return (4096, 131072)
+
+    monkeypatch.setattr(brain, "_context_ceiling", ceiling)
+    await _run(brain, _req())
+    model, _req_out = _FakeStreamer.calls[0]
+    assert model == "qwen3.5-9b-jarvis-deadbeef"
+    assert [(base, opts.num_ctx) for _, base, opts in wired.ensured] == [("qwen3.5:9b", 32768)]
+    assert brain.context_window == 32768
+    assert _req_out.temperature == 0.7
+
+
+async def test_raised_context_never_exceeds_the_model(monkeypatch, wired) -> None:
+    _config_with_options(monkeypatch, {})
+    brain = OllamaBrain(model="qwen3.5:9b")
+
+    async def ceiling(model: str) -> tuple[int, int]:
+        return (4096, 8192)
+
+    monkeypatch.setattr(brain, "_context_ceiling", ceiling)
+    await _run(brain, _req())
+    assert wired.ensured[0][2].num_ctx == 8192
+    assert brain.context_window == 8192
+
+
+async def test_an_explicit_num_ctx_is_not_replaced(monkeypatch, wired) -> None:
+    _config_with_options(monkeypatch, {"qwen3.5:9b": {"num_ctx": 8192}})
+    brain = OllamaBrain(model="qwen3.5:9b")
+
+    async def ceiling(model: str) -> tuple[int, int]:
+        raise AssertionError("a saved num_ctx must not be replaced from the server")
+
+    monkeypatch.setattr(brain, "_context_ceiling", ceiling)
+    await _run(brain, _req())
+    assert wired.ensured[0][2].num_ctx == 8192
+
+
+async def test_a_server_that_already_fits_is_left_alone(monkeypatch, wired) -> None:
+    _config_with_options(monkeypatch, {})
+    brain = OllamaBrain(model="qwen3.5:9b")
+
+    async def ceiling(model: str) -> tuple[int, int]:
+        return (32768, 131072)
+
+    monkeypatch.setattr(brain, "_context_ceiling", ceiling)
+    await _run(brain, _req())
+    assert wired.ensured == []
+    assert _FakeStreamer.calls[0][0] == "qwen3.5:9b"
+
+
+async def test_context_ceiling_reads_the_running_window_and_the_native_max(monkeypatch) -> None:
+    import httpx
+
+    from jarvis.plugins.brain import ollama as plugin
+
+    def respond(request: httpx.Request) -> httpx.Response:
+        if request.url.path.endswith("/api/ps"):
+            return httpx.Response(200, json={"models": [{"name": "m:latest", "context_length": 4096}]})
+        if request.url.path.endswith("/api/show"):
+            return httpx.Response(200, json={
+                "parameters": "",
+                "model_info": {
+                    "general.architecture": "glm4",
+                    "glm4.context_length": 131072,
+                },
+            })
+        return httpx.Response(404)
+
+    real_client = httpx.AsyncClient
+
+    def client(**kwargs: Any) -> httpx.AsyncClient:
+        kwargs["transport"] = httpx.MockTransport(respond)
+        return real_client(**kwargs)
+
+    monkeypatch.setattr(plugin.httpx, "AsyncClient", client)
+    brain = OllamaBrain(model="m")
+    monkeypatch.setattr(brain, "_resolve_root", lambda: "http://ollama.test")
+    monkeypatch.setattr(brain, "_native_headers", lambda: {})
+    assert await brain._context_ceiling("m") == (4096, 131072)
 
 
 async def test_discovered_model_is_tuned_like_a_pinned_one(monkeypatch, wired, fake_tags) -> None:

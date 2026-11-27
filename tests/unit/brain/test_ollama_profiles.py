@@ -80,6 +80,21 @@ def test_profile_name_is_stable_and_folds_the_tag() -> None:
     )
 
 
+def test_profile_name_of_a_long_import_stays_a_valid_ollama_name() -> None:
+    base = (
+        "lms-lmstudio-community-glm-4-6v-flash-gguf-"
+        "glm-4-6v-flash-q4-k-m:latest"
+    )
+    other = base.replace("glm-4-6v", "glm-4-7v")
+    opts = OllamaModelOptions(num_ctx=32768)
+    name = profile_name(base, opts)
+    assert len(name) <= 80
+    assert is_profile_alias(name)
+    assert name.startswith("m-")
+    assert profile_name(base, opts) == name
+    assert profile_name(other, opts) != name
+
+
 def test_profile_name_changes_with_any_bakeable_knob() -> None:
     base = OllamaModelOptions(num_ctx=8192)
     names = {profile_name("m:1", base)}

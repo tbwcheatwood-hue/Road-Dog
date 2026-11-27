@@ -98,6 +98,19 @@ _WITHHELD: Final[frozenset[str]] = frozenset(
 _NAME_OK = frozenset("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_-")
 
 
+def _withheld(name: str) -> bool:
+    """A name the chat must not be offered.
+
+    Spawn vehicles stay withheld always. Society hands stay withheld while
+    the front-page chat has them switched off.
+    """
+    if name in _WITHHELD:
+        return True
+    from jarvis.society.chat_gate import chat_offers_society, is_society_hand
+
+    return not chat_offers_society() and is_society_hand(name)
+
+
 def _usable_name(name: str) -> bool:
     return bool(name) and len(name) <= 128 and set(name) <= _NAME_OK
 
@@ -119,7 +132,7 @@ def _wire_catalog(entries: list[Any]) -> dict[str, Any]:
     for entry in entries:
         canonical = str(entry.name)
         wire = _wire_name(canonical)
-        if wire is None or canonical in _WITHHELD or wire in collisions:
+        if wire is None or _withheld(canonical) or wire in collisions:
             continue
         if wire in result:
             del result[wire]
@@ -162,7 +175,7 @@ def offered_tools() -> list[Any]:
     return [
         entry
         for entry in catalog
-        if _wire_name(str(entry.name)) is not None and str(entry.name) not in _WITHHELD
+        if _wire_name(str(entry.name)) is not None and not _withheld(str(entry.name))
     ]
 
 
@@ -235,6 +248,8 @@ def build_server() -> Any:
             return failed(
                 f"{name} is not available from the chat — you ARE the worker. Do the work yourself."
             )
+        if _withheld(name):
+            return failed(f"{name} is turned off for chat until the team is needed again.")
         try:
             from jarvis.agent_chat.tool_context import required_turn_id, restore_turn
 

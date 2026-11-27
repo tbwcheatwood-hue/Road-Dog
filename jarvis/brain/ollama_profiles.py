@@ -57,6 +57,10 @@ BAKEABLE_KEYS: tuple[str, ...] = (
 #: Marker every profile alias carries; the inventory filters on it.
 PROFILE_MARKER = "-jarvis-"
 _PROFILE_ALIAS_RE = re.compile(r"^(?P<prefix>.+)-jarvis-(?P<hash>[0-9a-f]{8})$")
+#: Ollama 0.40 rejects a model name longer than this (``invalid model name``).
+#: LM Studio imports are already near the cap, so the readable
+#: ``<base>-jarvis-<hash>`` form does not fit and the short form is used.
+_MAX_MODEL_NAME = 80
 
 #: Context ladder :func:`suggest_options` picks from (tokens).
 _CONTEXT_LADDER: tuple[int, ...] = (4096, 8192, 16384, 32768, 65536, 131072)
@@ -104,11 +108,19 @@ def profile_name(base: str, opts: OllamaModelOptions) -> str:
     """``<folded base>-jarvis-<8-char sha256 of the canonical baked dict>``.
 
     Stable for equal option sets regardless of key order or the presence of
-    non-bakeable knobs, so the same profile is never created twice.
+    non-bakeable knobs, so the same profile is never created twice. When that
+    readable name would be longer than Ollama accepts, the base is hashed too:
+    ``m-<base hash>-jarvis-<options hash>``. Both forms still end in the
+    profile marker, so the inventory hides them the same way.
     """
     canonical = json.dumps(baked_parameters(opts), sort_keys=True, separators=(",", ":"))
     digest = hashlib.sha256(canonical.encode("utf-8")).hexdigest()[:8]
-    return f"{_fold(base)}{PROFILE_MARKER}{digest}"
+    folded = _fold(base)
+    readable = f"{folded}{PROFILE_MARKER}{digest}"
+    if len(readable) <= _MAX_MODEL_NAME:
+        return readable
+    base_digest = hashlib.sha256(folded.encode("utf-8")).hexdigest()[:8]
+    return f"m-{base_digest}{PROFILE_MARKER}{digest}"
 
 
 def is_profile_alias(name: str) -> bool:
