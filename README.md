@@ -34,46 +34,58 @@ It is free and open source, and it runs on your own machine. You do not need an 
 
 ## Quick Start
 
+Running from a checkout is the local development install. It is separate from a signed installer: signature checks on published installers stay in place, and a source run does not replace them.
+
 **Install from source**
 
 ```bash
 git clone https://github.com/tbwcheatwood-hue/Road-Dog.git
 cd Road-Dog
+python3 -m venv .venv
+. .venv/bin/activate
 pip install -e . --no-deps
-pip install -r requirements.txt
-cp jarvis.toml.example jarvis.toml
-cp .env.example .env
+```
+
+`cryptography` is a normal runtime dependency and installs from PyPI (`cryptography>=50.0.2`). The hashed `requirements.txt` also points at a custom native-crypto package index used by the locked installer build. That index is not required for this local install, and a missing index must not be bypassed by turning signature checks off.
+
+On Linux, voice needs the PortAudio library (Debian and Ubuntu: `libportaudio2`). The desktop window needs WebKitGTK (`gir1.2-webkit2-4.1` and `libgtk-3`) plus `pip install 'pywebview>=5.3'`. When those are absent, `./run.sh --headless` still serves the same interface in a browser.
+
+Build the interface once, from `jarvis/ui/web/frontend/`:
+
+```bash
+npm install
+npm run build
 ```
 
 **Launch**
 
 ```bash
-# Headless server (works on any machine, no display needed)
-jarvis serve          # opens at http://localhost:8442
-roaddog serve         # same, under the Road Dog name
+# Full desktop app (a display is required)
+./run.sh
 
-# Full desktop app (Windows / macOS / Linux with a display)
-jarvis                # or double-click the Road Dog desktop shortcut
-roaddog               # same, under the Road Dog name
+# API and browser interface, no desktop window
+./run.sh --headless
 ```
 
-On Linux without GTK/pywebview, `jarvis serve` runs headless and you open the printed address in your browser. A `roaddog.desktop` shortcut plus `roaddog-launch` wrapper are installed so Road Dog appears in your application menu.
+The app listens on `http://127.0.0.1:47821`. On Linux the first desktop start writes `~/.local/share/applications/road-dog.desktop`.
+
+Road Dog keeps its own files. Set `JARVIS_DATA_DIR` when another install already uses the home-directory fallback, and do not point it at that other install's data. Credentials stay in the OS credential store. A new checkout does not copy or delete an existing data directory.
 
 **Connect a model**
 
-Open **API Keys & Providers** in the app and add your OpenAI, Anthropic, Gemini, OpenRouter, NVIDIA, Ollama or other key. Credentials stay in your OS credential store — never in config files. You need one API key, a subscription, or a local model; a microphone helps for voice but is optional. You do not need a GPU.
+Open **API Keys & Providers** and add a key, or point Sam at a local server you already run (Ollama or LM Studio). Road Dog does not start those servers for you and does not spend a paid key to check that a local server is up. You need one API key, a subscription, or a local model. A microphone is optional. You do not need a GPU.
 
 ## Features
 
 | | |
 |---|---|
 | **Sam(wise) — Your AI Companion** | A masculine, urban-inspired AI companion who feels like a trusted friend rather than a corporate chatbot. Loyal, resourceful, knowledgeable and dependable. Editable personality seed, persistent memory, configurable check-ins and reminders, quiet hours, male voice options, push-to-talk, optional wake word. |
-| **Agentic IDE** | Run Claude Code, Codex, OpenCode, Cursor, Kimi Code, GLM, Grok Build, DeepSeek Harness, Kilo Code and Zed Code side by side in live terminal panes. Brief them by voice. |
+| **Agentic IDE** | Run Claude Code, Codex, OpenCode, Cursor, Kimi Code, GLM, Grok Build, DeepSeek Harness, Kilo Code and Z Code side by side in live terminal panes. Brief them by voice. |
 | **The Crew** | Multi-agent collaboration interface with specialized roles — Commander, Architect, Developer, Debugger, Researcher, Tester, Reviewer, Documentation specialist. Visual dashboard, live status, shared scratchpads, structured handoffs, permission-controlled communication. |
 | **Voice** | Wake word, live conversations, dictation into any app, phone calls. Interrupt mid-sentence. Local and hosted STT/TTS. Male voice options. Push-to-talk as first-class mode. |
 | **Computer Use** | Sam clicks, types and reads your screen on desktop and browser. You decide what it may do — nothing acts without a live grant. |
 | **Marketplace** | 40+ plugins, MCP servers, skills and CLI tools installed with one click — GitHub, Google Workspace, Notion, Slack, Linear, Spotify, Home Assistant and more. |
-| **Any Model** | OpenAI, Anthropic, Gemini, OpenRouter, NVIDIA, Ollama and any local server, or your Claude and ChatGPT subscriptions. Pick a different model for each task. |
+| **Any Model** | OpenAI, Anthropic, Gemini, OpenRouter, NVIDIA, Ollama, LM Studio and any local server, or your Claude and ChatGPT subscriptions. Pick a different model for each task. A local server is used only when it is already running. |
 | **Memory** | A local wiki that Sam reads, writes and cites. Remembers context across chats, agents and days. |
 | **Routines** | Work that repeats on a schedule — morning briefing, inbox sweep, nightly report. |
 | **Appshots** | Press two keys to show Sam the window you are looking at, or just one area of it. |
@@ -126,10 +138,10 @@ Run every major coding CLI side by side in the Agentic IDE:
 | Grok Build | `grok` | sign-in | Built-in |
 | Antigravity | `agy` | API Keys page | Built-in |
 | DeepSeek Harness | `deepseek-harness` | API Keys page | Built-in |
-| Kilo Code | `kilo-code` | `KILOCODE_API_KEY` | Registered — placeholder binary/install URL; degrades safely until confirmed against a live install |
-| Zed Code | `z-code` | `ZCODE_API_KEY` | Registered — placeholder binary/install URL; degrades safely until confirmed against a live install |
+| Kilo Code | `kilo` | `KILO_API_KEY` or `KILOCODE_API_KEY`, or a login under `~/.config/kilo` | Built-in. `kilo run` receives the selected permission stance. Ask and plan do not pass `--auto`. |
+| Z Code | `zcode` | vendor login, or `ZCODE_API_KEY` / `ZAI_API_KEY` | Built-in. The headless CLI is launched directly, and every stance passes `--mode`. |
 
-Kilo Code and Zed Code are registered but their binary names, install URLs and CLI flags are placeholders that must be confirmed against a live install before they will spawn. The entries degrade safely: `spawn_env_factory` returns `None` when the API key is unset, so no pane can start talking to the wrong vendor.
+Kilo Code and Z Code start only when a credential or an existing vendor login is present. An empty spawn environment means the pane is refused. It does not mean "start with the vendor's own defaults."
 
 ## Installation
 
@@ -145,22 +157,19 @@ irm https://raw.githubusercontent.com/tbwcheatwood-hue/Road-Dog/main/install/ins
 curl -fsSL https://raw.githubusercontent.com/tbwcheatwood-hue/Road-Dog/main/install/install.sh | bash
 ```
 
-The installer checks for Python 3.11 or newer and Git, offers to install whatever is missing, adds the desktop launcher and opens the app.
+The installer checks for Python 3.11 or newer and Git, offers to install whatever is missing, adds the desktop launcher and opens the app. That path is the published install. A checkout you run yourself follows [Quick Start](#quick-start) and does not skip installer signature verification.
 
 ### Headless server
 
 ```bash
-pip install road-dog
-jarvis serve
-# or
-roaddog serve
+./run.sh --headless
 ```
 
-Then open `http://localhost:8442` in a browser.
+Then open `http://127.0.0.1:47821` in a browser.
 
 ### Desktop shortcut
 
-A `roaddog.desktop` file is installed to `~/.local/share/applications/` so Road Dog appears in your desktop application menu. On Linux hosts without GTK/pywebview it launches the headless server (`jarvis serve`) and opens it in your browser; on hosts with a graphical desktop it launches the full app. A `~/.local/bin/roaddog-launch` wrapper handles the fallback.
+On Linux the app writes `~/.local/share/applications/road-dog.desktop` on desktop start. The entry runs this checkout's interpreter with `python -m jarvis.ui.web.launcher`. It does not replace another product's desktop entry.
 
 ## First-Run Onboarding
 

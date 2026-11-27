@@ -26,10 +26,11 @@ from pathlib import Path
 from typing import Any, Final
 
 from jarvis.brain.assistant_name import DEFAULT_ASSISTANT_NAME, resolve_assistant_name
+from jarvis.core.branding import PRODUCT_NAME as _BRAND_PRODUCT_NAME
 
 log = logging.getLogger(__name__)
 
-PRODUCT_NAME: Final[str] = "Personal Jarvis"
+PRODUCT_NAME: Final[str] = _BRAND_PRODUCT_NAME
 #: Tells a model that holds the ``update_soul`` tool to keep SOUL.md current.
 SOUL_UPDATE_DIRECTIVE: Final[str] = (
     "Keep your character file current yourself: when the user tells you how you should be "

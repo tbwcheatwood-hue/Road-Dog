@@ -27,12 +27,19 @@ from jarvis.core.branding import (
 def user_data_dir() -> Path:
     """App data directory in the user context.
 
-    - Windows: ``%LOCALAPPDATA%\\Jarvis`` (standard convention for local app data).
-    - Fallback: ``~/.jarvis`` — relevant when ``LOCALAPPDATA`` is not set
-      (e.g. in some CI environments, Unix dev setups, test runs).
+    - ``JARVIS_DATA_DIR`` when set (headless hosts, a launcher that keeps
+      this app's files away from another install).
+    - Windows: ``%LOCALAPPDATA%\\<product data dir>``.
+    - Fallback: ``~/<FALLBACK_USER_DATA_DIR_NAME>`` when neither is set.
 
     Does NOT create the directory — use ``ensure_user_dirs()`` for that.
     """
+    # Same override ``config._resolve_data_dir`` already honors, so skills,
+    # memory and logs follow the runtime data directory instead of the
+    # home-directory fallback.
+    env_dir = os.environ.get("JARVIS_DATA_DIR")
+    if env_dir and env_dir.strip():
+        return Path(env_dir.strip())
     base = os.environ.get("LOCALAPPDATA")
     if base:
         return Path(base) / WINDOWS_USER_DATA_DIR_NAME
