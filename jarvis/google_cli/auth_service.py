@@ -50,13 +50,25 @@ def _gemini_home() -> Path:
     return Path(override) if override else (Path.home() / ".gemini")
 
 
+def _antigravity_config_dir() -> Path:
+    """Where agy 1.5+ keeps its OAuth material (``plugin-secrets.json``).
+
+    Verified live 2026-11-27 with agy 1.5.18: the old
+    ``~/.gemini/antigravity-cli/antigravity-oauth-token`` is gone; login lives
+    under the XDG config tree instead. ``XDG_CONFIG_HOME`` wins when set
+    (tests and unusual installs); otherwise ``~/.config/antigravity``.
+    """
+    override = os.environ.get("XDG_CONFIG_HOME", "").strip()
+    root = Path(override).expanduser() if override else (Path.home() / ".config")
+    return root / "antigravity"
+
+
 # Known on-disk OAuth login files, relative to ``~/.gemini``. The Gemini CLI
-# writes ``oauth_creds.json``; the Antigravity ``agy`` CLI (the official
-# successor) writes its token under a dedicated subdir instead — verified live
-# 2026-06-26 with agy 1.0.12: ``~/.gemini/antigravity-cli/antigravity-oauth-token``
-# (JSON ``{auth_method, token}``). Reading only ``oauth_creds.json`` made a
-# fully-logged-in agy report "Installed but not logged in". Presence + non-empty
-# only — the token VALUE is never read into business logic (Google ToS).
+# writes ``oauth_creds.json``; Antigravity ``agy`` 1.0.x wrote its token under
+# ``antigravity-cli/`` (verified 2026-06-26 with agy 1.0.12). agy 1.5+ moved
+# the login to ``~/.config/antigravity/plugin-secrets.json`` — see
+# :func:`_agy_config_oauth_present`. Presence + non-empty only — the token
+# VALUE is never read into business logic (Google ToS).
 _OAUTH_LOGIN_FILES: tuple[tuple[str, ...], ...] = (
     ("oauth_creds.json",),
     ("antigravity-cli", "antigravity-oauth-token"),
@@ -68,11 +80,56 @@ def _oauth_login_paths(home: Path) -> tuple[Path, ...]:
     return tuple(home.joinpath(*rel) for rel in _OAUTH_LOGIN_FILES)
 
 
+def _agy_config_oauth_paths() -> tuple[Path, ...]:
+    """agy 1.5+ login files under the XDG config dir (not under ``GEMINI_HOME``)."""
+    cfg = _antigravity_config_dir()
+    return (cfg / "plugin-secrets.json", cfg / "credential-user-scope")
+
+
+def _agy_config_oauth_present() -> bool:
+    """True when agy 1.5+ has a Google OAuth login in its config store.
+
+    agy 1.5.18 keeps the refresh material in the OS keyring and writes a
+    non-empty ``credential-user-scope`` marker under
+    ``~/.config/antigravity/``; ``plugin-secrets.json`` may also hold oauth2
+    entries. Keys of that JSON are inspected when present; token VALUES are
+    never read. A zero-byte scope file does not count.
+    """
+    cfg = _antigravity_config_dir()
+    scope = cfg / "credential-user-scope"
+    try:
+        if scope.is_file() and scope.stat().st_size > 0 and scope.read_text(
+            encoding="utf-8"
+        ).strip():
+            return True
+    except OSError:
+        pass
+
+    secrets = cfg / "plugin-secrets.json"
+    try:
+        if not secrets.is_file() or secrets.stat().st_size <= 0:
+            return False
+        data = json.loads(secrets.read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        return False
+    if not isinstance(data, dict):
+        return False
+    for key in data:
+        if not isinstance(key, str):
+            continue
+        # Real login entries look like ``<scope>/oauth2:<id>@1``; identity and
+        # account metadata share the oauth2 prefix but are not the credential.
+        if "/oauth2:" in key and not key.endswith(("_IDENTITY", "_ACCOUNTS")):
+            return True
+    return False
+
+
 def _oauth_login_present(home: Path) -> bool:
     """True when ANY known OAuth login file exists and is non-empty.
 
-    Covers both the Gemini CLI and the Antigravity ``agy`` CLI token locations.
-    A zero-byte file (interrupted login) does not count as connected.
+    Covers the Gemini CLI, agy 1.0.x under ``~/.gemini``, and agy 1.5+ under
+    ``~/.config/antigravity``. A zero-byte file (interrupted login) does not
+    count as connected.
     """
     for path in _oauth_login_paths(home):
         try:
@@ -80,7 +137,7 @@ def _oauth_login_present(home: Path) -> bool:
                 return True
         except OSError:
             continue
-    return False
+    return _agy_config_oauth_present()
 
 
 def _derive_google_auth(
@@ -112,6 +169,45 @@ def _email_from_accounts(home: Path) -> str | None:
         return None
     active = data.get("active") if isinstance(data, dict) else None
     return active if isinstance(active, str) and active else None
+
+
+def _email_from_agy_config() -> str | None:
+    """Display email from agy 1.5+ ``plugin-secrets`` identity metadata only.
+
+    Reads ``*_IDENTITY`` / ``*_ACCOUNTS`` string values — never access or
+    refresh tokens.
+    """
+    secrets = _antigravity_config_dir() / "plugin-secrets.json"
+    try:
+        data = json.loads(secrets.read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        return None
+    if not isinstance(data, dict):
+        return None
+
+    def _as_email(raw: Any) -> str | None:
+        if isinstance(raw, str):
+            text = raw.strip()
+            if "@" in text and " " not in text:
+                return text
+            try:
+                parsed = json.loads(text)
+            except ValueError:
+                return None
+            return _as_email(parsed)
+        if isinstance(raw, list):
+            for item in raw:
+                found = _as_email(item)
+                if found:
+                    return found
+        return None
+
+    for key, value in data.items():
+        if isinstance(key, str) and key.endswith(("_IDENTITY", "_ACCOUNTS")):
+            found = _as_email(value)
+            if found:
+                return found
+    return None
 
 
 @dataclass(frozen=True)
@@ -190,11 +286,14 @@ class GoogleCliAuthService:
                 error="no google cli binary",
             )
 
-        creds_present = _oauth_login_present(_gemini_home())
+        home = _gemini_home()
+        creds_present = _oauth_login_present(home)
         connected, mode = _derive_google_auth(
             creds_present=creds_present, settings=self._read_json("settings.json")
         )
-        email = _email_from_accounts(_gemini_home()) if connected else None
+        email = None
+        if connected:
+            email = _email_from_accounts(home) or _email_from_agy_config()
 
         # Name WHAT was detected: the card is titled "Antigravity", but the
         # resolver also accepts a Gemini-CLI install (incl. a PATH-less npm
@@ -260,15 +359,18 @@ class GoogleCliAuthService:
 
         Neither CLI has a ``logout`` subcommand (verified 2026-06-21) — ``agy
         logout`` would hang like ``agy login``. Removing the OAuth login files IS
-        the disconnect; this clears BOTH the Gemini CLI's ``oauth_creds.json`` and
-        the agy token under ``antigravity-cli/`` (else Disconnect is a no-op for an
-        agy login). The isolated brain home re-syncs to the absent login on the
+        the disconnect; this clears the Gemini CLI's ``oauth_creds.json``, the
+        agy 1.0.x token under ``antigravity-cli/``, and the agy 1.5+ store under
+        ``~/.config/antigravity/`` (else Disconnect is a no-op for a current agy
+        login). The isolated brain home re-syncs to the absent login on the
         next turn (see ``isolated_home``), so agy logs out there too.
 
         Returns ``(ok, error)``; ``ok`` is True when the login files are gone.
         """
         try:
             for path in _oauth_login_paths(_gemini_home()):
+                path.unlink(missing_ok=True)
+            for path in _agy_config_oauth_paths():
                 path.unlink(missing_ok=True)
             return True, None
         except OSError as exc:

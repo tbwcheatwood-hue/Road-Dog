@@ -83,8 +83,9 @@ def test_status_not_installed(monkeypatch):
 
 def test_status_installed_but_logged_out(tmp_path, monkeypatch):
     gem = tmp_path / ".gemini"
-    gem.mkdir()  # no oauth_creds.json, no agy token
+    gem.mkdir()  # no oauth_creds.json, no agy token, no agy 1.5 config
     monkeypatch.setenv("GEMINI_HOME", str(gem))
+    monkeypatch.setenv("XDG_CONFIG_HOME", str(tmp_path / "empty-config"))
     svc = GoogleCliAuthService()
     svc._resolve = lambda: GoogleCli(  # type: ignore[method-assign]
         kind="agy", argv_prefix=["agy"], version=None
@@ -133,6 +134,79 @@ def test_status_agy_empty_token_file_is_not_connected(tmp_path, monkeypatch):
     (gem / "antigravity-cli").mkdir(parents=True)
     (gem / "antigravity-cli" / "antigravity-oauth-token").write_text("")
     monkeypatch.setenv("GEMINI_HOME", str(gem))
+    # Keep agy 1.5+ config out of the way so this case stays on the 1.0.x path.
+    monkeypatch.setenv("XDG_CONFIG_HOME", str(tmp_path / "empty-config"))
+    svc = GoogleCliAuthService()
+    svc._resolve = lambda: GoogleCli(kind="agy", argv_prefix=["agy"])  # type: ignore[method-assign]
+    assert not svc.status().connected
+
+
+def _seed_agy15_config(tmp_path):
+    """agy 1.5.18 login: OAuth lives under ``~/.config/antigravity/``, not
+    ``~/.gemini/antigravity-cli/antigravity-oauth-token``."""
+    gem = tmp_path / ".gemini"
+    gem.mkdir()
+    cfg = tmp_path / "xdg-config" / "antigravity"
+    cfg.mkdir(parents=True)
+    (cfg / "credential-user-scope").write_text("uc-test-scope")
+    (cfg / "plugin-secrets.json").write_text(
+        json.dumps(
+            {
+                "uc-test-scope/oauth2:abc@1": {
+                    "access_token": "x",
+                    "refresh_token": "y",
+                    "token_type": "Bearer",
+                },
+                "uc-test-scope/oauth2:abc@1_IDENTITY": "user@example.com",
+                "uc-test-scope/oauth2:abc_ACCOUNTS": ["user@example.com"],
+            }
+        )
+    )
+    return gem, tmp_path / "xdg-config"
+
+
+def test_status_connected_via_agy15_plugin_secrets(tmp_path, monkeypatch):
+    # Live 2026-11-27: agy 1.5.18 answers print-mode turns, but status still
+    # looked only at the 1.0.x token path and told chat "not logged in".
+    gem, xdg = _seed_agy15_config(tmp_path)
+    monkeypatch.setenv("GEMINI_HOME", str(gem))
+    monkeypatch.setenv("XDG_CONFIG_HOME", str(xdg))
+    svc = GoogleCliAuthService()
+    svc._resolve = lambda: GoogleCli(  # type: ignore[method-assign]
+        kind="agy", argv_prefix=["agy"], version="1.5.18"
+    )
+    st = svc.status()
+    assert st.installed and st.connected
+    assert st.mode == "oauth-personal"
+    assert st.user_email == "user@example.com"
+    assert auth_mod.antigravity_provider_ready(st, api_key_present=False)
+
+
+def test_status_connected_via_agy15_scope_marker(tmp_path, monkeypatch):
+    # After a wipe, agy 1.5 keeps the keyring login and recreates only
+    # credential-user-scope on the next command — that marker is enough.
+    gem = tmp_path / ".gemini"
+    gem.mkdir()
+    cfg = tmp_path / "xdg-config" / "antigravity"
+    cfg.mkdir(parents=True)
+    (cfg / "credential-user-scope").write_text("uc-test-scope")
+    monkeypatch.setenv("GEMINI_HOME", str(gem))
+    monkeypatch.setenv("XDG_CONFIG_HOME", str(tmp_path / "xdg-config"))
+    svc = GoogleCliAuthService()
+    svc._resolve = lambda: GoogleCli(kind="agy", argv_prefix=["agy"])  # type: ignore[method-assign]
+    st = svc.status()
+    assert st.installed and st.connected
+    assert st.mode == "oauth-personal"
+
+
+def test_status_agy15_empty_scope_is_not_connected(tmp_path, monkeypatch):
+    gem = tmp_path / ".gemini"
+    gem.mkdir()
+    cfg = tmp_path / "xdg-config" / "antigravity"
+    cfg.mkdir(parents=True)
+    (cfg / "credential-user-scope").write_text("")
+    monkeypatch.setenv("GEMINI_HOME", str(gem))
+    monkeypatch.setenv("XDG_CONFIG_HOME", str(tmp_path / "xdg-config"))
     svc = GoogleCliAuthService()
     svc._resolve = lambda: GoogleCli(kind="agy", argv_prefix=["agy"])  # type: ignore[method-assign]
     assert not svc.status().connected
@@ -143,11 +217,26 @@ def test_logout_removes_agy_token(tmp_path, monkeypatch):
     # the Disconnect button is a no-op for an agy login.
     gem = _seed_agy_home(tmp_path)
     monkeypatch.setenv("GEMINI_HOME", str(gem))
+    monkeypatch.setenv("XDG_CONFIG_HOME", str(tmp_path / "empty-config"))
     svc = GoogleCliAuthService()
     svc._resolve = lambda: GoogleCli(kind="agy", argv_prefix=["agy.exe"])  # type: ignore[method-assign]
     ok, err = svc.logout_blocking()
     assert ok and err is None
     assert not (gem / "antigravity-cli" / "antigravity-oauth-token").is_file()
+    assert not svc.status().connected
+
+
+def test_logout_removes_agy15_plugin_secrets(tmp_path, monkeypatch):
+    gem, xdg = _seed_agy15_config(tmp_path)
+    monkeypatch.setenv("GEMINI_HOME", str(gem))
+    monkeypatch.setenv("XDG_CONFIG_HOME", str(xdg))
+    svc = GoogleCliAuthService()
+    svc._resolve = lambda: GoogleCli(kind="agy", argv_prefix=["agy"])  # type: ignore[method-assign]
+    assert svc.status().connected
+    ok, err = svc.logout_blocking()
+    assert ok and err is None
+    assert not (xdg / "antigravity" / "plugin-secrets.json").is_file()
+    assert not (xdg / "antigravity" / "credential-user-scope").is_file()
     assert not svc.status().connected
 
 
@@ -196,6 +285,8 @@ def test_logout_removes_creds_without_calling_agy_logout(tmp_path, monkeypatch):
     # the disconnect. Trying `agy logout` would hang/time out for nothing.
     gem = _seed_gemini_home(tmp_path)
     monkeypatch.setenv("GEMINI_HOME", str(gem))
+    # Never touch the machine's real ~/.config/antigravity during logout tests.
+    monkeypatch.setenv("XDG_CONFIG_HOME", str(tmp_path / "empty-config"))
     svc = GoogleCliAuthService()
     svc._resolve = lambda: GoogleCli(kind="agy", argv_prefix=["agy.exe"])  # type: ignore[method-assign]
 
