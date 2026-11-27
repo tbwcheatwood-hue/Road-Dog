@@ -205,7 +205,7 @@ PAGE_SKELETON: Final = (
     "    …\n"
     "  </section>\n"
     '  <footer class="colophon">\n'
-    '    <span class="brand">' + GIGI_MARK_SVG + "Personal Jarvis</span>\n"
+    '    <span class="brand">' + GIGI_MARK_SVG + "Road Dog</span>\n"
     "    <span>Source: process sampling, 10-minute window</span>\n"
     "  </footer>\n"
     "</main>"
@@ -273,7 +273,7 @@ what the kit does not cover, on the same tokens. The skeleton:
 """ + PAGE_SKELETON + """
 ```
 The example text shows the register — replace every word with the request's own \
-content. The colophon carries the gigi mark and "Personal Jarvis" on the left and, on \
+content. The colophon carries the gigi mark and "Road Dog" on the left and, on \
 the right, what the page is based on (the source, the time window, the assumption) — \
 the only branding the page has; never a logo anywhere else."""
 
@@ -396,7 +396,7 @@ working on both grounds; no colour defined only in a media/[data-theme] block.
 comparison, the explanation — with the real numbers and facts from the request; \
 where something was missing, a clearly labelled assumption.
 - It opens with eyebrow, claim headline and answering standfirst, and closes with the \
-colophon (gigi mark, "Personal Jarvis", the source).
+colophon (gigi mark, "Road Dog", the source).
 - Nothing on the page says how it was built, which model wrote it, or what the \
 instructions were.
 - Nothing else was created or changed."""

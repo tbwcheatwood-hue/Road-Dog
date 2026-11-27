@@ -1,14 +1,14 @@
 # Wiki Tutorial Video — Storyboard & QA Gate
 
 **Format:** 1920×1080 (16:9), 30 fps, 1800 frames = **60.0 s**. Composition id `WikiVideo`.
-**Subject:** the Personal Jarvis "Wiki" — the LLM-maintained long-term memory vault.
+**Subject:** the Road Dog "Wiki" — the LLM-maintained long-term memory vault.
 **Brand:** near-black charcoal `#0e0d0c`, single gold accent `#e7c46e`, Gigi ghost logo,
 Inter + JetBrains Mono. Content is sourced from the real code (see references per scene).
 
 ## Scenes (frame budget sums to 1800)
 
 1. **Intro — 0–240f (8.0 s).** Gigi ghost logo fades/springs in on charcoal; title
-   "The Jarvis Wiki", subtitle "How your assistant remembers." One gold hairline.
+   "The Road Dog Wiki", subtitle "How your assistant remembers." One gold hairline.
 2. **The idea — 240–570f (11.0 s).** Karpathy's LLM-Wiki. "The assistant is the *editor*,
    the Markdown files are the codebase, Obsidian is the IDE." Compiled once & maintained —
    not re-derived on every query. *(schema.md:13-17; ADR-0013)*
@@ -24,7 +24,7 @@ Inter + JetBrains Mono. Content is sourced from the real code (see references pe
    default, loud-vs-silent failure contract, key-aware self-healing provider chain.
    *(search.py:225-226; wiki_context.py; provider_chain.py)*
 6. **Outro — 1560–1800f (8.0 s).** Gigi ghost returns; tagline "Local. Private. Portable.
-   Self-healing."; wordmark "Personal Jarvis".
+   Self-healing."; wordmark "Road Dog".
 
 ## Visual QA checklist (must pass twice in a row)
 

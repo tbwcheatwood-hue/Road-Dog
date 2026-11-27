@@ -25,9 +25,9 @@ from typing import Any
 from jarvis.core.instance import current_instance
 from jarvis.platform.probes import display_present
 
-# Tooltip prefix: "Jarvis" for the default app, "Jarvis Dev" for the dev
+# Tooltip prefix: "Road Dog" for the default app, "Road Dog Dev" for the dev
 # instance — the tray icon already carries the DEV badge, the hover text says it.
-_TRAY_NAME = " ".join(p for p in ("Jarvis", current_instance().label) if p)
+_TRAY_NAME = " ".join(p for p in ("Road Dog", current_instance().label) if p)
 
 log = logging.getLogger("jarvis.ui.tray")
 

@@ -41,7 +41,7 @@ MAX_MESSAGES = 4
 #: so the bound has to clear it rather than cut it in half.
 MAX_MESSAGE_CHARS = 1000
 
-_ROLE_LABELS = {"user": "The user", "assistant": "Jarvis"}
+_ROLE_LABELS = {"user": "The user", "assistant": "Sam"}
 
 
 def _bounded(text: str) -> str:

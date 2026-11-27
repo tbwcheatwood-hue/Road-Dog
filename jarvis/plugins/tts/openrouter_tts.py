@@ -163,8 +163,8 @@ class OpenRouterTTS:
                 "Authorization": f"Bearer {ep.credential}",
                 "Content-Type": "application/json",
                 # OpenRouter attribution headers (same as the brain plugin).
-                "HTTP-Referer": "https://github.com/PersonalJarvis",
-                "X-Title": "Personal Jarvis",
+                "HTTP-Referer": "https://github.com/tbwcheatwood-hue/Road-Dog",
+                "X-Title": "Road Dog",
             },
         )
         self._resolved_credential = ep.credential

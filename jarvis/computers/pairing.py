@@ -146,7 +146,7 @@ class ServerPairing:
 
     def identity(self) -> ServerIdentity:
         return ServerIdentity(
-            protocol=PROTOCOL, name=platform.node()[:120] or "Jarvis", platform=platform.system()
+            protocol=PROTOCOL, name=platform.node()[:120] or "Road Dog", platform=platform.system()
         )
 
     def issue_code(self) -> dict[str, Any]:

@@ -67,8 +67,8 @@ class OpenRouterBrain:
                 base_url=ep.base_url,
                 timeout=CLIENT_TIMEOUT,
                 default_headers={
-                    "HTTP-Referer": "https://github.com/PersonalJarvis",
-                    "X-Title": "Personal Jarvis",
+                    "HTTP-Referer": "https://github.com/tbwcheatwood-hue/Road-Dog",
+                    "X-Title": "Road Dog",
                 },
             )
         return self._client

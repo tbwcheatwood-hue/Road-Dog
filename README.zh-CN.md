@@ -1,7 +1,7 @@
-<h1 align="center">Personal Jarvis</h1>
+<h1 align="center">Road Dog</h1>
 
 <p align="center">
-  <a href="https://github.com/PersonalJarvis/PersonalJarvis/blob/main/README.md">English</a> ·
+  <a href="https://github.com/tbwcheatwood-hue/Road-Dog/blob/main/README.md">English</a> ·
   <strong>简体中文</strong>
 </p>
 
@@ -11,31 +11,31 @@
 </p>
 
 <p align="center">
-  <a href="https://pypi.org/project/personal-jarvis/"><img alt="PyPI" src="https://img.shields.io/pypi/v/personal-jarvis?labelColor=0A0A0A&amp;color=F7F7F4" /></a>
-  <a href="https://github.com/PersonalJarvis/PersonalJarvis/blob/main/LICENSE"><img alt="Apache 2.0" src="https://img.shields.io/badge/License-Apache_2.0-F7F7F4?labelColor=0A0A0A" /></a>
-  <a href="https://github.com/PersonalJarvis/PersonalJarvis/actions/workflows/ci.yml"><img alt="CI" src="https://github.com/PersonalJarvis/PersonalJarvis/actions/workflows/ci.yml/badge.svg" /></a>
-  <a href="https://discord.gg/x7USduHxbc"><img alt="Discord" src="https://img.shields.io/badge/Discord-join-F7F7F4?labelColor=0A0A0A&amp;logo=discord&amp;logoColor=white" /></a>
+  <a href="https://pypi.org/project/road-dog/"><img alt="PyPI" src="https://img.shields.io/pypi/v/road-dog?labelColor=0A0A0A&color=F7F7F4" /></a>
+  <a href="https://github.com/tbwcheatwood-hue/Road-Dog/blob/main/LICENSE"><img alt="Apache 2.0" src="https://img.shields.io/badge/License-Apache_2.0-F7F7F4?labelColor=0A0A0A" /></a>
+  <a href="https://github.com/tbwcheatwood-hue/Road-Dog/actions/workflows/ci.yml"><img alt="CI" src="https://github.com/tbwcheatwood-hue/Road-Dog/actions/workflows/ci.yml/badge.svg" /></a>
+  <a href="https://discord.gg/x7USduHxbc"><img alt="Discord" src="https://img.shields.io/badge/Discord-join-F7F7F4?labelColor=0A0A0A&logo=discord&logoColor=white" /></a>
 </p>
 
 <p align="center">
   <a href="#安装">安装</a> ·
-  <a href="https://personaljarvis.ai">官网</a> ·
-  <a href="https://github.com/PersonalJarvis/PersonalJarvis/blob/main/docs/product/start-here/welcome-to-personal-jarvis.md">文档</a> ·
+  <a href="https://roaddog.ai">官网</a> ·
+  <a href="https://github.com/tbwcheatwood-hue/Road-Dog/blob/main/docs/product/start-here/welcome-to-roaddog.md">文档</a> ·
   <a href="https://discord.gg/x7USduHxbc">Discord</a> ·
-  <a href="https://x.com/PersonalJarvis">X</a>
+  <a href="https://x.com/Ruben_Luetke">X</a>
 </p>
 
 https://github.com/user-attachments/assets/42afcb9f-323b-4a57-9b6d-17aa7a2585b2
 
-<p align="center"><sub>一段真实、未经剪辑的应用录屏（带声音）：用语音和 Jarvis 交谈、把工作交给智能体，并在编程工作区里跟进它们的进度。</sub></p>
+<p align="center"><sub>一段真实、未经剪辑的应用录屏（带声音）：用语音和 Sam 交谈、把工作交给智能体，并在编程工作区里跟进它们的进度。</sub></p>
 
 ---
 
-Personal Jarvis 不是又一个聊天窗口。它是一款桌面应用，把 AI 在电脑上能做的一切汇集到一处：
+Road Dog 不是又一个聊天窗口。它是一款桌面应用，把 AI 在电脑上能做的一切汇集到一处：
 多智能体编程工作区、拥有独立记忆的常驻 AI 智能体、带唤醒词的语音助手、桌面与浏览器操控、插件市场，
 以及你已经付费的所有模型——云端模型、本地模型或你现有的订阅。
 
-你说出想要什么。Jarvis 会直接回答、在你的电脑上把事情做完，或者交给合适的智能体——每一步你都看得见。
+你说出想要什么。Sam 会直接回答、在你的电脑上把事情做完，或者交给合适的智能体——每一步你都看得见。
 
 **免费、开源，在你自己的电脑上运行。** 无需注册账号，中间也没有我们的云服务。
 支持 Windows、macOS 和 Linux，另有无界面的服务器模式。
@@ -48,143 +48,91 @@ Personal Jarvis 不是又一个聊天窗口。它是一款桌面应用，把 AI 
 | | |
 |---|---|
 | **Agentic IDE** | 在实时终端窗格中并排运行 Claude Code、Codex、OpenCode、Kimi Code、GLM、Grok Build、Antigravity、Cursor CLI 和 DeepSeek Harness——你的电脑能承载多少就开多少。还能用语音给它们布置任务。 |
-| **Jarvis 智能体** | 组建一支常驻 AI 智能体团队。每个智能体都有自己的对话、指令、工具、日程和记忆，并能从自己的工作中学习。 |
-| **Jarvis Verse** | 在 3D 世界中实时观看你的智能体：它们走向自己的工位、接手工作，并展示此刻正在做什么。 |
-| **语音** | 唤醒词、自然的实时对话、向任意应用听写输入，以及电话通话。像和真人说话一样随时打断它。 |
-| **电脑操控** | Jarvis 亲自操作你的桌面和浏览器——点击、输入、读取屏幕——而控制权始终在你手里。 |
-| **市场** | 40 多个一键安装的插件、MCP 服务器、技能和命令行工具：GitHub、Google Workspace、Notion、Slack、Linear、Spotify、Home Assistant 等。 |
-| **任意模型** | OpenAI、Anthropic、Gemini、OpenRouter、NVIDIA、Ollama 以及任何本地服务器——或者你的 Claude 和 ChatGPT 订阅。可以按任务自由搭配。 |
-| **记忆** | 一个由 Jarvis 读取、写入并引用的本地知识库，让上下文在不同对话、智能体和日子之间延续。 |
-| **例程** | 按计划执行的重复性工作：晨间简报、收件箱整理、每晚报告。 |
-| **截图（Appshots）** | 按两个键，就能让 Jarvis 看到你正在看的窗口或精确区域。用同样的方式录制短片。 |
-| **宠物** | 桌面上的一个小动画伙伴，会在 Jarvis 聆听、思考和说话时做出反应。 |
+| **The Crew** | 多智能体协作界面，包含指挥官、架构师、开发者、调试员、研究员、测试员、审查员、文档专家等专业角色。可视化仪表盘、实时状态、共享草稿、结构化交接、权限控制的通信。 |
+| **语音** | 唤醒词、实时对话、向任意应用听写、电话通话。可随时打断。本地和云端 STT/TTS。男声选项。按住说话作为一等公民模式。 |
+| **Computer Use** | Sam 点击、输入并读取你的桌面和浏览器屏幕。由你决定它能做什么——没有实时授权什么都不会发生。 |
+| **市场** | 40+ 插件、MCP 服务器、技能和 CLI 工具一键安装——GitHub、Google Workspace、Notion、Slack、Linear、Spotify、Home Assistant 等。 |
+| **任意模型** | OpenAI、Anthropic、Gemini、OpenRouter、NVIDIA、Ollama 和任意本地服务器，或你的 Claude 和 ChatGPT 订阅。为每个任务选择不同模型。 |
+| **记忆** | 一个 Sam 能读、写、引用的本地 Wiki。跨聊天、智能体和天数保持上下文。 |
+| **例程** | 按计划重复的工作——晨间简报、收件箱清理、夜间报告。 |
+| **Appshots** | 两键让 Sam 看到你正在看的窗口，或仅其中一部分。 |
 
-## 成倍放大的 Vibe Coding
+## Sam(wise) — 你的 AI 伙伴
 
-**Agentic IDE** 把一块屏幕变成一个编程车间。打开一个项目，把它拆分成多个窗格，再给每个窗格分配一个编程智能体。
-每个窗格都有自己的呼号，你可以完全不用动手地指挥它们：
+Sam 不只是一个助手——Sam 是你的伙伴。给 Sam 一个名字，选择唤醒词，看着 Sam 通过 SOUL.md 文件学习你的偏好、工作流和怪癖。Sam 会记住，并在每次对话、每个智能体、每一天中应用这些记忆。
 
-> *“让 T1 去写测试。”* · *“T2 在忙什么？”* · *“把修复方案发给所有窗格。”*
+| 特性 | 详情 |
+|------|------|
+| **唤醒词** | 自定义（默认："Hey Sam"）|
+| **语音** | 本地/云端 STT & TTS，男声/女声选项 |
+| **记忆** | 本地 Wiki (SOUL.md) + 语义搜索 |
+| **人格** | 通过 SOUL.md 自我演化 |
+| **工具** | 完整桌面/浏览器控制 |
 
-- **所有编程 CLI 尽在一处。** 直接使用你已有的订阅；Jarvis 会检测已安装的工具，一键在窗格中启动。
-- **一份任务，多个智能体。** 把同一个任务发给多个窗格，对比它们交回的结果。
-- **解放双手。** 在智能体打字的同时和 Jarvis 说话；它会按呼号把你的任务转达给对应的窗格。
-- **随时接管。** 每个窗格都是一个真正的终端，你可以直接在里面输入。
+## 快速开始
 
-[Agentic IDE 指南 →](https://github.com/PersonalJarvis/PersonalJarvis/blob/main/docs/product/extend-and-automate/agentic-ide.md)
-
-## 一支持续工作的智能体团队
-
-**Jarvis 智能体**是你一键创建的长期专家——研究员、发布经理、营销文案，你的工作需要什么就创建什么。
-
-- **每个智能体一个永不结束的对话。** 明天从你停下的地方继续。
-- **它们会学习。** 智能体会从自己的工作中积累私有经验，越来越擅长你的任务。
-- **它们按计划运行。** 给智能体设定一个例程，它就会主动完成工作。
-- **它们交回真正的成果。** 文件、报告和计划都会出现在“产出物”中，每一次工具调用都清晰可见。
-- **较长的行动在隔离环境中运行。** 编程行动在独立的 git worktree 中进行，可以拆分成并行的工作者，并在你看到结果前通过审查。
-
-[智能体指南 →](https://github.com/PersonalJarvis/PersonalJarvis/blob/main/docs/product/extend-and-automate/jarvis-agents.md) ·
-[智能体如何学习 →](https://github.com/PersonalJarvis/PersonalJarvis/blob/main/docs/agent-society/self-learning.md) ·
-[例程 →](https://github.com/PersonalJarvis/PersonalJarvis/blob/main/docs/routines.md)
-
-## 和你的电脑说话
-
-选一个你自己的唤醒词——“Hey Nova”“Jarvis”，什么都行——然后直接开口。
-
-- **实时对话**，轮流发言自然流畅。可以让它打开网站、查看日历，或在一句话说到一半时派出一个智能体。
-- **听写**把你说的话输入到任意应用中，并支持个人词典。
-- **电话通话**使用你自己的号码：给 Jarvis 打电话，或者在你批准后让它替你给别人打电话。
-- **本地语音**可完全离线运行；云端语音为可选项。
-
-[语音指南 →](https://github.com/PersonalJarvis/PersonalJarvis/blob/main/docs/product/everyday-use/voice-conversations.md) ·
-[听写 →](https://github.com/PersonalJarvis/PersonalJarvis/blob/main/docs/product/everyday-use/dictation.md)
-
-## 连接一切
-
-- **插件和 MCP。** 只需在浏览器中登录一次，即可从市场安装连接器，也可以添加任何 MCP 服务器。
-- **命令行工具。** GitHub、Vercel、Supabase、Stripe、Docker、各类云 CLI 等，都能在应用中被检测到并完成登录。
-- **技能。** 可复用的指令，当你的请求合适时 Jarvis 会自动调用。
-- **渠道。** 通过 Telegram 和 Discord 联系 Jarvis。
-- **你自己的脚本。** `jarvis` CLI 和本地 API 让其他程序——以及其他智能体——拥有和你一样的控制能力。
-
-[插件 →](https://github.com/PersonalJarvis/PersonalJarvis/blob/main/docs/product/extend-and-automate/plugins.md) ·
-[MCP →](https://github.com/PersonalJarvis/PersonalJarvis/blob/main/docs/product/extend-and-automate/mcp-connections.md) ·
-[CLI →](https://github.com/PersonalJarvis/PersonalJarvis/blob/main/docs/product/extend-and-automate/cli-connections.md) ·
-[Jarvis CLI →](https://github.com/PersonalJarvis/PersonalJarvis/blob/main/docs/jarvis-cli.md)
-
-## 控制权在你手里
-
-每个操作都要经过风险检查——**安全、监控、询问或阻止**。任何可能改变你系统的操作都会等待你的批准，
-每次运行都会被记录，让你清楚看到到底发生了什么。密钥保存在操作系统的凭据存储中。
-除非你连接了需要联网的服务，否则任何数据都不会离开你的电脑。
-
-[安全与审批 →](https://github.com/PersonalJarvis/PersonalJarvis/blob/main/docs/product/privacy-safety-and-support/safety-and-approvals.md) ·
-[隐私与本地数据 →](https://github.com/PersonalJarvis/PersonalJarvis/blob/main/docs/product/privacy-safety-and-support/privacy-and-local-data.md)
-
-## 安装
-
-**Windows — PowerShell**
-
-```powershell
-irm https://raw.githubusercontent.com/PersonalJarvis/PersonalJarvis/main/install/install.ps1 | iex
-```
-
-**macOS 和 Linux**
+### 安装
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/PersonalJarvis/PersonalJarvis/main/install/install.sh | bash
+# 一键安装（Linux/macOS/WSL）
+curl -fsSL https://roaddog.ai/install | bash
+
+# 或通过 pip
+pip install road-dog
+
+# 启动
+roaddog
 ```
 
-安装程序会检查 Python 3.11+ 和 Git，提示安装缺少的组件，注册桌面启动器并打开应用。
-再次运行即可更新现有安装。语言、唤醒词和模型都在应用内设置。
+### 首次运行
+1. `roaddog` 启动设置向导
+2. 选择语言（中文/英文）
+3. 设置唤醒词（默认："Hey Sam"）
+4. 连接模型（Claude Max、ChatGPT Plus、API 密钥或本地模型）
+5. 完成！
 
-**桌面版下载：** [Windows](https://github.com/PersonalJarvis/PersonalJarvis/releases/latest/download/PersonalJarvis-Setup-x64.exe) ·
-[macOS（Apple 芯片）](https://github.com/PersonalJarvis/PersonalJarvis/releases/latest/download/PersonalJarvis-macOS-arm64.dmg) ·
-[macOS（Intel）](https://github.com/PersonalJarvis/PersonalJarvis/releases/latest/download/PersonalJarvis-macOS-x64.dmg) ·
-[Linux AppImage](https://github.com/PersonalJarvis/PersonalJarvis/releases/latest/download/PersonalJarvis-Linux-x86_64.AppImage)
+## 架构
 
-> **Windows：** SignPath Foundation 开源项目批准后，Windows 安装程序将按照[代码签名政策（Code signing policy）](https://github.com/PersonalJarvis/PersonalJarvis/blob/main/docs/code-signing-policy.md)签名。Free code signing provided by SignPath.io, certificate by SignPath Foundation.
+<p align="center">
+  <img src="assets/roaddog-architecture.svg" alt="Road Dog 架构" width="100%"/>
+  <br/><sub>Road Dog 架构 — 核心引擎、Agentic IDE、The Crew、语音、Computer Use、市场和记忆。</sub>
+</p>
 
-> **macOS：** 磁盘映像尚未经过 Apple 公证，因此首次启动时需要前往
-> **系统设置 > 隐私与安全性 > 仍要打开**（macOS 15；在 macOS 14 及更早版本上可以右键点按 > 打开）。
-> 上面的一行安装命令不需要这一步。
+Road Dog 遵循模块化架构：
 
-**服务器：** 运行 `pip install personal-jarvis` 和 `jarvis serve`，然后在浏览器中打开
-`http://localhost:47821`。远程使用麦克风需要 HTTPS。
-参见[无界面部署指南](https://github.com/PersonalJarvis/PersonalJarvis/blob/main/docs/headless-vps-deployment.md)。
-在 Intel macOS 和 Windows ARM64 上手动用 pip/pipx 安装时，还需要配置
-[原生软件包索引](https://github.com/PersonalJarvis/PersonalJarvis/blob/main/docs/product/start-here/install-personal-jarvis.md#install-the-isolated-pypi-package)；
-安装程序会自动完成这项配置。
+- **核心引擎** — 事件总线、配置、插件、安全（风险等级：安全/监控/询问/阻止）
+- **大脑层** — 可插拔 LLM 提供商（10+ 提供商，任意模型，订阅 + API 密钥）
+- **语音管道** — 唤醒词 → STT → 大脑 → TTS，支持打断、回声防护、反馈保护
+- **Agentic IDE** — 通过插件入口点生成编码智能体的终端窗格
 
-**你需要**一个 API 密钥、一个订阅或一个本地模型。使用语音时最好有麦克风。不需要 GPU。
+## 编程智能体 (Agentic IDE)
 
-## 第一步
+Road Dog 并排运行所有主要的编程智能体，每个都在自己的终端窗格中：
 
-1. 在应用中完成简短的设置：语言（可选择“中文”）、唤醒词（或键盘快捷键）以及一个模型。
-2. 说出你的唤醒词并提出一个请求——*“和我一起规划一个小项目，问问你需要了解什么。”*
-3. 在 **Agentic IDE** 中打开一个项目文件夹，或者创建你的第一个智能体。
+| 智能体 | 命令 | 认证 | 状态 |
+|--------|------|------|------|
+| Claude Code | `claude` | 订阅 / `CLAUDE_CONFIG_DIR` | 内置 |
+| Codex | `codex` | `OPENAI_API_KEY` / 登录 | 内置 |
+| OpenCode | `opencode` | 登录 | 内置 |
+| Cursor CLI | `agent` / `cursor-agent` | `CURSOR_API_KEY` / `agent login` | 内置 |
+| Kilo Code | `kilo` / `kilocode` | 配置文件 / `/connect` | 内置 |
+| Kimi Code | `kimi` | 登录 | 内置 |
+| GLM | `glm` | `ZAI_API_KEY` | 内置 |
+| Grok Build | `grok` | 登录 | 内置 |
+| Antigravity | `agy` | API Keys 页面 | 内置 |
+| DeepSeek Harness | `deepseek-harness` | API Keys 页面 | 内置 |
+| Z Code | `zcode` | 配置文件 / `zcode login` | 内置 |
 
-## 兼容
+## 社区
 
-- **模型：** OpenAI、Anthropic Claude、Google Gemini 和 Vertex AI、OpenRouter、NVIDIA、Ollama 以及任何兼容 OpenAI 接口的本地服务器，另外还支持你的 Claude Code 和 Codex 订阅。
-- **编程智能体：** Claude Code、Codex、OpenCode、Kimi Code、GLM、Grok Build、Antigravity、Cursor CLI 和 DeepSeek Harness。
-- **语音：** 语音识别支持本地 Whisper、OpenAI、Gemini、Groq、Deepgram 和 OpenRouter；语音合成支持 Piper（本地）、ElevenLabs、Cartesia、Inworld、Gemini 和 OpenRouter。
-
-## 文档
-
-文档目前为英文。
-
-[快速开始](https://github.com/PersonalJarvis/PersonalJarvis/blob/main/docs/product/start-here/first-run-setup.md) · [应用导览](https://github.com/PersonalJarvis/PersonalJarvis/blob/main/docs/product/start-here/desktop-app-tour.md) · [语音](https://github.com/PersonalJarvis/PersonalJarvis/blob/main/docs/product/everyday-use/voice-conversations.md) · [听写](https://github.com/PersonalJarvis/PersonalJarvis/blob/main/docs/product/everyday-use/dictation.md) · [Agentic IDE](https://github.com/PersonalJarvis/PersonalJarvis/blob/main/docs/product/extend-and-automate/agentic-ide.md) · [智能体](https://github.com/PersonalJarvis/PersonalJarvis/blob/main/docs/product/extend-and-automate/jarvis-agents.md) · [电脑操控](https://github.com/PersonalJarvis/PersonalJarvis/blob/main/docs/product/extend-and-automate/computer-use.md) · [服务商](https://github.com/PersonalJarvis/PersonalJarvis/blob/main/docs/product/personalize-and-connect/providers-and-api-keys.md) · [本地模型](https://github.com/PersonalJarvis/PersonalJarvis/blob/main/docs/product/personalize-and-connect/local-ai-providers.md) · [插件](https://github.com/PersonalJarvis/PersonalJarvis/blob/main/docs/product/extend-and-automate/plugins.md) · [MCP](https://github.com/PersonalJarvis/PersonalJarvis/blob/main/docs/product/extend-and-automate/mcp-connections.md) · [记忆](https://github.com/PersonalJarvis/PersonalJarvis/blob/main/docs/product/knowledge-and-sharing/wiki-and-memory.md) · [CLI](https://github.com/PersonalJarvis/PersonalJarvis/blob/main/docs/jarvis-cli.md) · [服务器](https://github.com/PersonalJarvis/PersonalJarvis/blob/main/docs/headless-vps-deployment.md) · [架构](https://github.com/PersonalJarvis/PersonalJarvis/blob/main/docs/architecture-overview.md) · [故障排查](https://github.com/PersonalJarvis/PersonalJarvis/blob/main/docs/product/privacy-safety-and-support/troubleshooting.md)
-
-## 参与贡献
-
-可以从一个 [good first issue](https://github.com/PersonalJarvis/PersonalJarvis/issues?q=is%3Aissue+is%3Aopen+label%3A%22good+first+issue%22) 和[10 分钟完成你的第一次贡献](https://github.com/PersonalJarvis/PersonalJarvis/blob/main/CONTRIBUTING.md#your-first-contribution-in-10-minutes)开始。问题和想法请发到 [Discussions](https://github.com/PersonalJarvis/PersonalJarvis/discussions)，安全问题请参阅 [SECURITY.md](https://github.com/PersonalJarvis/PersonalJarvis/blob/main/SECURITY.md)。
-
-如果你是协助维护本仓库的 AI 智能体，请先阅读 [`AGENTS.md`](https://github.com/PersonalJarvis/PersonalJarvis/blob/main/AGENTS.md)。
-
-如果 Personal Jarvis 对你有用，**点一个 Star 能帮助更多人发现它。** 赞助者名单见 [SPONSORS.md](https://github.com/PersonalJarvis/PersonalJarvis/blob/main/SPONSORS.md)。
-贡献者名单见[英文 README](https://github.com/PersonalJarvis/PersonalJarvis/blob/main/README.md#contribute)。
+- **Discord:** https://discord.gg/x7USduHxbc
+- **GitHub Issues:** https://github.com/tbwcheatwood-hue/Road-Dog/issues
+- **文档:** https://github.com/tbwcheatwood-hue/Road-Dog/tree/main/docs
 
 ## 许可证
 
-[Apache 2.0](https://github.com/PersonalJarvis/PersonalJarvis/blob/main/LICENSE)。1.6.0 及更早的版本保留其原来的 MIT 许可证。参见 [NOTICE](https://github.com/PersonalJarvis/PersonalJarvis/blob/main/NOTICE) 和[商标指南](https://github.com/PersonalJarvis/PersonalJarvis/blob/main/TRADEMARK.md)。
+Apache 2.0 — 详见 [LICENSE](LICENSE) 和 [NOTICE](NOTICE)。
+
+---
+
+*Road Dog — Your AI. Your crew. Your road.*

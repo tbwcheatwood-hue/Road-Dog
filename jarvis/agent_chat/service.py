@@ -407,7 +407,7 @@ class AgentChatService:
         bus: Callable[[], Any | None] | None = None,
     ) -> None:
         self.store = store
-        self._assistant_name = assistant_name or (lambda: "Jarvis")
+        self._assistant_name = assistant_name or (lambda: "Sam")
         self._default_cwd = default_cwd or (lambda: str(Path.home()))
         # The app bus, resolved late (the server builds this service before
         # the brain is up). The brain runner reads its tool events off it and

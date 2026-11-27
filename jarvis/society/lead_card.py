@@ -127,7 +127,7 @@ def render_lead_card(
     agents: Sequence[AgentRecord],
     catalog: Sequence[CapabilityRow],
     *,
-    lead_name: str = "Jarvis",
+    lead_name: str = "Sam",
     lead_id: str = LEAD_AGENT_ID,
     busy: Callable[[str], int] | None = None,
     terminals: Sequence[str] = (),
@@ -226,7 +226,7 @@ def society_owns_task(text: str) -> bool:
         return False
 
 
-def lead_card_section(*, lead_name: str = "Jarvis") -> str:
+def lead_card_section(*, lead_name: str = "Sam") -> str:
     """The card for THIS process's society, or ``""`` when there is none.
 
     Read by ``BrainManager._build_system_prompt`` on every prompt build; it

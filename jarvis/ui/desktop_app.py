@@ -6526,7 +6526,7 @@ class DesktopApp:
         )
         message = (
             "\n"
-            "Personal Jarvis could not open a native desktop window.\n"
+            "Road Dog could not open a native desktop window.\n"
             f"Reason: {exc}\n"
             "\n"
             "The backend is running and already serving the full UI. To use it:\n"

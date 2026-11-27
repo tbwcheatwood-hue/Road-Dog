@@ -2665,8 +2665,8 @@ class CodexAppServerClient:
             "initialize",
             {
                 "clientInfo": {
-                    "name": "personal_jarvis",
-                    "title": "Personal Jarvis",
+                    "name": "road_dog",
+                    "title": "Road Dog",
                     "version": __version__,
                 },
                 "capabilities": {

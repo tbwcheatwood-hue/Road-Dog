@@ -29,7 +29,7 @@ from jarvis.brain.assistant_name import DEFAULT_ASSISTANT_NAME, resolve_assistan
 
 log = logging.getLogger(__name__)
 
-PRODUCT_NAME: Final[str] = "Personal Jarvis"
+PRODUCT_NAME: Final[str] = "Road Dog"
 #: Tells a model that holds the ``update_soul`` tool to keep SOUL.md current.
 SOUL_UPDATE_DIRECTIVE: Final[str] = (
     "Keep your character file current yourself: when the user tells you how you should be "
