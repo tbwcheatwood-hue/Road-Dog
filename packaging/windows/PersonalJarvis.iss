@@ -17,7 +17,7 @@
 ;     (/RESTARTAPPLICATIONS would only restart apps registered with
 ;     RegisterApplicationRestart, which this one is not.)
 ;   * The uninstaller removes the program directory ONLY. Settings, memory,
-;     skills and logs live in %LOCALAPPDATA%\Jarvis and are deliberately kept, so
+;     skills and logs live in %LOCALAPPDATA%\Road Dog and are deliberately kept, so
 ;     an uninstall/reinstall cycle does not destroy the user's data.
 ;
 ; Compile through packaging/windows/build.ps1, which passes the version:
@@ -35,19 +35,21 @@
 #ifndef IconFile
   #define IconFile "..\..\assets\icons\jarvis.ico"
 #endif
-; NEVER change this default. It is the identity Windows upgrades against. Only
-; the installer end-to-end test overrides it (/DAppGuid=...), so its throwaway
-; install can never touch, upgrade or uninstall a real Personal Jarvis.
+; Road Dog's own AppId. The predecessor product keeps
+; 7F1C4E42-2E5B-4F0A-9E1B-1A7B6C0D5E88, so this installer does not upgrade
+; or uninstall that install. Do not change this guid once a Road Dog
+; release has shipped. The installer end-to-end test may override it
+; (/DAppGuid=...) for a throwaway install.
 #ifndef AppGuid
-  #define AppGuid "7F1C4E42-2E5B-4F0A-9E1B-1A7B6C0D5E88"
+  #define AppGuid "C4E8A17B-6D2F-4B9A-8C31-5F0E2A9D7B64"
 #endif
 
-#define AppName "Personal Jarvis"
-#define AppPublisher "Personal Jarvis"
-#define AppUrl "https://github.com/PersonalJarvis/PersonalJarvis"
-#define GuiExeName "PersonalJarvis.exe"
+#define AppName "Road Dog"
+#define AppPublisher "Road Dog"
+#define AppUrl "https://github.com/tbwcheatwood-hue/Road-Dog"
+#define GuiExeName "RoadDog.exe"
 #define CliExeName "jarvis.exe"
-#define UserDataDirDisplay "%LOCALAPPDATA%\Jarvis"
+#define UserDataDirDisplay "%LOCALAPPDATA%\Road Dog"
 
 [Setup]
 ; NEVER change AppGuid's default (see its #define above).

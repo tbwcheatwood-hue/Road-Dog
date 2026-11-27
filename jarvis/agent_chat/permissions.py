@@ -215,6 +215,59 @@ _DSH: Final[tuple[PermissionMode, ...]] = (
     ),
 )
 
+_KILO: Final[tuple[PermissionMode, ...]] = (
+    PermissionMode(
+        "ask",
+        "Ask before acting",
+        "Kilo's own permission rules decide. A headless run cannot ask back, "
+        "so anything they would have asked about is rejected. `--auto` is not passed.",
+    ),
+    PermissionMode(
+        "plan",
+        "Plan",
+        "The prompt is limited to a plan. Kilo has no plan-mode flag, so "
+        "`--auto` is not passed and a headless run rejects permission requests.",
+    ),
+    PermissionMode(
+        "auto",
+        "Full access",
+        "Permissions that Kilo's rules do not deny are approved without asking (`--auto`).",
+    ),
+)
+
+_ZCODE: Final[tuple[PermissionMode, ...]] = (
+    PermissionMode(
+        "plan",
+        "Plan",
+        "Read and plan only (`--mode plan`).",
+    ),
+    PermissionMode(
+        "build",
+        "Build",
+        "Z Code's build mode (`--mode build`). Headless runs cannot show an "
+        "approval prompt, so this is the stance used when the chat asks first. "
+        "It is not yolo.",
+    ),
+    PermissionMode(
+        "edit",
+        "Edit",
+        "File edits without the full yolo grant (`--mode edit`).",
+    ),
+    PermissionMode(
+        "guarded",
+        "Guarded",
+        "Z Code's guarded mode (`--mode guarded`). Selected only when this "
+        "stance was asked for.",
+    ),
+    PermissionMode(
+        "yolo",
+        "Full access",
+        "Everything Z Code would otherwise ask about runs (`--mode yolo`). "
+        "A headless prompt defaults to this when no mode is passed, so Road Dog "
+        "always passes a mode and uses yolo only for this stance.",
+    ),
+)
+
 _CURSOR: Final[tuple[PermissionMode, ...]] = (
     PermissionMode(
         "ask",
@@ -319,6 +372,10 @@ _LADDERS: Final[dict[str, tuple[tuple[PermissionMode, ...], str]]] = {
     "glm-cli": (_CLAUDE, "bypassPermissions"),
     "dsh-cli": (_DSH, "auto"),
     "cursor-cli": (_CURSOR, "auto"),
+    # Ask is the default. `--auto` is a separate, explicit stance.
+    "kilo-code-cli": (_KILO, "ask"),
+    # Build, never the CLI's yolo default. A missing `--mode` would be yolo.
+    "z-code-cli": (_ZCODE, "build"),
     "api": (_API, "auto"),
     JARVIS_LADDER: (_JARVIS, "bypass"),
     "society": (_SOCIETY, "bypass"),
@@ -344,6 +401,11 @@ _STANCE: Final[dict[str, int]] = {
     "skip-permissions": 3,
     "bypass": 3,
     "always_ask": 1,
+    # Z Code 0.18.0 mode names. yolo is the unrestricted one; the others are not.
+    "build": 1,
+    "edit": 2,
+    "guarded": 2,
+    "yolo": 3,
 }
 
 

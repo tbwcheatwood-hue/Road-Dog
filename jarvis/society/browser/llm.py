@@ -51,7 +51,22 @@ _MAP: Final[dict[str, tuple[str, str, str | None, bool]]] = {
     "grok": ("ChatOpenAI", "grok-4", "https://api.x.ai/v1", True),
     "ollama": ("ChatOllama", "llama3.1:8b", None, False),
     "local-openai": ("ChatOpenAI", "", "http://127.0.0.1:8080/v1", False),
+    # Filled from the LM Studio card (default http://127.0.0.1:1234/v1).
+    "lmstudio": ("ChatOpenAI", "", "", False),
 }
+
+
+def _lmstudio_openai_base() -> str:
+    """The LM Studio card's ``/v1`` URL, after alias and root normalization."""
+    from jarvis.core.config import resolve_provider_endpoint
+    from jarvis.plugins.brain.local_openai import LMSTUDIO_DEFAULT_ROOT
+    from jarvis.plugins.brain.ollama import normalize_server_root
+
+    resolved = resolve_provider_endpoint(
+        "lmstudio", vendor_default_base_url=LMSTUDIO_DEFAULT_ROOT
+    )
+    root = (resolved.base_url or LMSTUDIO_DEFAULT_ROOT).strip()
+    return normalize_server_root(root) + "/v1"
 
 
 def llm_spec_for(
@@ -69,6 +84,8 @@ def llm_spec_for(
             FailureReason.BLOCKED_BY_POLICY, f"no browser model for provider {provider!r}"
         )
     cls, default_model, default_base, needs_key = entry
+    if pid == "lmstudio" and not (base_url or "").strip():
+        default_base = _lmstudio_openai_base()
     key: str | None = None
     if needs_key:
         lookup = secret

@@ -80,6 +80,9 @@ class LaunchPicks:
     model_args: tuple[str, ...] = ()
     effort_args: tuple[str, ...] = ()
     permission_args: tuple[tuple[str, tuple[str, ...]], ...] = field(default_factory=tuple)
+    #: Environment variable that carries the model when the CLI has no model
+    #: flag. Empty means a model pick travels on ``model_args`` or not at all.
+    model_env: str = ""
     #: Which permission ladder describes the modes above, when it is not the
     #: one behind ``provider``. For a CLI with no catalog row of its own —
     #: OpenCode, Kimi — this is what gives its modes real sentences instead of
@@ -214,7 +217,7 @@ def normalize_model(agent: str, model: str | None) -> str:
     """
     picks = picks_for(agent)
     wanted = (model or "").strip()
-    if picks is None or not picks.model_args or not wanted:
+    if picks is None or not wanted or not (picks.model_args or picks.model_env):
         return ""
     offered = {row["id"] for row in offered_models(agent)}
     if wanted in offered:
@@ -503,6 +506,28 @@ def launch_argv(
     if mode := normalize_permission(agent, permission_mode):
         argv += list(picks.permission_argv(mode) or ())
     return tuple(argv)
+
+
+def launch_env(
+    agent: str,
+    *,
+    model: str = "",
+    effort: str = "",
+) -> dict[str, str]:
+    """Environment additions for picks that are not argv flags.
+
+    Z Code 0.18.0 selects a model with ``/model`` inside the TUI and has no
+    headless ``--model`` flag, so this stays empty unless an entry declares
+    ``model_env``. Effort is argv-only today.
+    """
+    del effort
+    picks = picks_for(agent)
+    if picks is None or not picks.model_env:
+        return {}
+    chosen = normalize_model(agent, model)
+    if not chosen:
+        return {}
+    return {picks.model_env: chosen}
 
 
 def offered(agent: str, live: Mapping[str, list[dict[str, Any]]] | None = None) -> dict[str, Any]:

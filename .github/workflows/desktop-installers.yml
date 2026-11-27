@@ -142,7 +142,7 @@ jobs:
         run: pwsh packaging/windows/build.ps1
 
       - name: Verify frozen browser provisioning and restart
-        run: python scripts/ci/check_frozen_browser.py --executable dist/Jarvis/PersonalJarvis.exe --output frozen-browser-proof
+        run: python scripts/ci/check_frozen_browser.py --executable dist/Jarvis/RoadDog.exe --output frozen-browser-proof
 
       - name: Preserve frozen browser evidence
         if: always()

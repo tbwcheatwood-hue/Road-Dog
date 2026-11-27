@@ -75,9 +75,15 @@ _LADDERS: Final[dict[str, tuple[tuple[str, ...], str]]] = {
     "glm": (("",), ""),
     "deepseek-harness": (("",), ""),
     "cursor": (("",), ""),
+    # Kilo ``--variant`` examples from the CLI reference. Empty default means
+    # the flag is omitted until someone picks a level.
+    "kilo": (("minimal", "high", "max"), ""),
+    # Z Code 0.18.0 has no reasoning-effort flag.
+    "zcode": (("",), ""),
     "nvidia": (("", "none", "low", "medium", "high"), ""),
     "ollama": (("", "none", "low", "medium", "high", "max"), ""),
     "local-openai": (("", "none", "low", "medium", "high"), ""),
+    "lmstudio": (("", "none", "low", "medium", "high"), ""),
 }
 
 _FALLBACK_LADDER: Final[tuple[tuple[str, ...], str]] = (("", "low", "medium", "high"), "")

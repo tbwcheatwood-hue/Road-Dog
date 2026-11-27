@@ -54,6 +54,7 @@ _PROVIDER_TTL_CAP_SECONDS: dict[str, float] = {
     # server restart, and the fetch is a LAN round-trip — keep it near-live.
     "ollama": 60,
     "local-openai": 60,
+    "lmstudio": 60,
 }
 
 # The brain providers whose catalogs we can enumerate. Codex is excluded
@@ -72,6 +73,7 @@ CATALOG_PROVIDERS: tuple[str, ...] = (
     # local-openai via the standard /v1/models.
     "ollama",
     "local-openai",
+    "lmstudio",
 )
 
 
@@ -138,6 +140,15 @@ _ENDPOINTS: dict[str, _CatalogEndpoint] = {
         "/v1/models",
         "none",
         secret_slot=("local_openai_api_key", "LOCAL_OPENAI_API_KEY"),
+    ),
+    # LM Studio's own server. The vendor default is its documented port;
+    # a URL saved on the LM Studio card replaces it. Discovery is GET
+    # ``/v1/models`` and does not start the server.
+    "lmstudio": _CatalogEndpoint(
+        "http://127.0.0.1:1234",
+        "/v1/models",
+        "none",
+        secret_slot=("lmstudio_api_key", "LMSTUDIO_API_KEY"),
     ),
 }
 
@@ -1977,14 +1988,19 @@ class ModelCatalog:
         normalized away, ollama honors OLLAMA_HOST); cloud providers compose
         exactly like the former static table with no override configured.
         """
-        if provider in ("ollama", "local-openai"):
+        if provider in ("ollama", "local-openai", "lmstudio"):
             # Lazy plugin import (pure helpers) — keeps module import light.
             from jarvis.plugins.brain.ollama import (
                 default_server_root,
                 normalize_server_root,
             )
 
-            vendor_default = default_server_root() if provider == "ollama" else None
+            if provider == "ollama":
+                vendor_default = default_server_root()
+            else:
+                # LM Studio carries its documented port. The generic local
+                # server has none, so an empty card stays an honest error.
+                vendor_default = ep.vendor_base
             resolved = cfg.resolve_provider_endpoint(
                 provider, vendor_default_base_url=vendor_default
             )

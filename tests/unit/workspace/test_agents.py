@@ -7,6 +7,7 @@ from __future__ import annotations
 
 import asyncio
 import sys
+from pathlib import Path
 
 import pytest
 
@@ -180,36 +181,71 @@ def test_kilo_code_and_z_code_are_registered() -> None:
     kilo = get_agent("kilo-code")
     assert kilo is not None
     assert kilo.display_name == "Kilo Code"
-    assert kilo.executable == "kilo-code"
-    assert kilo.launch_command == "kilo-code"
+    assert kilo.executable == "kilo"
+    assert kilo.launch_command == "kilo"
+    assert kilo.binary_aliases == ("kilo-code",)
     assert kilo.needs_trust is False
     assert kilo.account is None
     assert kilo.file_reference == "at"
     assert kilo.input_markers == ("→",)
     assert kilo.spawn_env_factory is not None
+    assert kilo.launch_picks is not None
+    assert kilo.launch_picks.permission_argv("auto") == ("--auto",)
+    assert kilo.launch_picks.permission_argv("ask") == ()
+    assert kilo.launch_picks.permission_argv("plan") == ()
 
     z = get_agent("z-code")
     assert z is not None
-    assert z.display_name == "Zed Code"
-    assert z.executable == "z-code"
-    assert z.launch_command == "z-code"
+    assert z.display_name == "Z Code"
+    assert z.executable == "zcode"
+    assert z.launch_command == "zcode"
+    assert z.binary_aliases == ("z-code",)
     assert z.needs_trust is False
     assert z.account is None
     assert z.file_reference == "at"
     assert z.input_markers == ("→",)
     assert z.spawn_env_factory is not None
+    assert z.argv_factory is not None
+    assert z.launch_picks is not None
+    assert z.launch_picks.permission_argv("yolo") == ("--mode", "yolo")
+    assert z.launch_picks.permission_argv("build") == ("--mode", "build")
+    assert z.launch_picks.permission_argv("plan") == ("--mode", "plan")
 
 
-def test_kilo_code_and_z_code_degrade_when_unconfigured() -> None:
-    """Without an API key the spawn env factory returns None — safe default,
-    never a half-set environment that would talk to the wrong vendor."""
-    from jarvis.workspace.agents import (
-        kilo_code_spawn_env,
-        z_code_spawn_env,
+def test_kilo_code_and_z_code_degrade_when_unconfigured(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+) -> None:
+    """No key and no vendor file refuses the launch. A vendor file or a key starts it."""
+    from jarvis.workspace import agents as registry
+
+    monkeypatch.setattr(registry, "_config_home", lambda: tmp_path)
+    monkeypatch.setattr(
+        "jarvis.core.config.get_secret",
+        lambda key, env=None: "",
     )
+    assert registry.kilo_code_spawn_env() is None
+    assert registry.z_code_spawn_env() is None
 
-    assert kilo_code_spawn_env() is None
-    assert z_code_spawn_env() is None
+    (tmp_path / ".config" / "kilo").mkdir(parents=True)
+    (tmp_path / ".config" / "kilo" / "kilo.json").write_text('{"provider":{}}', encoding="utf-8")
+    assert registry.kilo_code_spawn_env() == {}
+
+    monkeypatch.setattr(
+        "jarvis.core.config.get_secret",
+        lambda key, env=None: "kilo-test-token" if key == "kilo_api_key" else "",
+    )
+    assert registry.kilo_code_spawn_env() == {"KILO_API_KEY": "kilo-test-token"}
+
+    monkeypatch.setattr(
+        "jarvis.core.config.get_secret",
+        lambda key, env=None: "zai-test-token" if key == "zai_api_key" else "",
+    )
+    assert registry.z_code_spawn_env() == {"ANTHROPIC_API_KEY": "zai-test-token"}
+
+    (tmp_path / ".zcode" / "cli").mkdir(parents=True)
+    (tmp_path / ".zcode" / "cli" / "config.json").write_text("{}", encoding="utf-8")
+    # Vendor config wins and the key is not copied over it.
+    assert registry.z_code_spawn_env() == {}
 
 
 def test_cursor_is_unchanged_after_adding_kilo_and_z_code() -> None:
@@ -234,6 +270,7 @@ def test_kilo_code_and_z_code_are_reversible() -> None:
     kilo = registry.get_agent("kilo-code")
     z = registry.get_agent("z-code")
     assert kilo is not None and z is not None
+    snapshot = list(registry._AGENTS.items())
 
     try:
         registry._AGENTS.pop("kilo-code", None)
@@ -248,11 +285,10 @@ def test_kilo_code_and_z_code_are_reversible() -> None:
         assert cursor.display_name == "Cursor CLI"
         assert cursor.launch_command == "agent"
     finally:
-        # Restore for any other tests that import the full registry.
-        if kilo is not None:
-            registry._AGENTS["kilo-code"] = kilo
-        if z is not None:
-            registry._AGENTS["z-code"] = z
+        # Restore the original insertion order. Re-adding at the end would
+        # move these CLIs behind every other seat.
+        registry._AGENTS.clear()
+        registry._AGENTS.update(snapshot)
         registry.invalidate_agent_detection()
 
 

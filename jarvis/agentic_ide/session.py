@@ -797,6 +797,11 @@ def _spawn_env(term: Terminal) -> dict[str, str] | None:
         env = agent_accounts.spawn_env(term.agent, term.account)  # type: ignore[arg-type]
 
     overlay = agent_spawn_overlay(term.agent)
+    from jarvis.workspace.launch_picks import launch_env
+
+    overlay.update(
+        launch_env(term.agent, model=term.model, effort=term.effort)
+    )
     if not overlay:
         return _without_parent_agent_session(env)
     env = dict(os.environ if env is None else env)
@@ -920,6 +925,11 @@ def agent_argv(agent: str) -> tuple[str, ...] | None:
         return None
     if not spec.is_coding_agent:
         return workspace_agents.plain_terminal_argv()
+    if spec.argv_factory is not None:
+        resolved = spec.argv_factory()
+        if not resolved:
+            return None
+        return (*resolved, *spec.launch_args)
     binary = spec.executable or spec.launch_command or spec.name
     try:
         from jarvis.core.path_augment import ensure_cli_paths

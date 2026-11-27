@@ -245,25 +245,48 @@ def test_grok_build() -> AgentCliTestResult:
     )
 
 
-def test_kilo_code() -> AgentCliTestResult:
-    """Probe the Kilo Code binary.
+def _credential_state(factory: Any) -> tuple[bool, str, str]:
+    """``(configured, auth_mode, sentence)`` from a spawn-env factory.
 
-    The binary name ``kilo-code`` is a placeholder that must be confirmed
-    against a live install. No auth service exists for this product yet, so
-    the probe only checks that the binary is present and answers ``--version``.
+    A stored key or a vendor file means configured. It does not mean the
+    provider accepted the credential.
     """
-    from jarvis.agent_chat.runner_cli import CLI_BINARIES, _which
+    try:
+        env = factory()
+    except Exception as exc:  # noqa: BLE001 — the probe reports the failure
+        return False, "unavailable", f"Credential check failed ({type(exc).__name__})."
+    if env is None:
+        return False, "unconfigured", "No API key and no vendor credential file."
+    if env:
+        return True, "configured", "A credential is stored for this CLI. It was not sent to the vendor."
+    return True, "vendor-config", "The CLI's own config is present. It was not opened and no request was sent."
+
+
+def test_kilo_code() -> AgentCliTestResult:
+    """Probe the Kilo Code CLI and whether it is configured.
+
+    The binary is ``kilo``. Configuration is a Road Dog key or Kilo's own
+    config directory. Neither is treated as a successful authentication.
+    """
+    from jarvis.agent_chat.runner_cli import kilo_argv_prefix
+    from jarvis.workspace.agents import kilo_code_spawn_env
 
     t0 = time.monotonic()
     ensure_cli_paths()
-    binary = _which(*CLI_BINARIES["kilo-code-cli"])
-    if binary is None:
+    try:
+        argv = kilo_argv_prefix()
+    except Exception:  # noqa: BLE001 — missing CLI is the not-installed result
+        argv = []
+    if not argv:
         return _not_installed(
             "kilo-code",
-            "Install the Kilo Code CLI and make sure ``kilo-code`` is on PATH.",
+            "Install Kilo Code with https://kilo.ai/cli/install or "
+            "`npm install -g @kilocode/cli`, then make sure `kilo` is on PATH.",
             t0,
         )
-    version = _live_version([binary])
+    binary = argv[0]
+    version = _live_version([*argv, "--version"])
+    configured, auth_mode, auth_detail = _credential_state(kilo_code_spawn_env)
     if version is None:
         return AgentCliTestResult(
             cli="kilo-code",
@@ -272,12 +295,9 @@ def test_kilo_code() -> AgentCliTestResult:
             binary_path=binary,
             version=None,
             connected=False,
-            auth_mode="unknown",
+            auth_mode=auth_mode,
             account=None,
-            message=(
-                f"Found Kilo Code at {binary}, but '--version' did not answer "
-                "— the install looks broken."
-            ),
+            message=f"Found Kilo Code at {binary}, but '--version' did not answer. {auth_detail}",
             searched_path=_searched_path_dirs(),
             duration_ms=int((time.monotonic() - t0) * 1000),
         )
@@ -287,34 +307,37 @@ def test_kilo_code() -> AgentCliTestResult:
         installed=True,
         binary_path=binary,
         version=version,
-        connected=False,
-        auth_mode="unknown",
+        connected=configured,
+        auth_mode=auth_mode,
         account=None,
-        message=f"Kilo Code answered at {binary}.",
+        message=f"Kilo Code {version} at {binary}. {auth_detail}",
         searched_path=_searched_path_dirs(),
         duration_ms=int((time.monotonic() - t0) * 1000),
     )
 
 
 def test_z_code() -> AgentCliTestResult:
-    """Probe the Z Code binary.
+    """Probe the Z Code headless CLI, not the desktop app of the same name.
 
-    The binary name ``z-code`` is a placeholder that must be confirmed
-    against a live install. No auth service exists for this product yet, so
-    the probe only checks that the binary is present and answers ``--version``.
+    ``connected`` means a vendor config file or a stored key exists. The probe
+    does not log in and does not send a prompt.
     """
-    from jarvis.agent_chat.runner_cli import CLI_BINARIES, _which
+    from jarvis.workspace.agents import z_code_spawn_env
+    from jarvis.workspace.zcode_cli import resolve_zcode_argv
 
     t0 = time.monotonic()
     ensure_cli_paths()
-    binary = _which(*CLI_BINARIES["z-code-cli"])
-    if binary is None:
+    argv = resolve_zcode_argv()
+    if not argv:
         return _not_installed(
             "z-code",
-            "Install the Z Code CLI and make sure ``z-code`` is on PATH.",
+            "The Z Code desktop app is not the headless CLI. Install the CLI "
+            "from the Z Code app or https://github.com/zai-org/ZCode.",
             t0,
         )
-    version = _live_version([binary])
+    binary = argv[-1]
+    version = _live_version([*argv, "--version"])
+    configured, auth_mode, auth_detail = _credential_state(z_code_spawn_env)
     if version is None:
         return AgentCliTestResult(
             cli="z-code",
@@ -323,12 +346,9 @@ def test_z_code() -> AgentCliTestResult:
             binary_path=binary,
             version=None,
             connected=False,
-            auth_mode="unknown",
+            auth_mode=auth_mode,
             account=None,
-            message=(
-                f"Found Z Code at {binary}, but '--version' did not answer "
-                "— the install looks broken."
-            ),
+            message=f"Found the Z Code CLI at {binary}, but '--version' did not answer. {auth_detail}",
             searched_path=_searched_path_dirs(),
             duration_ms=int((time.monotonic() - t0) * 1000),
         )
@@ -338,10 +358,10 @@ def test_z_code() -> AgentCliTestResult:
         installed=True,
         binary_path=binary,
         version=version,
-        connected=False,
-        auth_mode="unknown",
+        connected=configured,
+        auth_mode=auth_mode,
         account=None,
-        message=f"Z Code answered at {binary}.",
+        message=f"Z Code CLI {version} at {binary}. {auth_detail}",
         searched_path=_searched_path_dirs(),
         duration_ms=int((time.monotonic() - t0) * 1000),
     )

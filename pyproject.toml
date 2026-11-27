@@ -592,6 +592,7 @@ grok = "jarvis.plugins.brain.grok:GrokBrain"
 # serve, llama.cpp llama-server, vLLM, and LM Studio with one adapter.
 ollama = "jarvis.plugins.brain.ollama:OllamaBrain"
 local-openai = "jarvis.plugins.brain.local_openai:LocalOpenAIBrain"
+lmstudio = "jarvis.plugins.brain.local_openai:LMStudioBrain"
 
 [project.entry-points."jarvis.harness"]
 python-script = "jarvis.plugins.harness.python_script:PythonScriptHarness"
@@ -975,6 +976,9 @@ markers = [
 # Only cryptography may resolve through the reviewed native wheel index.
 [[tool.uv.index]]
 name = "native-crypto"
+# Probed 2026-11-26: this URL, the predecessor Pages index, and a
+# Road-Dog Pages path all returned HTTP 404. The pin stays so resolution
+# fails closed. Do not point it at an index that does not serve the wheel.
 url = "https://tbwcheatwood-hue.github.io/Hue/native-crypto/50.0.2-1/simple/"
 explicit = true
 

@@ -11,20 +11,20 @@ from __future__ import annotations
 import os
 from collections.abc import Mapping
 
-PRODUCT_NAME = "Personal Jarvis"
-PRODUCT_COMPACT_NAME = "PersonalJarvis"
-PRODUCT_SLUG = "personal-jarvis"
+PRODUCT_NAME = "Road Dog"
+PRODUCT_COMPACT_NAME = "RoadDog"
+PRODUCT_SLUG = "road-dog"
 
 CONFIG_FILE_NAME = "jarvis.toml"
 KEYRING_SERVICE_NAME = PRODUCT_SLUG
 CONTROL_KEY_PREFIX = "jctl_"
-SESSION_COOKIE_NAME = "jarvis_session"
-MANAGED_INSTALL_MARKER = ".jarvis-managed-install"
-DEFAULT_INSTALL_DIR_NAME = ".personal-jarvis"
+SESSION_COOKIE_NAME = "road_dog_session"
+MANAGED_INSTALL_MARKER = ".road-dog-managed-install"
+DEFAULT_INSTALL_DIR_NAME = ".road-dog"
 
-WINDOWS_USER_DATA_DIR_NAME = "Jarvis"
-FALLBACK_USER_DATA_DIR_NAME = ".jarvis"
-DESKTOP_OUTPUT_MIRROR_DIR_NAME = "Jarvis-Output"
+WINDOWS_USER_DATA_DIR_NAME = "Road Dog"
+FALLBACK_USER_DATA_DIR_NAME = ".road-dog"
+DESKTOP_OUTPUT_MIRROR_DIR_NAME = "RoadDog-Output"
 
 WINDOWS_MUTEX_NAME = rf"Global\{PRODUCT_COMPACT_NAME}_v1"
 WINDOWS_APP_USER_MODEL_ID = f"{PRODUCT_COMPACT_NAME}.{PRODUCT_COMPACT_NAME}"

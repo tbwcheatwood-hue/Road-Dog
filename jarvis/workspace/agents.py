@@ -31,12 +31,16 @@ from __future__ import annotations
 
 import asyncio
 import logging
+import os
+import shlex
 import sys
 import time
 from collections.abc import Callable
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Literal
+
+from jarvis.workspace.zcode_cli import resolve_zcode_argv
 
 from jarvis.clis.prober import CliStatusProber
 from jarvis.clis.spec import AuthConfig, CliSpec, CliStatus, InstallMethods, RiskConfig
@@ -229,6 +233,11 @@ class WorkspaceAgent:
     #: configured" and must stop the launch — never a half-set environment,
     #: which is how a pane silently talks to the wrong vendor.
     spawn_env_factory: Callable[[], dict[str, str] | None] | None = None
+    #: Resolves the real argv when the command name on PATH is not the process
+    #: that should run (the Z Code desktop app and its headless CLI share a
+    #: name). ``None`` means the binary name is enough. An empty result means
+    #: the CLI is not installed; callers must not fall back to a GUI binary.
+    argv_factory: Callable[[], list[str] | None] | None = None
     #: Answers which GENERATION of the CLI is installed, when a vendor ships two
     #: under one binary name. ``None`` when there is only ever one.
     generation_probe: Callable[[], str | None] | None = None
@@ -516,44 +525,128 @@ def _cursor_cli_install() -> InstallMethods:
     return InstallMethods(script_url=url, recommended="script")
 
 
+def _config_home() -> Path:
+    """Home directory used for vendor-config discovery. Tests replace this."""
+    return Path.home()
+
+
+def _nonempty_file(path: Path) -> bool:
+    """True when ``path`` exists and has bytes. The contents are not read."""
+    try:
+        return path.is_file() and path.stat().st_size > 0
+    except OSError:
+        return False
+
+
 def _kilo_code_install() -> InstallMethods:
-    """Official Kilo Code installer — URL to be confirmed (TBC)."""
-    url = (
-        "https://kilo.dev/install?win32=true"
-        if sys.platform == "win32"
-        else "https://kilo.dev/install"
+    """Official Kilo Code installers (https://kilo.ai/install).
+
+    The shell installer is POSIX. Windows uses the same npm package the
+    install page lists for every platform (``@kilocode/cli``), which is also
+    offered on POSIX as the fallback method.
+    """
+    if sys.platform == "win32":
+        return InstallMethods(npm_package="@kilocode/cli", recommended="npm")
+    return InstallMethods(
+        npm_package="@kilocode/cli",
+        script_url="https://kilo.ai/cli/install",
+        recommended="script",
     )
-    return InstallMethods(script_url=url, recommended="script")
+
+
+def kilo_vendor_configured(home: Path | None = None) -> bool:
+    """Whether Kilo's own config directory already holds a credential file.
+
+    ``kilo auth`` / ``/connect`` write under ``~/.config/kilo``. A non-empty
+    file is configuration, not proof the key is accepted by a provider.
+    """
+    root = home if home is not None else _config_home()
+    xdg = os.environ.get("XDG_CONFIG_HOME", "").strip()
+    config_roots = [root / ".config" / "kilo"]
+    if xdg:
+        config_roots.append(Path(xdg) / "kilo")
+    names = ("kilo.jsonc", "kilo.json", "config.json", "auth.json")
+    return any(_nonempty_file(directory / name) for directory in config_roots for name in names)
 
 
 def kilo_code_spawn_env() -> dict[str, str] | None:
-    """Environment for Kilo Code; None when not configured (safe default)."""
+    """Environment for a Kilo pane, or None when Kilo has no credentials.
+
+    A key stored for Road Dog is passed as ``KILO_API_KEY``. Kilo's published
+    CLI maps ``KILO_<FIELD>`` onto provider config fields, and ``KILO_API_KEY``
+    is the documented ``apiKey`` override. When that key is absent but Kilo
+    already has its own config, the pane still starts and Kilo uses that
+    config. Neither case is turned into ``--auto``.
+    """
     from jarvis.core.config import get_secret
 
-    token = (get_secret("kilocode_api_key", "KILOCODE_API_KEY") or "").strip()
-    if not token:
-        return None
-    return {"KILOCODE_API_KEY": token}
+    token = (
+        get_secret("kilocode_api_key", "KILOCODE_API_KEY")
+        or get_secret("kilo_api_key", "KILO_API_KEY")
+        or ""
+    ).strip()
+    if token:
+        return {"KILO_API_KEY": token}
+    if kilo_vendor_configured():
+        return {}
+    return None
 
 
 def _z_code_install() -> InstallMethods:
-    """Official Z Code installer — URL to be confirmed (TBC)."""
-    url = (
-        "https://z-code.dev/install?win32=true"
-        if sys.platform == "win32"
-        else "https://z-code.dev/install"
+    """Z Code does not publish an npm package we can safely install.
+
+    ``npm install zcode`` is an unrelated stub. The headless CLI ships inside
+    the desktop app (``resources/glm/zcode.cjs``) or from the Z.AI source
+    distribution. The install action therefore opens the project page instead
+    of running a package manager.
+    """
+    return InstallMethods(
+        manual_url="https://github.com/zai-org/ZCode",
+        recommended="manual",
     )
-    return InstallMethods(script_url=url, recommended="script")
+
+
+def zcode_vendor_configured(home: Path | None = None) -> bool:
+    """Whether Z Code already has a CLI or desktop config file.
+
+    Existence is configuration only. The files are not opened, so a stored
+    key is not treated as a successful login.
+    """
+    root = home if home is not None else _config_home()
+    return any(
+        _nonempty_file(path)
+        for path in (
+            root / ".zcode" / "cli" / "config.json",
+            root / ".zcode" / "v2" / "config.json",
+            root / ".zcode" / "v2" / "auth.json",
+        )
+    )
 
 
 def z_code_spawn_env() -> dict[str, str] | None:
-    """Environment for Z Code; None when not configured (safe default)."""
+    """Environment for a Z Code pane, or None when nothing is configured.
+
+    Z Code 0.18.0 reads the login it stored itself (``zcode login`` or the
+    desktop app). That layout wins: injecting a key over it can point the
+    CLI at a different account. A Road Dog Z.AI key is passed as
+    ``ANTHROPIC_API_KEY`` only when those files are absent, because that is
+    the environment variable the bundled client still names for an
+    Anthropic-compatible provider. ``ZCODE_API_KEY`` is not set: the 0.18.0
+    bundle does not read it. An empty result means "use the vendor files";
+    ``None`` means "do not start".
+    """
     from jarvis.core.config import get_secret
 
-    token = (get_secret("zcode_api_key", "ZCODE_API_KEY") or "").strip()
-    if not token:
-        return None
-    return {"ZCODE_API_KEY": token}
+    if zcode_vendor_configured():
+        return {}
+    token = (
+        get_secret("zcode_api_key", "ZCODE_API_KEY")
+        or get_secret("zai_api_key", "ZAI_API_KEY")
+        or ""
+    ).strip()
+    if token:
+        return {"ANTHROPIC_API_KEY": token}
+    return None
 
 
 #: Kimi ships under two generations that both install a binary called ``kimi``.
@@ -793,6 +886,38 @@ _CURSOR_PICKS = LaunchPicks(
 )
 _CURSOR_RUNTIME = RuntimePicks(model=f"/model {picks_value}")
 
+#: Kilo Code 1.x ``kilo run`` takes ``--model``, ``--variant`` (reasoning
+#: effort) and ``--auto``. There is no plan-mode flag. Ask and plan therefore
+#: add no permission flag: ``--auto`` is only the explicit full-access stance,
+#: and omitting it must not be replaced with that flag.
+_KILO_PICKS = LaunchPicks(
+    provider="kilo",
+    model_args=("--model", picks_value),
+    effort_args=("--variant", picks_value),
+    permission_args=(
+        ("ask", ()),
+        ("plan", ()),
+        ("auto", ("--auto",)),
+    ),
+    ladder="kilo-code-cli",
+)
+
+#: Z Code 0.18.0 takes ``--mode`` and defaults ``--prompt`` to ``yolo``.
+#: Every stance names its mode. There is no ``--model`` flag (``/model`` is
+#: the TUI command), so a model pick is not placed on the argv.
+_ZCODE_PICKS = LaunchPicks(
+    provider="zcode",
+    permission_args=(
+        ("plan", ("--mode", "plan")),
+        ("build", ("--mode", "build")),
+        ("edit", ("--mode", "edit")),
+        ("guarded", ("--mode", "guarded")),
+        ("yolo", ("--mode", "yolo")),
+    ),
+    ladder="z-code-cli",
+)
+_ZCODE_RUNTIME = RuntimePicks(model=f"/model {picks_value}")
+
 
 _AGENTS: dict[str, WorkspaceAgent] = {
     "claude": make_cli_agent(
@@ -904,55 +1029,43 @@ _AGENTS: dict[str, WorkspaceAgent] = {
         # switches that did not happen. Tracked in docs/os-parity.md.
     spoken_aliases=("cursor", "cursor cli", "cursor-cli", "cursor agent"),
 ),
-# ------------------------------------------------------------------ Kilo Code
-#
-# NOTE: this product is not referenced anywhere in the repo or its docs.
-# The binary name, install URL and CLI flags below are PLACEHOLDERS that
-# MUST be confirmed against a live install before Kilo Code will spawn.
-# The entry registers safely and degrades to "not configured" until then:
-# spawn_env_factory returns None when no key is present, so a pane of it
-# cannot start talking to the wrong vendor.
     "kilo-code": make_cli_agent(
         "kilo-code",
         "Kilo Code",
-        binary="kilo-code",
+        launch_picks=_KILO_PICKS,
+        binary="kilo",
+        binary_aliases=("kilo-code",),
         install=_kilo_code_install(),
-        homepage="https://kilo.dev",
-        description="Kilo Code terminal coding agent — binary name and install URL TBC.",
+        homepage="https://kilo.ai/docs/code-with-ai/platforms/cli",
+        description="Kilo Code's terminal coding agent.",
         needs_trust=False,
         extra_path_dirs=("~/.local/bin",),
         file_reference="at",
         instruction_filename="AGENTS.md",
         input_markers=("→",),
         version_regex=_LOOSE_SEMVER_RE,
-        # DELIBERATELY no AccountSpec — credential layout not verified.
         spawn_env_factory=kilo_code_spawn_env,
-        spawn_env=(("KILOCODE_NO_AUTO_UPDATE", "1"),),
         spoken_aliases=("kilo", "kilo code", "kilocode"),
     ),
-    # ------------------------------------------------------------------ Z Code
-    #
-    # NOTE: this product is not referenced anywhere in the repo or its docs.
-    # The binary name, install URL and CLI flags below are PLACEHOLDERS that
-    # MUST be confirmed against a live install before Z Code will spawn.
-    # Same safe-default design: spawn_env_factory returns None when unconfigured.
     "z-code": make_cli_agent(
         "z-code",
-        "Zed Code",
-        binary="z-code",
+        "Z Code",
+        launch_picks=_ZCODE_PICKS,
+        runtime_picks=_ZCODE_RUNTIME,
+        binary="zcode",
+        binary_aliases=("z-code",),
         install=_z_code_install(),
-        homepage="https://z-code.dev",
-        description="Z Code terminal coding agent — binary name and install URL TBC.",
+        homepage="https://github.com/zai-org/ZCode",
+        description="Z.AI Z Code's terminal coding agent.",
         needs_trust=False,
         extra_path_dirs=("~/.local/bin",),
         file_reference="at",
         instruction_filename="AGENTS.md",
         input_markers=("→",),
         version_regex=_LOOSE_SEMVER_RE,
-        # DELIBERATELY no AccountSpec — credential layout not verified.
         spawn_env_factory=z_code_spawn_env,
-        spawn_env=(("ZCODE_NO_AUTO_UPDATE", "1"),),
-        spoken_aliases=("z code", "zcode", "zed"),
+        argv_factory=resolve_zcode_argv,
+        spoken_aliases=("z code", "zcode", "zed code"),
     ),
     "opencode": make_cli_agent(
         "opencode",
@@ -1811,6 +1924,15 @@ async def recheck_agent(name: str) -> AgentInfo | None:
     await asyncio.to_thread(_augment_path)
     if name == "cursor":
         return _agent_info(agent, status=await _cursor_status(), shell=None, on_path=False)
+    if agent.argv_factory is not None:
+        argv = await asyncio.to_thread(agent.argv_factory)
+        binary = argv[-1] if argv else None
+        return _agent_info(
+            agent,
+            status=CliStatus(installed=bool(argv), binary_path=binary),
+            shell=None,
+            on_path=False,
+        )
     if agent.spec is not None:
         status = await CliStatusProber().probe(agent.spec)
         return _agent_info(agent, status=status, shell=None, on_path=False)
@@ -1897,6 +2019,12 @@ def build_agent_argv(name: str) -> tuple[str, ...] | None:
     # Only catalog-owned permission defaults enter this shell command;
     # request-supplied model, effort and permission strings are not accepted.
     defaults = launch_argv(name)
+    if agent.argv_factory is not None:
+        resolved = agent.argv_factory()
+        if not resolved:
+            return None
+        command = " ".join(shlex.quote(part) for part in (*resolved, *defaults))
+        return _build_pty_argv(command)
     command = " ".join((agent.launch_command, *defaults))
     return _build_pty_argv(command)
 

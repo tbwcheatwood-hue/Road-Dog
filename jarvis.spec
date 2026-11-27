@@ -45,12 +45,12 @@ ICON_DIR = PROJECT_ROOT / "assets" / "icons"
 # the release contract address the bundle as `dist/Jarvis/`.
 BUNDLE_DIR_NAME = "Jarvis"
 # Windowed launcher; see the header note on the case-collision.
-GUI_EXE_NAME = "PersonalJarvis"
+GUI_EXE_NAME = "RoadDog"
 # Console entry point. Same name as the pip console script on purpose.
 CLI_EXE_NAME = "jarvis"
 
-MACOS_APP_NAME = "Personal Jarvis.app"
-MACOS_BUNDLE_IDENTIFIER = "ai.personaljarvis.desktop"
+MACOS_APP_NAME = "Road Dog.app"
+MACOS_BUNDLE_IDENTIFIER = "ai.roaddog.desktop"
 MACOS_MIN_SYSTEM_VERSION = "12.0"
 
 
@@ -181,7 +181,7 @@ if profiles_dir.exists():
 
 # Preserve distribution metadata so importlib.metadata can discover the Jarvis
 # entry-point plugins in the frozen layout.
-datas += copy_metadata("personal-jarvis")
+datas += copy_metadata("road-dog")
 
 # Legacy optional data packages are collected only when installed.
 for pkg in ("chromadb", "sentence_transformers"):
@@ -362,16 +362,16 @@ if sys.platform == "win32":
                     StringTable(
                         "040904B0",
                         [
-                            StringStruct("CompanyName", "Personal Jarvis"),
-                            StringStruct("FileDescription", "Personal Jarvis"),
+                            StringStruct("CompanyName", "Road Dog"),
+                            StringStruct("FileDescription", "Road Dog"),
                             StringStruct("FileVersion", VERSION),
                             StringStruct("InternalName", GUI_EXE_NAME),
                             StringStruct(
                                 "LegalCopyright",
-                                "Personal Jarvis contributors. Apache 2.0 licensed.",
+                                "Road Dog contributors. Apache 2.0 licensed.",
                             ),
                             StringStruct("OriginalFilename", f"{GUI_EXE_NAME}.exe"),
-                            StringStruct("ProductName", "Personal Jarvis"),
+                            StringStruct("ProductName", "Road Dog"),
                             StringStruct("ProductVersion", VERSION),
                         ],
                     )
@@ -464,8 +464,8 @@ if sys.platform == "darwin":
         bundle_identifier=MACOS_BUNDLE_IDENTIFIER,
         version=VERSION,
         info_plist={
-            "CFBundleName": "Personal Jarvis",
-            "CFBundleDisplayName": "Personal Jarvis",
+            "CFBundleName": "Road Dog",
+            "CFBundleDisplayName": "Road Dog",
             "CFBundleExecutable": GUI_EXE_NAME,
             "CFBundleIdentifier": MACOS_BUNDLE_IDENTIFIER,
             "CFBundleShortVersionString": VERSION,

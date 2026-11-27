@@ -437,7 +437,7 @@ def insert_text(
 #: clipboard instead of claiming ``inserted`` and restoring over it.
 _FIRST_PASTE_AFTER_GRANT = threading.Event()
 _PASTE_PERMISSION_FALLBACK = (
-    "Personal Jarvis needs Accessibility access to paste into other apps."
+    "Road Dog needs Accessibility access to paste into other apps."
 )
 _grant_listener_gate: object | None = None
 

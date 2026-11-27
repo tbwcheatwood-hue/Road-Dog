@@ -43,7 +43,7 @@ from pathlib import Path
 
 # Must equal ``jarvis.core.branding.PRODUCT_NAME``; a parity test pins it
 # (this file may not import the package).
-PRODUCT_NAME = "Personal Jarvis"
+PRODUCT_NAME = "Road Dog"
 
 _USAGE_DESCRIPTIONS: dict[str, str] = {
     "NSMicrophoneUsageDescription": (

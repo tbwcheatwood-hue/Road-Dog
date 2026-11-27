@@ -75,6 +75,8 @@ Runner = Literal[
     "glm-cli",
     "dsh-cli",
     "cursor-cli",
+    "kilo-code-cli",
+    "z-code-cli",
     # Society agent runtimes (``service.EXTERNAL_RUNTIME_RUNNERS``): picked by
     # the agent's runtime, never by a provider row.
     "hermes-cli",
@@ -272,6 +274,30 @@ PROVIDER_ROWS: Final[tuple[ProviderRow, ...]] = (
         agent="cursor",
     ),
     ProviderRow(
+        id="kilo",
+        label="Kilo Code",
+        family="kilo",
+        runner="kilo-code-cli",
+        models_source="curated",
+        # ``kilo run --model provider/model``. The account's providers decide
+        # which ids exist; nothing is shipped here.
+        default_model="",
+        native_resume=True,
+        agent="kilo-code",
+    ),
+    ProviderRow(
+        id="zcode",
+        label="Z Code",
+        family="zcode",
+        runner="z-code-cli",
+        models_source="curated",
+        # Z Code 0.18.0 has no headless --model flag. ``/model`` is the TUI
+        # command, and the saved CLI config chooses the headless model.
+        default_model="",
+        native_resume=True,
+        agent="z-code",
+    ),
+    ProviderRow(
         id="opencode",
         label="OpenCode",
         family="opencode",
@@ -380,6 +406,14 @@ PROVIDER_ROWS: Final[tuple[ProviderRow, ...]] = (
     ProviderRow(
         id="local-openai",
         label="Local OpenAI-compatible",
+        family="local",
+        runner="api",
+        models_source="live",
+        keyless=True,
+    ),
+    ProviderRow(
+        id="lmstudio",
+        label="LM Studio",
         family="local",
         runner="api",
         models_source="live",

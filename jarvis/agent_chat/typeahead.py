@@ -64,6 +64,8 @@ TRIGGERS_BY_RUNNER: Final[dict[str, tuple[str, ...]]] = {
     "opencode-cli": (MENTION,),
     "kimi-cli": (MENTION,),
     "cursor-cli": (MENTION,),
+    "kilo-code-cli": (MENTION,),
+    "z-code-cli": (MENTION,),
     # One task in, one answer out — nothing to complete against.
     "dsh-cli": (),
     "api": (MENTION,),

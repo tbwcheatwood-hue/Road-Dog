@@ -64,6 +64,7 @@ _ENDPOINTS: Final[dict[str, _Endpoint]] = {
     "vertex": _Endpoint("https://aiplatform.googleapis.com", cloud_project=True),
     "ollama": _Endpoint(None, keyless=True, local_server=True),
     "local-openai": _Endpoint(None, keyless=True, local_server=True),
+    "lmstudio": _Endpoint("http://127.0.0.1:1234/v1", keyless=True, local_server=True),
     "openai-codex": _Endpoint(None, subscription=True),
 }
 

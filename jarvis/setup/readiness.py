@@ -21,6 +21,8 @@ import importlib
 import os
 import shutil
 import sys
+import urllib.error
+import urllib.request
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
@@ -36,6 +38,13 @@ class CheckResult:
     status: str  # "ok", "warn", "fail", "skip"
     detail: str
     fix: str | None = None
+    #: installed, configured, reachable, authenticated, operational,
+    #: unavailable, or unverified. A stored key is configured. A binary on
+    #: PATH is installed. Only a successful zero-spend read of the service
+    #: is operational. authenticated is reserved for a check that proved the
+    #: credential; this module does not send paid requests, so a key alone
+    #: never gets that state.
+    state: str = "unverified"
 
 
 @dataclass(slots=True)
@@ -77,11 +86,81 @@ def _python_module(name: str) -> bool:
 # ---------------------------------------------------------------- area checks
 
 
+_PROBE_TIMEOUT_S = 2.0
+
+
+def _http_get(url: str, timeout: float = _PROBE_TIMEOUT_S) -> tuple[int | None, str, str]:
+    """GET ``url``. Returns ``(status, body, error name)``.
+
+    A missing status means the socket never answered. The body is capped.
+    This is a read of a local discovery endpoint, never a completion.
+    """
+    request = urllib.request.Request(url, method="GET")
+    try:
+        with urllib.request.urlopen(request, timeout=timeout) as response:
+            raw = response.read(4096)
+            return int(response.status), raw.decode("utf-8", "replace"), ""
+    except urllib.error.HTTPError as exc:
+        return int(exc.code), "", type(exc).__name__
+    except Exception as exc:  # noqa: BLE001 — the caller turns this into a state
+        return None, "", type(exc).__name__
+
+
+def _service_check(
+    *,
+    name: str,
+    url: str,
+    installed: bool,
+    missing_detail: str,
+    missing_fix: str,
+) -> CheckResult:
+    """Classify one local discovery URL.
+
+    Installed means a binary exists. Reachable means the socket answered.
+    Operational means the discovery document came back. A refused connection
+    is unavailable even when the binary is installed.
+    """
+    status, body, error = _http_get(url)
+    if status == 200 and body.strip():
+        return CheckResult(
+            name=name,
+            status="ok",
+            state="operational",
+            detail=f"{url} answered. Discovery succeeded. No completion was requested.",
+            fix=None,
+        )
+    if status is not None:
+        return CheckResult(
+            name=name,
+            status="warn",
+            state="reachable",
+            detail=f"{url} answered HTTP {status}. The service is up and not serving models.",
+            fix="Load a model in the server, then run this check again.",
+        )
+    state = "installed" if installed else "unavailable"
+    return CheckResult(
+        name=name,
+        status="warn" if installed else "skip",
+        state=state,
+        detail=(
+            f"{missing_detail} {url} did not answer ({error or 'timeout'})."
+            if installed
+            else missing_detail
+        ),
+        fix=missing_fix,
+    )
+
+
 def check_model_connectivity() -> ReadinessReport:
-    """Area 1: Model connectivity — can Sam reach a Brain?"""
+    """Area 1: Model connectivity — what is installed, stored, and answering.
+
+    A stored API key is configured. It is not authenticated: this check does
+    not send the key anywhere. An installed Ollama binary is not operational
+    until ``/api/tags`` answers. LM Studio is operational only when its own
+    ``/v1/models`` answers. Nothing here starts a server or calls a paid API.
+    """
     checks: list[CheckResult] = []
 
-    # Look for any configured provider key
     provider_keys = [
         "OPENAI_API_KEY",
         "ANTHROPIC_API_KEY",
@@ -97,42 +176,92 @@ def check_model_connectivity() -> ReadinessReport:
         checks.append(
             CheckResult(
                 name="Provider API keys",
-                status="ok",
-                detail=f"{len(found_keys)} provider key(s) configured",
-                fix=None,
+                status="warn",
+                state="configured",
+                detail=(
+                    f"{len(found_keys)} provider key(s) are stored. "
+                    "Readiness does not send a paid request, so authentication "
+                    "is unverified."
+                ),
+                fix="Send one real turn on the provider you intend to use.",
             )
         )
     else:
         checks.append(
             CheckResult(
                 name="Provider API keys",
-                status="warn",
-                detail="No provider API key configured",
-                fix="Add a key on the API Keys page, or use Local Mode with Ollama",
+                status="skip",
+                state="unavailable",
+                detail="No provider API key is stored.",
+                fix="Add a key on the API Keys page, or use a local server.",
             )
         )
 
-    # Check for Ollama / local inference
-    if _command_available("ollama"):
+    ollama_installed = _command_available("ollama")
+    checks.append(
+        _service_check(
+            name="Ollama local inference",
+            url="http://127.0.0.1:11434/api/tags",
+            installed=ollama_installed,
+            missing_detail="Ollama is not installed."
+            if not ollama_installed
+            else "Ollama is installed and its server is not answering.",
+            missing_fix="Start the Ollama server you already installed. Road Dog does not start a second one.",
+        )
+    )
+
+    from jarvis.plugins.brain.local_openai import LMSTUDIO_DEFAULT_ROOT
+    from jarvis.plugins.brain.ollama import normalize_server_root
+
+    lmstudio = cfg.resolve_provider_endpoint(
+        "lmstudio", vendor_default_base_url=LMSTUDIO_DEFAULT_ROOT
+    )
+    lmstudio_root = normalize_server_root(lmstudio.base_url or LMSTUDIO_DEFAULT_ROOT)
+    checks.append(
+        _service_check(
+            name="LM Studio",
+            url=lmstudio_root + "/v1/models",
+            installed=False,
+            missing_detail=(
+                f"LM Studio is not answering at {lmstudio_root}. "
+                "That does not mean a model is loaded."
+            ),
+            missing_fix=(
+                "Start LM Studio's local server, or set its address on the LM Studio card. "
+                "Road Dog does not start it."
+            ),
+        )
+    )
+
+    local = cfg.resolve_provider_endpoint("local-openai", vendor_default_base_url=None)
+    if local.base_url:
+        root = normalize_server_root(local.base_url)
         checks.append(
-            CheckResult(
-                name="Ollama local inference",
-                status="ok",
-                detail="Ollama CLI available",
-                fix=None,
+            _service_check(
+                name="Local OpenAI-compatible server",
+                url=root + "/v1/models",
+                installed=False,
+                missing_detail=f"The configured local server is not answering at {root}.",
+                missing_fix="Start that server, or clear the address if you are not using it.",
             )
         )
     else:
         checks.append(
             CheckResult(
-                name="Ollama local inference",
+                name="Local OpenAI-compatible server",
                 status="skip",
-                detail="Ollama not installed",
-                fix="Install Ollama for keyless local models",
+                state="unverified",
+                detail="No server address is saved on the local OpenAI card.",
+                fix="Set the address before this check can reach it.",
             )
         )
 
-    overall = "ok" if found_keys else "warn"
+    if any(c.state == "operational" for c in checks):
+        overall = "ok"
+    elif found_keys:
+        overall = "warn"
+    else:
+        overall = "warn"
     return ReadinessReport(area="model_connectivity", checks=checks, overall=overall)
 
 
@@ -540,6 +669,7 @@ def run_all_checks() -> dict[str, Any]:
                 {
                     "name": c.name,
                     "status": c.status,
+                    "state": c.state,
                     "detail": c.detail,
                     "fix": c.fix,
                 }

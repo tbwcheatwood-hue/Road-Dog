@@ -233,7 +233,7 @@ def test_the_keys_other_consumers_read_are_unchanged(make_env) -> None:
     snapshot = env.status()
 
     assert snapshot["platform"] == "darwin"
-    assert snapshot["app_identity"]["bundle_id"] == "com.personal-jarvis.desktop"
+    assert snapshot["app_identity"]["bundle_id"] == "com.road-dog.desktop"
     microphone = next(row for row in snapshot["permissions"] if row["id"] == "microphone")
     assert microphone["status"] == "granted"
 
@@ -388,7 +388,7 @@ def test_a_fresh_mac_offers_every_row_a_way_forward(make_env) -> None:
         assert row["can_reset"] is True, permission
         assert row["restart_hint"] is False
         assert row["settings_path"].startswith("System Settings > Privacy & Security > ")
-    assert rows["microphone"]["detail"].startswith("Personal Jarvis needs Microphone access")
+    assert rows["microphone"]["detail"].startswith("Road Dog needs Microphone access")
 
 
 def test_granted_rows_offer_nothing_to_fix(make_env) -> None:
@@ -448,7 +448,7 @@ def test_a_missing_framework_reads_unavailable_with_a_fixed_sentence(make_env) -
     row = env.rows()["microphone"]
 
     assert row["status"] == "unavailable" and row["can_request"] is False
-    assert row["detail"] == "Personal Jarvis cannot ask for Microphone access in this session."
+    assert row["detail"] == "Road Dog cannot ask for Microphone access in this session."
 
 
 def test_a_missing_usage_string_means_the_row_cannot_be_asked(make_env) -> None:
@@ -494,9 +494,9 @@ def test_the_installed_app_reports_a_stable_identity(make_env) -> None:
 
     assert snapshot["outside_installed_app"] is False
     assert snapshot["app_identity"] == {
-        "app_name": "Personal Jarvis",
-        "bundle_id": "com.personal-jarvis.desktop",
-        "bundle_path": "/Applications/Personal Jarvis.app",
+        "app_name": "Road Dog",
+        "bundle_id": "com.road-dog.desktop",
+        "bundle_path": "/Applications/Road Dog.app",
         "launched_as_bundle": True,
         "stable": True,
     }

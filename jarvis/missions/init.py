@@ -99,7 +99,7 @@ def _spawn_boot_cleanup(coro: Any, *, name: str) -> asyncio.Task[Any]:
 # other API providers, on the VertexBrain — so picking it as the subagent
 # actually runs the mission on Vertex instead of silently falling back to Claude.
 _API_AGENT_SLUGS: frozenset[str] = frozenset(
-    {"openai", "openrouter", "grok", "nvidia", "ollama", "local-openai", "vertex"}
+    {"openai", "openrouter", "grok", "nvidia", "ollama", "local-openai", "lmstudio", "vertex"}
 )
 
 

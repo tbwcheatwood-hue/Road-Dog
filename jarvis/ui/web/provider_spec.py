@@ -34,7 +34,7 @@ class AltCredential:
     Gemini is the motivating case (2026-06-22 forensic): the identical model is
     reachable either via a Google AI Studio API key (pay-as-you-go) OR a Google
     Cloud Vertex AI service account (a *separate* billing project). A user who
-    tops up one account while Jarvis is wired to the other gets a silent
+    tops up one account while Road Dog is wired to the other gets a silent
     "credits depleted" failure. The UI surfaces BOTH paths so the choice — and
     its billing — is explicit. ``None`` (the default on ProviderSpec) means the
     provider has a single credential path.
@@ -114,6 +114,12 @@ class ProviderSpec:
     # API/CLI switch — keeps working. A release gate for transports that
     # shipped visibly before they were reliable, not a removal.
     hidden: bool = False
+    #: False for a server the user started themselves. When that card is the
+    #: selected brain, the resolver does not append a paid provider.
+    paid_fallback: bool = True
+    #: False keeps a keyless provider out of the ambient local tail, so it is
+    #: used only when someone selected it.
+    ambient_fallback: bool = True
 
 
 def provider_billing(spec: ProviderSpec) -> Billing:
@@ -155,7 +161,7 @@ _GEMINI_VERTEX = AltCredential(
         "through Vertex automatically. For TTS production quota there is also "
         "the service-account JSON path ([tts].use_vertex + the file below). "
         "Don't mix the accounts up: topping up AI Studio does nothing if "
-        "Jarvis is on Vertex, and vice versa."
+        "Road Dog is on Vertex, and vice versa."
     ),
     dashboard_url="https://console.cloud.google.com/vertex-ai/studio",
     credential_path_hint="~/.config/jarvis/vertex-sa.json",
@@ -627,14 +633,35 @@ PROVIDERS: tuple[ProviderSpec, ...] = (
         dashboard_url=None,
         signup_url="https://huggingface.co/docs/transformers/main/serving",
         credential_help=(
-            "Any self-hosted server that speaks the OpenAI chat format: "
+            "A self-hosted server that speaks the OpenAI chat format: "
             "HuggingFace transformers serve (http://localhost:8000), llama.cpp "
-            "llama-server (http://localhost:8080), LM Studio "
-            "(http://localhost:1234), vLLM, or an existing TGI. Set the server "
-            "URL on this card — no cloud account, nothing leaves your network. "
-            "The API key is optional; most local servers ignore it."
+            "llama-server (http://localhost:8080), vLLM, or an existing TGI. "
+            "LM Studio has its own card. Set the server URL here. The API key "
+            "is optional; most local servers ignore it. A failure stays on "
+            "this server."
         ),
         supports_base_url=True,
+        paid_fallback=False,
+    ),
+    ProviderSpec(
+        id="lmstudio",
+        label="LM Studio",
+        tier="brain",
+        auth_mode="none",
+        secret_keys=("lmstudio_api_key",),
+        dashboard_url=None,
+        signup_url="https://lmstudio.ai/",
+        credential_help=(
+            "LM Studio's local server, at the address on this card "
+            "(http://127.0.0.1:1234 until you change it). Road Dog does not "
+            "start, stop, or restart LM Studio. A failure stays on this "
+            "server and is not sent to a paid provider. The API key is "
+            "optional; a local server ignores it."
+        ),
+        supports_base_url=True,
+        default_base_url="http://127.0.0.1:1234",
+        paid_fallback=False,
+        ambient_fallback=False,
     ),
     # ── TTS ───────────────────────────────────────────────────────────────
     # Voice-Output cards render in this tuple order. OpenRouter leads (one key

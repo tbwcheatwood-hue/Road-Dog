@@ -148,6 +148,7 @@ MAPPINGS: Final[tuple[ProviderMapping, ...]] = (
     # (the brain plugins supply their own dummy SDK key).
     ProviderMapping("ollama", "ollama", "OLLAMA_API_KEY"),
     ProviderMapping("local-openai", "local-openai", "LOCAL_OPENAI_API_KEY"),
+    ProviderMapping("lmstudio", "lmstudio", "LMSTUDIO_API_KEY"),
 )
 
 

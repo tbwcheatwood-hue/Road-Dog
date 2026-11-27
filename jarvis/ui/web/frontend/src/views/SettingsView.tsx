@@ -30,6 +30,7 @@ import { WAKE_ENGINES, WAKE_ENGINE_I18N_KEY } from "@/constants/wakeEngines";
 import { useEventStore } from "@/store/events";
 import { useT } from "@/i18n";
 import { isAutopilotToastsEnabled, setAutopilotToastsEnabled } from "@/lib/autopilotToasts";
+import { ReadinessPanel } from "@/views/settings/ReadinessPanel";
 
 // The wake-word language pin — its OWN setting ([trigger.wake_word] language),
 // deliberately independent of both the app display language and the general
@@ -131,6 +132,7 @@ const SECTIONS: readonly { id: string; render: () => React.ReactNode }[] = [
   { id: "system-prompt", render: () => <SystemPromptGroup /> },
   { id: "music", render: () => <MusicGroup /> },
   { id: "overlay-taskbar", render: () => <OverlayTaskbarGroup /> },
+  { id: "readiness", render: () => <ReadinessPanel /> },
 ];
 
 /** "Autopilot toasts" — the one row of the former "More" group. */

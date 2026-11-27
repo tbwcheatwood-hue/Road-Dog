@@ -103,6 +103,22 @@ honest anchor.
 > keys are now held ONLY as GitHub Actions secrets (base64 of the PKCS#8 PEM);
 > there is no passphrase and no `*.key.enc` in the repo. New fingerprints are
 > pinned in §3.2 (Ed25519) and §5.2 (ML-DSA-65).
+>
+> **Road Dog, 2026-11-26.** The Fulcio identity in `install/tuf/1.root.json`
+> is the Road Dog tag workflow
+> (`tbwcheatwood-hue/Road-Dog/.github/workflows/sign-installer.yml`). The
+> offline Ed25519 **public** key in that same file is the key published for
+> the predecessor product. Its private half is not in this repository, and
+> this tree does not contain a Road Dog ceremony that replaces it. Verification
+> stays 2-of-2. Installers are not accepted by turning verification off. A
+> Road Dog release is signed only when `WAVE2_OFFLINE_KEY_B64` on the Road
+> Dog repository is the private key for the public key already pinned here.
+> If that secret is absent or is a different key, the verifier must keep
+> rejecting the archive. On 2026-11-26 `gh secret list` for
+> `tbwcheatwood-hue/Road-Dog`, authenticated as the repository owner,
+> returned no secret names. The offline private key is therefore not
+> available to this repository's release workflow. No replacement key was
+> generated into the tree.
 
 ### 3.1 Why this section exists
 

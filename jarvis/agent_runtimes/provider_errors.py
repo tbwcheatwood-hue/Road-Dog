@@ -229,6 +229,7 @@ _LABELS: Final[dict[str, str]] = {
     "vertex": "Google Vertex AI",
     "ollama": "Ollama",
     "local-openai": "The local model server",
+    "lmstudio": "LM Studio",
 }
 
 

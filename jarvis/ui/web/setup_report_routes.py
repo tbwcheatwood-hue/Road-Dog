@@ -196,7 +196,7 @@ def _summary(report: dict[str, Any]) -> list[str]:
 
 
 def _render_text(report: dict[str, Any]) -> str:
-    header = "Personal Jarvis setup report (share-safe: key presence only, never values)"
+    header = "Road Dog setup report (share-safe: key presence only, never values)"
     body = "\n".join(report["summary"])
     return f"{header}\n{'=' * len(header)}\n{body}\n"
 
@@ -247,6 +247,42 @@ async def get_setup_report(
     if fmt == "text":
         return PlainTextResponse(_render_text(report))
     return report
+
+
+_DIAGNOSTICS_TIMEOUT_S = 12.0
+
+
+@router.get("/diagnostics")
+async def get_readiness_diagnostics() -> dict[str, Any]:
+    """The readiness dashboard: installed, configured, reachable, operational.
+
+    Runs off the request loop. A timeout returns an unverified report instead
+    of hanging onboarding. No paid request is sent.
+    """
+    from jarvis.setup.readiness import run_all_checks
+
+    try:
+        return await asyncio.wait_for(
+            asyncio.to_thread(run_all_checks),
+            timeout=_DIAGNOSTICS_TIMEOUT_S,
+        )
+    except TimeoutError:
+        return {
+            "_overall": "warn",
+            "_sam_greeting": "Readiness did not finish in time. Nothing was changed.",
+            "model_connectivity": {
+                "overall": "warn",
+                "checks": [
+                    {
+                        "name": "Readiness",
+                        "status": "warn",
+                        "state": "unverified",
+                        "detail": "The check timed out before every service answered.",
+                        "fix": "Run jarvis --readiness from a terminal for the full report.",
+                    }
+                ],
+            },
+        }
 
 
 __all__ = ["router"]

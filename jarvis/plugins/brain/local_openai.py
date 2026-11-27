@@ -43,6 +43,10 @@ from .ollama import normalize_server_root
 
 log = logging.getLogger(__name__)
 
+#: LM Studio's documented local server. Used only when the LM Studio card has
+#: no base_url of its own. Nothing in this module starts that server.
+LMSTUDIO_DEFAULT_ROOT = "http://127.0.0.1:1234"
+
 # Same shape as the Ollama timeout: a dead local server must fail fast so the
 # fallback chain crosses families; a slow CPU-bound generation may stream long.
 CLIENT_TIMEOUT = httpx.Timeout(connect=2.0, read=120.0, write=30.0, pool=30.0)
@@ -56,7 +60,7 @@ _NO_BASE_URL_HELP = (
 )
 
 
-def _declared_vision_support(model: str) -> bool:
+def _declared_vision_support(provider_id: str, model: str) -> bool:
     """Whether the SELECTED model declares image input, from the cached catalog.
 
     Mirrors the Ollama card's probe but with the opposite default: Ollama can
@@ -70,14 +74,19 @@ def _declared_vision_support(model: str) -> bool:
     try:
         from jarvis.brain.model_catalog import model_capabilities  # noqa: PLC0415 — lazy (AP-26)
 
-        return model_capabilities("local-openai", model)["vision"] is True
+        return model_capabilities(provider_id, model)["vision"] is True
     except Exception:  # noqa: BLE001 — a probe must never break construction
-        log.debug("local-openai: vision capability probe failed — staying blind")
+        log.debug("%s: vision capability probe failed — staying blind", provider_id)
         return False
 
 
 class LocalOpenAIBrain:
     name: str = "local-openai"
+    #: Config id whose base_url this brain reads. An implementation alias must
+    #: not replace this with another provider's endpoint.
+    provider_id: str = "local-openai"
+    vendor_default_base_url: str | None = None
+    secret_slot: tuple[str, str] = ("local_openai_api_key", "LOCAL_OPENAI_API_KEY")
     # Conservative floor — the real window depends on the served model; the
     # manager treats this as a budget hint, not a hard cap.
     context_window: int = 32_768
@@ -89,25 +98,28 @@ class LocalOpenAIBrain:
         self._client: Any = None
         self._server_root: str | None = None
         self._credential: str | None = None
-        self.supports_vision = _declared_vision_support(self._model)
+        self.supports_vision = _declared_vision_support(self.provider_id, self._model)
 
     def can_call_tools(self) -> bool:
         return self.supports_tools
 
     def _resolve_root(self) -> str:
         if self._server_root is None:
-            ep = cfg.resolve_provider_endpoint("local-openai", vendor_default_base_url=None)
+            ep = cfg.resolve_provider_endpoint(
+                self.provider_id,
+                vendor_default_base_url=self.vendor_default_base_url,
+            )
             if not ep.base_url:
                 raise RuntimeError(_NO_BASE_URL_HELP)
             # Root convention (same as the Ollama card): the stored value is
             # the SERVER root; ``/v1`` is appended here, and a pasted ``…/v1``
-            # is normalized away instead of doubling up.
+            # is normalized away instead of doubling up. The provider id is
+            # the one that was selected, so an LM Studio URL is not replaced
+            # by the generic local-openai URL.
             self._server_root = normalize_server_root(ep.base_url)
             # Optional key: a team-proxy token wins, else the user's optional
             # local key, else a placeholder the server ignores.
-            self._credential = ep.credential or cfg.get_secret(
-                "local_openai_api_key", "LOCAL_OPENAI_API_KEY"
-            )
+            self._credential = ep.credential or cfg.get_secret(*self.secret_slot)
         return self._server_root
 
     def _ensure_client(self) -> Any:
@@ -148,7 +160,9 @@ class LocalOpenAIBrain:
                 "load a model in the server, or set one explicitly on the card."
             )
         self._model = names[0]
-        log.info("local-openai: no model configured — using first served: %s", self._model)
+        log.info(
+            "%s: no model configured — using first served: %s", self.provider_id, self._model
+        )
         return self._model
 
     async def complete(self, req: BrainRequest) -> AsyncIterator[BrainDelta]:
@@ -166,3 +180,18 @@ class LocalOpenAIBrain:
     def estimate_cost(self, req: BrainRequest) -> float:
         # Local inference has no per-token bill.
         return 0.0
+
+
+class LMStudioBrain(LocalOpenAIBrain):
+    """LM Studio's local OpenAI-compatible server.
+
+    Same wire format as the generic local server, and a different endpoint.
+    The default is LM Studio's own port. A URL saved on the LM Studio card
+    wins. This class never starts, stops, or restarts LM Studio, and it does
+    not read the generic local-openai card.
+    """
+
+    name: str = "lmstudio"
+    provider_id = "lmstudio"
+    vendor_default_base_url = LMSTUDIO_DEFAULT_ROOT
+    secret_slot = ("lmstudio_api_key", "LMSTUDIO_API_KEY")

@@ -20,6 +20,7 @@ import { Button } from "@/components/ui/button";
 import { switchBrainProvider, useProviders, type ProviderDescriptor } from "@/hooks/useProviders";
 import { applyStarterPlan, getStarterPlans, selectStarterPlan, type StarterPlan } from "@/hooks/useStarterPlans";
 import { fill, useT } from "@/i18n";
+import { ReadinessPanel } from "@/views/settings/ReadinessPanel";
 import { cn } from "@/lib/utils";
 import { planKeysComplete, primarySlot, slotConfigured, slotEffective, startableProviders } from "../brainPlans";
 
@@ -552,6 +553,7 @@ export function ConnectStep({ onConnectedChange }: { onConnectedChange: (any: bo
           {t("first_run.connect.key_security")}
         </p>
       </div>
+      <ReadinessPanel />
     </div>
   );
 }

@@ -627,11 +627,21 @@ def _resolve_chain(config: JarvisConfig) -> list[tuple[str, str | None]]:
     )
     chain.append((primary, primary_model or None))
 
-    # Stage 4 — local fallback (Ollama local or similar, last resort)
+    # Stage 4 — local fallback (Ollama local or similar, last resort).
+    # A self-hosted primary that refuses paid fallback keeps an explicit
+    # keyless local fallback and drops a paid one, including the default
+    # ``claude-api`` value nobody typed.
     if brain_cfg.local_fallback and brain_cfg.local_fallback != primary:
-        chain.append(
-            (brain_cfg.local_fallback, brain_cfg.local_fallback_model or None),
-        )
+        fallback = brain_cfg.local_fallback
+        if not (_isolated_local(primary) and not _keyless_local(fallback)):
+            chain.append((fallback, brain_cfg.local_fallback_model or None))
+
+    # A server the user started (LM Studio, a generic local OpenAI server)
+    # is the whole chain. Appending a keyed family would bill a key the
+    # selection did not name, and appending another local server would start
+    # a second inference path.
+    if _isolated_local(primary):
+        return _dedupe(chain)
 
     # Stage 5 — key-aware cross-family tail (open-source AP-22). Every stage
     # above can resolve onto a KEYLESS provider — most often the ``claude-api``
@@ -782,6 +792,32 @@ def _reachable_keyed_families(
     return tail
 
 
+def _isolated_local(provider: str) -> bool:
+    """True when this brain must not be followed by a paid provider."""
+    from jarvis.ui.web.provider_spec import get_spec
+
+    spec = get_spec(provider)
+    return spec is not None and spec.paid_fallback is False
+
+
+def _keyless_local(provider: str) -> bool:
+    from jarvis.ui.web.provider_spec import get_spec
+
+    spec = get_spec(provider)
+    return spec is not None and spec.auth_mode == "none"
+
+
+def _dedupe(chain: list[tuple[str, str | None]]) -> list[tuple[str, str | None]]:
+    seen: set[tuple[str, str | None]] = set()
+    deduped: list[tuple[str, str | None]] = []
+    for entry in chain:
+        if entry in seen:
+            continue
+        seen.add(entry)
+        deduped.append(entry)
+    return deduped
+
+
 def _local_tail(
     config: JarvisConfig, *, exclude: frozenset[str] = frozenset(),
 ) -> list[tuple[str, str | None]]:
@@ -799,6 +835,8 @@ def _local_tail(
     tail: list[tuple[str, str | None]] = []
     for spec in PROVIDERS:
         if spec.tier != "brain" or spec.auth_mode != "none":
+            continue
+        if not spec.ambient_fallback:
             continue
         if spec.id in exclude or spec.id not in available:
             continue

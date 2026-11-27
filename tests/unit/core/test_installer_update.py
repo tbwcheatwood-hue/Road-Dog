@@ -713,10 +713,12 @@ def test_windows_installer_script_waits_for_the_replaced_app() -> None:
 
 
 def test_windows_installer_identity_never_changes() -> None:
-    """Every release must upgrade the same AppId, or users get two installs."""
+    """Road Dog upgrades its own AppId and does not take the predecessor's."""
     text = _iss_text()
-    assert '#define AppGuid "7F1C4E42-2E5B-4F0A-9E1B-1A7B6C0D5E88"' in text
+    assert '#define AppGuid "C4E8A17B-6D2F-4B9A-8C31-5F0E2A9D7B64"' in text
+    assert '#define AppGuid "7F1C4E42-2E5B-4F0A-9E1B-1A7B6C0D5E88"' not in text
     assert "AppId={{{#AppGuid}}" in text
+    assert '#define GuiExeName "RoadDog.exe"' in text
 
 
 # --------------------------------------------------------------------------- #

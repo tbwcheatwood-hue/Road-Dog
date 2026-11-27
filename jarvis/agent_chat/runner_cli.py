@@ -60,6 +60,7 @@ import json
 import logging
 import os
 import shutil
+import signal
 import time
 import uuid
 from collections.abc import Callable
@@ -137,12 +138,12 @@ CLI_BINARIES: Final[dict[str, tuple[str, ...]]] = {
         "agent.exe",
         "agent.cmd",
     ),
-    # Kilo Code and Z Code are not referenced anywhere in the repo or its docs.
-    # The binary names below are PLACEHOLDERS that must be confirmed against a
-    # live install before either CLI will resolve. Until then the entry reports
-    # "not installed" and no pane of it can start — which is the safe default.
-    "kilo-code-cli": ("kilo-code", "kilo-code.exe"),
-    "z-code-cli": ("z-code", "z-code.exe"),
+    # Official command is ``kilo`` (``@kilocode/cli``). ``kilo-code`` remains
+    # an alias for an older placeholder install.
+    "kilo-code-cli": ("kilo", "kilo.exe", "kilo.cmd", "kilo-code", "kilo-code.exe"),
+    # Resolved by ``resolve_zcode_argv`` — the PATH name is often the desktop
+    # app. These names are the remote/fallback spellings, not a GUI launch.
+    "z-code-cli": ("zcode", "zcode.exe", "zcode.cmd", "z-code", "z-code.exe"),
 }
 
 
@@ -171,6 +172,10 @@ def cli_installed(runner: str) -> bool:
         from jarvis.workspace.cursor_cli import resolve_cursor_binary
 
         return resolve_cursor_binary() is not None
+    if runner == "z-code-cli":
+        from jarvis.workspace.zcode_cli import resolve_zcode_argv
+
+        return resolve_zcode_argv() is not None
     return _which(*CLI_BINARIES.get(runner, ())) is not None
 
 
@@ -301,29 +306,28 @@ def cursor_argv_prefix() -> list[str]:
 
 
 def kilo_argv_prefix() -> list[str]:
-    """Resolve the Kilo Code binary from PATH.
-
-    The binary name ``kilo-code`` is a placeholder that must be confirmed
-    against a live install. Until the real name is known, this resolves to
-    nothing and the runner reports the CLI as missing.
-    """
+    """Resolve the Kilo Code CLI (``kilo``) from PATH."""
     binary = _which(*CLI_BINARIES["kilo-code-cli"])
     if not binary:
-        raise CliUnavailable("Kilo Code (kilo-code) is not installed or not on PATH.")
+        raise CliUnavailable(
+            "Kilo Code (kilo) is not installed or not on PATH. "
+            "Install it with the official script or `npm install -g @kilocode/cli`."
+        )
     return [binary]
 
 
 def z_argv_prefix() -> list[str]:
-    """Resolve the Z Code binary from PATH.
+    """Resolve the Z Code headless CLI, never the desktop Electron binary."""
+    from jarvis.workspace.zcode_cli import resolve_zcode_argv
 
-    The binary name ``z-code`` is a placeholder that must be confirmed
-    against a live install. Until the real name is known, this resolves to
-    nothing and the runner reports the CLI as missing.
-    """
-    binary = _which(*CLI_BINARIES["z-code-cli"])
-    if not binary:
-        raise CliUnavailable("Z Code (z-code) is not installed or not on PATH.")
-    return [binary]
+    argv = resolve_zcode_argv()
+    if not argv:
+        raise CliUnavailable(
+            "Z Code's headless CLI is not installed. The desktop app uses the "
+            "same command name and is not a substitute. Install the CLI from "
+            "the Z Code app or https://github.com/zai-org/ZCode."
+        )
+    return list(argv)
 
 
 #: The subscription seat the CURRENT turn runs on, when its session names one
@@ -1439,6 +1443,50 @@ def plan_cursor(
     return CliPlan(argv, env, None, "cursor", resume)
 
 
+# Kilo ``kilo run`` permission flags. A mode missing from this map is refused.
+# Ask and plan intentionally have no flag: ``--auto`` is full access, and the
+# published CLI rejects permission prompts when it is absent.
+_KILO_PERMISSION_ARGV: Final[dict[str, tuple[str, ...]]] = {
+    "ask": (),
+    "plan": (),
+    "auto": ("--auto",),
+}
+_KILO_VARIANTS: Final[frozenset[str]] = frozenset({"minimal", "high", "max"})
+
+# Z Code 0.18.0 ``--mode`` values. ``--prompt`` defaults to yolo, so every
+# plan passes one of these and never omits the flag.
+_ZCODE_MODES: Final[dict[str, str]] = {
+    "plan": "plan",
+    "build": "build",
+    "edit": "edit",
+    "guarded": "guarded",
+    "yolo": "yolo",
+}
+
+
+def _kilo_permission_argv(permission_mode: str) -> tuple[str, str]:
+    """Return ``(mode, argv)``. Refuses a mode that is not on Kilo's ladder."""
+    mode = normalize_permission("kilo-code-cli", permission_mode)
+    if mode not in _KILO_PERMISSION_ARGV:
+        raise CliUnavailable(
+            f"Kilo Code has no permission flag for {permission_mode!r}. "
+            "It was not started, and --auto was not substituted."
+        )
+    return mode, _KILO_PERMISSION_ARGV[mode]
+
+
+def _zcode_mode(permission_mode: str) -> str:
+    """The ``--mode`` value for this stance. Never the yolo default by omission."""
+    mode = normalize_permission("z-code-cli", permission_mode)
+    flag = _ZCODE_MODES.get(mode)
+    if flag is None:
+        raise CliUnavailable(
+            f"Z Code has no --mode for {permission_mode!r}. "
+            "It was not started. Omitting --mode would run yolo."
+        )
+    return flag
+
+
 def plan_kilo(
     *,
     prompt: str,
@@ -1449,25 +1497,34 @@ def plan_kilo(
     resume: str | None,
     identity: jarvis_harness.Identity | None = None,
 ) -> CliPlan:
-    """Kilo Code runner — placeholder pending vendor confirmation.
+    """Kilo Code ``kilo run``: one message, JSON events, explicit permission.
 
-    The CLI's flags, output wire format and resume behaviour are not yet
-    known, so this runs the binary in plain-text mode (shape ``"text"``) with
-    the prompt as the final argv entry. No model, effort or resume flags are
-    sent because none are confirmed for this product. The binary name itself
-    is a placeholder and must be confirmed against a live install.
-
-    Reversible: removing the ``"kilo-code"`` entry from the registry in
-    ``jarvis/workspace/agents.py`` and these two functions from this module
-    restores prior behaviour exactly.
+    Flags match the published command reference: ``--model``, ``--variant``,
+    ``--session``, ``--dir``, ``--format json``, and ``--auto`` only for the
+    full-access stance. Plan mode keeps ``--auto`` off and prefixes the prompt
+    with the shared plan instructions, because the CLI has no plan flag.
     """
-    del cwd, effort, resume  # Not yet confirmed for this product.
-    normalize_permission("kilo-code-cli", permission_mode)
-    prompt = _with_identity(prompt, identity, None, compact=True)
+    mode, permission_argv = _kilo_permission_argv(permission_mode)
+    prompt = _with_identity(prompt, identity, resume, compact=True)
+    if mode == "plan":
+        prompt = _PLAN_PREAMBLE + prompt
     prefix = kilo_argv_prefix()
-    argv = [*prefix, _argv_prompt(prefix, prompt)]
+    argv = [*prefix, "run", "--format", "json", "--dir", str(cwd)]
+    if model.strip():
+        argv += ["--model", model.strip()]
+    variant = effort.strip().lower()
+    if variant:
+        if variant not in _KILO_VARIANTS:
+            raise CliUnavailable(
+                f"Kilo Code --variant accepts minimal, high or max, not {effort!r}."
+            )
+        argv += ["--variant", variant]
+    argv += list(permission_argv)
+    if resume:
+        argv += ["--session", resume]
+    argv.append(_argv_prompt(argv, prompt))
     env = _registry_env("kilo-code", _account_env("kilo-code"))
-    return CliPlan(argv, env, None, "text", None)
+    return CliPlan(argv, env, None, "kilo", resume)
 
 
 def plan_z(
@@ -1480,18 +1537,35 @@ def plan_z(
     resume: str | None,
     identity: jarvis_harness.Identity | None = None,
 ) -> CliPlan:
-    """Z Code runner — placeholder pending vendor confirmation.
+    """Z Code ``--prompt`` with an explicit ``--mode``.
 
-    Mirrors plan_kilo: plain-text mode, no confirmed flags, placeholder binary
-    name. Reversible in the same way.
+    Verified against ``zcode --help`` on 0.18.0: ``--mode`` is
+    ``build|edit|plan|yolo|guarded`` and defaults to ``yolo`` for ``--prompt``.
+    The mode flag is therefore mandatory. There is no ``--model`` flag; a
+    model pick is not invented as an environment variable the binary does not
+    read. ``/model`` remains the interactive command. ``--resume`` continues
+    a ``sess_…`` id. ``--json`` asks for a machine-readable result.
     """
-    del cwd, effort, resume  # Not yet confirmed for this product.
-    normalize_permission("z-code-cli", permission_mode)
-    prompt = _with_identity(prompt, identity, None, compact=True)
+    del model, effort  # 0.18.0 has no headless model or effort flag.
+    mode = _zcode_mode(permission_mode)
+    prompt = _with_identity(prompt, identity, resume, compact=True)
+    if mode == "plan":
+        prompt = _PLAN_PREAMBLE + prompt
     prefix = z_argv_prefix()
-    argv = [*prefix, _argv_prompt(prefix, prompt)]
+    argv = [
+        *prefix,
+        "--prompt",
+        _argv_prompt(prefix, prompt),
+        "--cwd",
+        str(cwd),
+        "--mode",
+        mode,
+        "--json",
+    ]
+    if resume:
+        argv += ["--resume", resume]
     env = _registry_env("z-code", _account_env("z-code"))
-    return CliPlan(argv, env, None, "text", None)
+    return CliPlan(argv, env, None, "zcode", resume)
 
 
 def _with_identity(
@@ -3109,6 +3183,63 @@ def _translate_nothing(obj: dict[str, Any], st: Any) -> list[dict[str, Any]]:
     return []
 
 
+def translate_kilo_line(obj: dict[str, Any], st: _OpenCodeState) -> list[dict[str, Any]]:
+    """Kilo ``kilo run --format json`` events.
+
+    The published CLI emits the same session-part records OpenCode does
+    (``sessionID``, ``type``, ``part``). A final object that only carries
+    ``response`` / ``text`` is accepted too, so a shorter result is not dropped.
+    """
+    events = translate_opencode_line(obj, st)
+    sid = obj.get("sessionID") or obj.get("sessionId")
+    if sid and not st.vendor_session:
+        st.vendor_session = str(sid)
+    if events:
+        return events
+    text = obj.get("response") if isinstance(obj.get("response"), str) else obj.get("text")
+    if isinstance(text, str) and text.strip():
+        st.emitted_text = True
+        st.result_text = text
+        return [
+            make_event(
+                "assistant_text",
+                {"turn_id": st.turn_id, "message_id": "kilo", "text": text},
+            )
+        ]
+    return []
+
+
+def translate_zcode_line(obj: dict[str, Any], st: _TextState) -> list[dict[str, Any]]:
+    """One Z Code ``--json`` object: ``sessionId`` plus ``response``."""
+    sid = obj.get("sessionId") or obj.get("session_id") or obj.get("sessionID")
+    if sid and not st.vendor_session:
+        st.vendor_session = str(sid)
+    error = obj.get("error")
+    if isinstance(error, str) and error.strip():
+        st.status = "error"
+        st.error = error.strip()
+    elif isinstance(error, dict):
+        message = str(error.get("message") or error.get("name") or "").strip()
+        if message:
+            st.status = "error"
+            st.error = message
+    text = obj.get("response") if isinstance(obj.get("response"), str) else ""
+    if not text and isinstance(obj.get("text"), str):
+        text = str(obj.get("text"))
+    if text.strip():
+        st.emitted_text = True
+        st.result_text = text
+        st.status = "done"
+        st.error = None
+        return [
+            make_event(
+                "assistant_text",
+                {"turn_id": st.turn_id, "message_id": "zcode", "text": text},
+            )
+        ]
+    return []
+
+
 #: shape -> (a fresh state for a turn, the line translator). The pump below
 #: knows nothing about any CLI: it decodes a line, hands it here, and emits
 #: what comes back. A new wire shape is one row.
@@ -3125,6 +3256,11 @@ _SHAPES: Final[dict[str, tuple[Callable[[str, str | None], Any], Callable[..., A
         lambda tid, vs: _CursorState(turn_id=tid, vendor_session=vs),
         translate_cursor_line,
     ),
+    "kilo": (
+        lambda tid, vs: _OpenCodeState(turn_id=tid, vendor_session=vs),
+        translate_kilo_line,
+    ),
+    "zcode": (lambda tid, vs: _TextState(turn_id=tid, vendor_session=vs), translate_zcode_line),
     "text": (lambda tid, vs: _TextState(turn_id=tid, vendor_session=vs), _translate_nothing),
 }
 
@@ -4453,8 +4589,25 @@ async def _deliver_codex_images(
 
 
 def _kill(proc: asyncio.subprocess.Process) -> None:
+    """Stop the CLI and, when it is its own session, the processes it started.
+
+    ``start_new_session`` makes the child a process-group leader. Killing only
+    that pid leaves grandchildren (a node CLI's workers) running. Killing the
+    group is safe only when the child is not in this process's group.
+    """
     if proc.returncode is not None:
         return
+    if os.name != "nt":
+        try:
+            pgid = os.getpgid(proc.pid)
+        except (ProcessLookupError, OSError):
+            pgid = None
+        if pgid is not None and pgid == proc.pid and pgid != os.getpgrp():
+            try:
+                os.killpg(pgid, signal.SIGKILL)
+                return
+            except (ProcessLookupError, OSError) as exc:
+                log.debug("agent chat: killing the CLI group failed: %s", exc)
     try:
         proc.kill()
     except (ProcessLookupError, OSError) as exc:
