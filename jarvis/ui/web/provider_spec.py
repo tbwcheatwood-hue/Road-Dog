@@ -618,6 +618,27 @@ PROVIDERS: tuple[ProviderSpec, ...] = (
             "the server URL at another machine to share one Ollama box."
         ),
     ),
+    # LM Studio — OpenAI-compatible local server (re-added 2026-11 as a dedicated
+    # card for the popular local server; uses the same local-openai backend).
+    ProviderSpec(
+        id="lm-studio",
+        label="LM Studio (local)",
+        tier="brain",
+        auth_mode="none",
+        secret_keys=(),
+        dashboard_url=None,
+        signup_url="https://lmstudio.ai",
+        supports_base_url=True,
+        default_base_url="http://localhost:1234",
+        credential_help=(
+            "Runs models fully local through LM Studio — no API key, no cloud "
+            "account, nothing leaves this machine. Install LM Studio, load a "
+            "model in the Local Server tab (Start Server), and Jarvis finds it "
+            "at http://localhost:1234 automatically. Point the server URL at "
+            "another machine to share one LM Studio box. Uses the local-openai "
+            "backend under the hood."
+        ),
+    ),
     ProviderSpec(
         id="local-openai",
         label="Local server (OpenAI-compatible)",

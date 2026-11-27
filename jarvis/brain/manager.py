@@ -234,6 +234,9 @@ PROVIDER_ALIASES = {
     "nvidia": "nvidia",
     "nim": "nvidia",
     "nemotron": "nvidia",
+    "lm-studio": "local-openai",
+    "lmstudio": "local-openai",
+    "lm studio": "local-openai",
 }
 
 SUBAGENT_ONLY_BRAIN_PROVIDERS: frozenset[str] = frozenset(
@@ -270,6 +273,8 @@ _PROVIDER_DISPLAY_NAMES: dict[str, str] = {
     "gemini": "Google Gemini",
     "antigravity": "Google Antigravity (Gemini)",
     "grok-build": "Grok Build (xAI subscription)",
+    "local-openai": "Local server (OpenAI-compatible)",
+    "ollama": "Ollama (local)",
 }
 
 
