@@ -9,8 +9,14 @@
 
 Mounted as a raw ASGI sub-app rather than a FastAPI router: the MCP Streamable
 HTTP transport needs the untouched ``(scope, receive, send)`` triple — it
-streams, negotiates its own content types and answers ``GET``/``DELETE`` as
-well as ``POST``. Wrapping that in a response model would fight it.
+negotiates its own content types and answers ``POST`` (and ``DELETE``). A
+``GET`` is refused here with 405 before it reaches the transport: this server
+is stateless and has no session to hang a listener on, and the transport would
+otherwise open an SSE stream that closes at once. A streamable-HTTP client
+treats that empty stream as a listener, retries it, and then fails the whole
+server. The spec says a server that does not offer the listener answers 405,
+which is the signal those clients accept. Wrapping the transport in a response
+model would fight it.
 
 ONE mount serves both, choosing on the rest of the path (``_surface_for``); two
 Starlette mounts cannot, because a ``Mount`` requires a path segment AFTER its
@@ -148,15 +154,19 @@ def session_ref(scope: dict[str, Any]) -> str | None:
     return None
 
 
-async def _reject(send: Any, status: int, body: bytes) -> None:
+async def _reject(send: Any, status: int, body: bytes, *, allow: bytes | None = None) -> None:
+    headers = [
+        (b"content-type", b"application/json"),
+        (b"content-length", str(len(body)).encode()),
+    ]
+    if allow is not None:
+        # RFC 9110 requires Allow on a 405.
+        headers.append((b"allow", allow))
     await send(
         {
             "type": "http.response.start",
             "status": status,
-            "headers": [
-                (b"content-type", b"application/json"),
-                (b"content-length", str(len(body)).encode()),
-            ],
+            "headers": headers,
         }
     )
     await send({"type": "http.response.body", "body": body})
@@ -280,6 +290,14 @@ def build_mcp_asgi_app() -> Any:
             return
         if not _authorized(scope, surface):
             await _reject(send, 401, _UNAUTHORIZED_BODY)
+            return
+        if scope.get("method") == "GET":
+            await _reject(
+                send,
+                405,
+                b'{"error":"This server does not offer a standalone SSE stream."}',
+                allow=b"POST",
+            )
             return
         manager = await surface.manager()
         if manager is None:

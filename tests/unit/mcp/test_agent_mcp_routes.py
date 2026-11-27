@@ -111,6 +111,28 @@ def test_both_surfaces_demand_the_control_key() -> None:
             assert "control api key" in answer.text.lower()
 
 
+def test_get_refuses_the_standalone_sse_listener(keyed: str) -> None:
+    """A stateless server must answer GET with 405, not an empty event stream.
+
+    Streamable-HTTP clients open a GET after initialize and treat 405 as
+    "this server has no listener". A 200 whose body ends at once is retried,
+    and the client then drops the server.
+    """
+    with TestClient(_mounted_app()) as client:
+        for url in ("/api/control/mcp", "/api/control/mcp/agents"):
+            answer = client.get(
+                url,
+                headers={
+                    "Accept": "text/event-stream",
+                    "Authorization": f"Bearer {keyed}",
+                },
+            )
+            assert answer.status_code == 405, url
+            assert "POST" in answer.headers.get("allow", "")
+            missing = client.get(url, headers={"Accept": "text/event-stream"})
+            assert missing.status_code == 401, url
+
+
 @pytest.fixture
 def connect_app() -> FastAPI:
     app = FastAPI()
