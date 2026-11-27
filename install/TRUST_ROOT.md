@@ -104,21 +104,18 @@ honest anchor.
 > there is no passphrase and no `*.key.enc` in the repo. New fingerprints are
 > pinned in §3.2 (Ed25519) and §5.2 (ML-DSA-65).
 >
-> **Road Dog, 2026-11-26.** The Fulcio identity in `install/tuf/1.root.json`
-> is the Road Dog tag workflow
-> (`tbwcheatwood-hue/Road-Dog/.github/workflows/sign-installer.yml`). The
-> offline Ed25519 **public** key in that same file is the key published for
-> the predecessor product. Its private half is not in this repository, and
-> this tree does not contain a Road Dog ceremony that replaces it. Verification
-> stays 2-of-2. Installers are not accepted by turning verification off. A
-> Road Dog release is signed only when `WAVE2_OFFLINE_KEY_B64` on the Road
-> Dog repository is the private key for the public key already pinned here.
-> If that secret is absent or is a different key, the verifier must keep
-> rejecting the archive. On 2026-11-26 `gh secret list` for
-> `tbwcheatwood-hue/Road-Dog`, authenticated as the repository owner,
-> returned no secret names. The offline private key is therefore not
-> available to this repository's release workflow. No replacement key was
-> generated into the tree.
+> **Road Dog ceremony, 2026-11-26.** A new Ed25519 key was generated for this
+> repository. It is not an SSH key and it is not the predecessor public key
+> `ae57e283700b141ac40fe56b359f2196b567449c439c8f0f0a4c46076e8de14e`, which
+> `install/tuf/2.root.json` revokes. The new public fingerprint is
+> `32002810c24cc633de7e868d3b5282c0ceab327e76d502bf067970738e695f03`.
+> The private PKCS#8 PEM is the `WAVE2_OFFLINE_KEY_B64` secret on the
+> `release-signing` environment (tag policy `v*.*.*` only). It is not in
+> git. Verification stays 2-of-2: Fulcio and this Ed25519 key. The
+> predecessor private key was not available, so `2.root.json` is not
+> countersigned by that retired key; its `signatures` array is empty, the
+> same posture as `1.root.json`. The ML-DSA secret is a separate axis and
+> was not rotated.
 
 ### 3.1 Why this section exists
 
@@ -140,9 +137,10 @@ yields nothing.
 
 | Item | Purpose |
 |---|---|
-| `install/keys/offline-ceremony.pub` | Ed25519 public key in PEM format. Committed in plain. Its SHA-256(DER(SPKI)) fingerprint `1e8f2fa590e6454daff34e88e7bde8ffcf04b1eb235f0ca11ff9ebc65e2d1d3a` is inlined into both verifier scripts and cross-checked at stage `[3/13]`. |
+| `install/keys/offline-ceremony.pub` | Ed25519 public key in PEM format. Committed in plain. Its SHA-256(DER(SPKI)) fingerprint `32002810c24cc633de7e868d3b5282c0ceab327e76d502bf067970738e695f03` is inlined into both verifier scripts and cross-checked at stage `[3/13]`. The predecessor fingerprint `1e8f2fa590e6454daff34e88e7bde8ffcf04b1eb235f0ca11ff9ebc65e2d1d3a` is retired. |
 | `WAVE2_OFFLINE_KEY_B64` (GitHub Actions secret) | Ed25519 private key, base64 of the PKCS#8 PEM. **Never committed** — held only in GitHub's encrypted secret store plus a local backup in the maintainer's password manager. |
-| `install/tuf/1.root.json` | TUF root metadata version 1: lists both trust axes (`fulcio_oidc` + `offline_ceremony`) with `threshold=2` on every role. Expires 365 days from generation (2027-05-26). |
+| `install/tuf/1.root.json` | TUF root version 1. Kept so a client can walk the version chain. Its offline public key is the predecessor key. |
+| `install/tuf/2.root.json` | TUF root version 2. Same 2-of-2 role map. Offline public key is the Road Dog key. The predecessor raw public key is named under `unrecognized_fields.wave2_revocation`. Expires 2027-11-26. |
 | `docs/supply-chain/wave2-key-ceremony.md` | Step-by-step ceremony log: how the key was generated, why 2-of-2 closes xz-utils, production-deployment migration path. |
 
 ### 3.3 Key custody — private key only in a GitHub Actions secret
@@ -644,6 +642,7 @@ expectation is that this list is short and audited.
 | Date | What changed | By whom | Verification evidence |
 |---|---|---|---|
 | 2026-05-26 | Initial Wave 1 pin: cosign `v2.4.1`, Linux/Darwin/Windows hashes, action SHAs (checkout `11bd7190…`, cosign-installer `dc72c7d5…`, action-gh-release `c95fe148…`). | @RubenLuetke + Claude (audit) | `cosign_checksums.txt` for v2.4.1 fetched from `github.com/sigstore/cosign/releases/download/v2.4.1/cosign_checksums.txt`; action SHAs resolved via `api.github.com/repos/<org>/<repo>/git/refs/tags/<tag>`. |
+| 2026-11-26 | Road Dog Ed25519 release key replaced the predecessor offline public key. Threshold stays 2. Private key stored as `WAVE2_OFFLINE_KEY_B64` on environment `release-signing`. No release tag has been signed with it yet. | Road Dog maintainer | Public fingerprint `32002810c24cc633de7e868d3b5282c0ceab327e76d502bf067970738e695f03`. Retired raw public key `ae57e283700b141ac40fe56b359f2196b567449c439c8f0f0a4c46076e8de14e`. |
 
 (Append a row per rotation. Do not edit old rows — they are the audit trail.)
 

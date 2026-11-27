@@ -61,7 +61,7 @@ $COSIGN_VERSION           = 'v2.4.1'
 $COSIGN_SHA256_WINDOWS    = '8d57f8a42a981d27290c4227271fa9f0f62ca6630eb4a21d316bd6b01405b87c'
 $REKOR_MAX_AGE_SECONDS    = 86400
 
-# WAVE 2 PINNED OFFLINE KEY — fingerprint 1e8f2fa590e6454daff34e88e7bde8ffcf04b1eb235f0ca11ff9ebc65e2d1d3a
+# WAVE 2 PINNED OFFLINE KEY — fingerprint 32002810c24cc633de7e868d3b5282c0ceab327e76d502bf067970738e695f03
 #
 # Ed25519 public key produced in the air-gapped offline-ceremony documented
 # in docs/supply-chain/wave2-key-ceremony.md. Fingerprint is sha256(DER(pubkey)).
@@ -70,10 +70,10 @@ $REKOR_MAX_AGE_SECONDS    = 86400
 # the released copy and refuses to proceed if the two diverge.
 $OFFLINE_CEREMONY_PUBKEY_PEM = @'
 -----BEGIN PUBLIC KEY-----
-MCowBQYDK2VwAyEArlfig3ALFBrED+VrNZ8hlrVnRJxDnI8PCkxGB26N4U4=
+MCowBQYDK2VwAyEAbiRA2wb5MxyIMGOPA7qpp72a4rptqjO0wx/BTPycdk0=
 -----END PUBLIC KEY-----
 '@
-$OFFLINE_CEREMONY_PUBKEY_FINGERPRINT = '1e8f2fa590e6454daff34e88e7bde8ffcf04b1eb235f0ca11ff9ebc65e2d1d3a'
+$OFFLINE_CEREMONY_PUBKEY_FINGERPRINT = '32002810c24cc633de7e868d3b5282c0ceab327e76d502bf067970738e695f03'
 
 # WAVE 4 PINNED POST-QUANTUM KEY - fingerprint
 # db0073bf5b77d5b0e4e5547bfcf86227031c9a138cb3088a57c270b8fbac4073

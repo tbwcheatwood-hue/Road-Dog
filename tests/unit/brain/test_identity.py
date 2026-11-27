@@ -39,8 +39,8 @@ def soul(tmp_path: Path) -> Path:
 def test_the_wake_word_name_is_the_assistants_name_not_the_app() -> None:
     text = name_directive("George")
     assert text.startswith("YOUR NAME IS GEORGE.")
-    assert "Personal Jarvis is the name of the app you run inside, not your name" in text
-    assert "never introduce yourself as Personal Jarvis, as Jarvis" in text
+    assert "Road Dog is the name of the app you run inside, not your name" in text
+    assert "never introduce yourself as Road Dog, as Jarvis" in text
 
 
 def test_a_jarvis_wake_word_does_not_forbid_its_own_name() -> None:
@@ -58,7 +58,7 @@ def test_no_wake_word_gives_no_invented_name() -> None:
 def test_the_block_carries_name_and_character(soul: Path) -> None:
     text = identity_block(_config("Hey George"), path=soul)
     assert text.index("YOUR NAME IS GEORGE") < text.index("## Your character (SOUL.md)")
-    assert "Direct, precise, with dry humor." in text
+    assert "Loyal, resourceful, knowledgeable and dependable" in text
 
 
 def test_a_missing_soul_still_states_the_name(tmp_path: Path) -> None:

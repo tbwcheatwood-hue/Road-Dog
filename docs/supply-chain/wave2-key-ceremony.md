@@ -19,6 +19,33 @@
 
 ---
 
+## 0. Road Dog ceremony, 2026-11-26
+
+A new Ed25519 key was generated with the system CSPRNG (`cryptography`
+`Ed25519PrivateKey.generate`, OpenSSL 3.5.5 available on the same host).
+It was checked against the predecessor raw public key and against any
+`ssh-ed25519` public key in the maintainer's `~/.ssh`. It matched neither.
+
+The public key is `install/keys/offline-ceremony.pub`. Its SHA-256 over
+the SPKI DER is
+`32002810c24cc633de7e868d3b5282c0ceab327e76d502bf067970738e695f03`.
+The raw 32-byte public key in `install/tuf/2.root.json` is
+`6e2440db06f9331c8830638f03baa9a7bd9ae2ba6daa33b4c31fc14cfc9c764d`.
+
+The private PKCS#8 PEM is not in this repository. It is the GitHub Actions
+secret `WAVE2_OFFLINE_KEY_B64` on the `release-signing` environment, whose
+deployment policy allows only tags matching `v*.*.*`. A mode-0600 copy and
+a second mode-0600 backup sit outside the worktree, for the maintainer's
+password manager. This was a workstation ceremony, not a hardware-token
+air gap. `sign-installer.yml` still refuses to sign if either
+`WAVE2_OFFLINE_KEY_B64` or `WAVE4_MLDSA65_KEY_B64` is missing. The ML-DSA
+key was not rotated.
+
+`2.root.json` keeps `threshold: 2` on every role. It does not carry a
+signature from the predecessor key, because that private key is not in
+Road Dog's custody. The `signatures` array is empty, as it is on
+`1.root.json`.
+
 ## 1. Why a second signing axis exists
 
 Wave 1 of the supply-chain hardening shipped Sigstore keyless signing via

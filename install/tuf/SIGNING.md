@@ -16,7 +16,8 @@
 Establishes the trust root. Lists the public keys for every other role and
 their per-role signature thresholds. In this repository:
 
-- File: `install/tuf/1.root.json` (version 1 — Wave 2 initial deployment).
+- File: `install/tuf/1.root.json` (version 1) and `install/tuf/2.root.json`
+  (version 2, Road Dog Ed25519 key, predecessor key revoked).
 - Roles map: `root`, `targets`, `snapshot`, `timestamp` each list
   `keyids = ["fulcio_oidc", "offline_ceremony"]` with `threshold = 2`.
 - Expiry cadence: **365 days.** Root rotations are deliberate events
