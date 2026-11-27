@@ -16,7 +16,7 @@ from jarvis.brain.manager import BrainManager
 from jarvis.core.config import load_config
 
 
-def _manager_with_name(*, wake_phrase: str = "Hey Jarvis") -> BrainManager:
+def _manager_with_name(*, wake_phrase: str = "Hey Sam") -> BrainManager:
     """A BrainManager with __init__ bypassed — only the attrs the prompt needs."""
     m = BrainManager.__new__(BrainManager)
     m._soul = None

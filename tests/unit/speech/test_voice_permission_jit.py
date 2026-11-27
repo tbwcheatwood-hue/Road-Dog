@@ -485,7 +485,7 @@ class _Boot:
         pipe._muted = False
         pipe._dictation_task = None
         pipe._dictation_wake_block_until = 0.0
-        pipe._wake_phrase_label = "Hey Jarvis"
+        pipe._wake_phrase_label = "Hey Sam"
         # The gates are the desktop app's own: silent reads of the real service.
         pipe._activation_gate = lambda: _local_voice_permission_granted(platform_name="darwin")
         pipe._user_activation_gate = lambda: _local_voice_permission_usable(platform_name="darwin")

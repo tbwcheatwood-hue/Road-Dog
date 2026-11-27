@@ -179,12 +179,12 @@ def test_set_wake_plan_switch_between_phrases_stays_on_stt_match(tmp_path) -> No
     pipe = _pipe()
     pipe.set_wake_plan(resolve_wake_plan(_cfg(phrase="Computer"), local_whisper_available=True))
     pipe._wake_reload_event.clear()
-    pipe.set_wake_plan(resolve_wake_plan(_cfg(phrase="Hey Jarvis"), local_whisper_available=True))
+    pipe.set_wake_plan(resolve_wake_plan(_cfg(phrase="Hey Sam"), local_whisper_available=True))
 
     assert pipe._openwakeword_enabled is False
     assert pipe._whisper_wake_enabled is True
-    assert pipe._wake_phrase_label == "Hey Jarvis"
-    assert pipe._stt.bias_prompt == "Hey Jarvis"
+    assert pipe._wake_phrase_label == "Hey Sam"
+    assert pipe._stt.bias_prompt == "Hey Sam"
     assert pipe._wake_reload_event.is_set()
 
 

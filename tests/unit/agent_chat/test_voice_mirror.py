@@ -15,7 +15,7 @@ from jarvis.core.events import VoiceTurnCompleted
 
 def _service(cwd: Path) -> AgentChatService:
     store = AgentChatStore(":memory:")
-    return AgentChatService(store, assistant_name=lambda: "Jarvis", default_cwd=lambda: str(cwd))
+    return AgentChatService(store, assistant_name=lambda: "Sam", default_cwd=lambda: str(cwd))
 
 
 def _open_session(svc: AgentChatService):
