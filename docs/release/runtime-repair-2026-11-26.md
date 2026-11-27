@@ -89,9 +89,12 @@ The `native-crypto` index URL in `pyproject.toml` was probed the same day.
 the predecessor Pages index, and a Road-Dog Pages path each returned
 HTTP 404. The pin was left in place so installation fails closed.
 
-**No release archive was cut.** Qualification requires a signing secret
-that matches the pinned public key and an index that serves the pinned
-wheel. Neither is true.
+**No release archive was cut.** A later ceremony on 2026-11-26 replaced
+the Ed25519 public key and stored the new private key as
+`WAVE2_OFFLINE_KEY_B64` on the `release-signing` environment. The
+native-crypto index still returns 404, and the ML-DSA secret was not
+part of that ceremony, so `sign-installer.yml` still stops before it
+publishes.
 
 ## 5. Isolation
 
