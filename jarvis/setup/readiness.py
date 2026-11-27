@@ -262,7 +262,7 @@ def check_tool_availability() -> ReadinessReport:
 
     coding_clis = ["claude", "codex", "opencode", "cursor-agent", "agent",
                    "kimi", "glm", "grok", "agy", "deepseek-harness",
-                   "kilo-code", "z-code"]
+                   "kilo", "zcode"]
     found_clis = [c for c in coding_clis if _command_available(c)]
 
     if found_clis:

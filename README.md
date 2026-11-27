@@ -154,10 +154,8 @@ Run every major coding CLI side by side in the Agentic IDE:
 | Grok Build | `grok` | sign-in | Built-in |
 | Antigravity | `agy` | API Keys page | Built-in |
 | DeepSeek Harness | `deepseek-harness` | API Keys page | Built-in |
-| Kilo Code | `kilo-code` | `KILOCODE_API_KEY` | Registered — placeholder binary/install URL; degrades safely until confirmed against a live install |
-| Zed Code | `z-code` | `ZCODE_API_KEY` | Registered — placeholder binary/install URL; degrades safely until confirmed against a live install |
-
-Kilo Code and Zed Code are registered but their binary names, install URLs and CLI flags are placeholders that must be confirmed against a live install before they will spawn. The entries degrade safely: `spawn_env_factory` returns `None` when the API key is unset, so no pane can start talking to the wrong vendor.
+| Kilo Code | `kilo` / `kilocode` | config file / `/connect` | Built-in |
+| Z Code | `zcode` | config file / `zcode login` | Built-in |
 
 ## Architecture
 

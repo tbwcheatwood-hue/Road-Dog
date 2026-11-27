@@ -137,12 +137,10 @@ CLI_BINARIES: Final[dict[str, tuple[str, ...]]] = {
         "agent.exe",
         "agent.cmd",
     ),
-    # Kilo Code and Z Code are not referenced anywhere in the repo or its docs.
-    # The binary names below are PLACEHOLDERS that must be confirmed against a
-    # live install before either CLI will resolve. Until then the entry reports
-    # "not installed" and no pane of it can start — which is the safe default.
-    "kilo-code-cli": ("kilo-code", "kilo-code.exe"),
-    "z-code-cli": ("z-code", "z-code.exe"),
+    # Kilo Code (kilocode/cli) — binary is `kilo` (also `kilocode` alias from npm).
+    "kilo-code-cli": ("kilo", "kilo.exe"),
+    # Z Code (zai-org/ZCode) — binary is `zcode`.
+    "z-code-cli": ("zcode", "zcode.exe"),
 }
 
 
@@ -303,26 +301,22 @@ def cursor_argv_prefix() -> list[str]:
 def kilo_argv_prefix() -> list[str]:
     """Resolve the Kilo Code binary from PATH.
 
-    The binary name ``kilo-code`` is a placeholder that must be confirmed
-    against a live install. Until the real name is known, this resolves to
-    nothing and the runner reports the CLI as missing.
+    Binary is `kilo` (also `kilocode` alias from npm package @kilocode/cli).
     """
     binary = _which(*CLI_BINARIES["kilo-code-cli"])
     if not binary:
-        raise CliUnavailable("Kilo Code (kilo-code) is not installed or not on PATH.")
+        raise CliUnavailable("Kilo Code (kilo) is not installed or not on PATH.")
     return [binary]
 
 
 def z_argv_prefix() -> list[str]:
     """Resolve the Z Code binary from PATH.
 
-    The binary name ``z-code`` is a placeholder that must be confirmed
-    against a live install. Until the real name is known, this resolves to
-    nothing and the runner reports the CLI as missing.
+    Binary is `zcode` (from zai-org/ZCode).
     """
     binary = _which(*CLI_BINARIES["z-code-cli"])
     if not binary:
-        raise CliUnavailable("Z Code (z-code) is not installed or not on PATH.")
+        raise CliUnavailable("Z Code (zcode) is not installed or not on PATH.")
     return [binary]
 
 
@@ -1449,23 +1443,16 @@ def plan_kilo(
     resume: str | None,
     identity: jarvis_harness.Identity | None = None,
 ) -> CliPlan:
-    """Kilo Code runner — placeholder pending vendor confirmation.
-
-    The CLI's flags, output wire format and resume behaviour are not yet
-    known, so this runs the binary in plain-text mode (shape ``"text"``) with
-    the prompt as the final argv entry. No model, effort or resume flags are
-    sent because none are confirmed for this product. The binary name itself
-    is a placeholder and must be confirmed against a live install.
-
-    Reversible: removing the ``"kilo-code"`` entry from the registry in
-    ``jarvis/workspace/agents.py`` and these two functions from this module
-    restores prior behaviour exactly.
-    """
-    del cwd, effort, resume  # Not yet confirmed for this product.
+    """Kilo Code runner — uses `-m/--model` and `--variant` for effort; `--auto` for permissions."""
+    del cwd, resume  # Not used for this runner.
     normalize_permission("kilo-code-cli", permission_mode)
     prompt = _with_identity(prompt, identity, None, compact=True)
     prefix = kilo_argv_prefix()
-    argv = [*prefix, _argv_prompt(prefix, prompt)]
+    # Kilo Code uses -m/--model for model and --variant for reasoning effort
+    argv = [*prefix, "-m", model]
+    if effort:
+        argv += ["--variant", effort]
+    argv += [_argv_prompt(prefix, prompt)]
     env = _registry_env("kilo-code", _account_env("kilo-code"))
     return CliPlan(argv, env, None, "text", None)
 
@@ -1480,16 +1467,17 @@ def plan_z(
     resume: str | None,
     identity: jarvis_harness.Identity | None = None,
 ) -> CliPlan:
-    """Z Code runner — placeholder pending vendor confirmation.
-
-    Mirrors plan_kilo: plain-text mode, no confirmed flags, placeholder binary
-    name. Reversible in the same way.
-    """
-    del cwd, effort, resume  # Not yet confirmed for this product.
+    """Z Code runner — uses `--model` and `--effort` with `--prompt`; permissions via `--mode`."""
+    del cwd, resume  # Not used for this runner.
     normalize_permission("z-code-cli", permission_mode)
     prompt = _with_identity(prompt, identity, None, compact=True)
     prefix = z_argv_prefix()
-    argv = [*prefix, _argv_prompt(prefix, prompt)]
+    # Z Code requires --prompt for --model and --effort to work
+    argv = [*prefix, "--prompt", prompt]
+    if model:
+        argv += ["--model", model]
+    if effort:
+        argv += ["--effort", effort]
     env = _registry_env("z-code", _account_env("z-code"))
     return CliPlan(argv, env, None, "text", None)
 

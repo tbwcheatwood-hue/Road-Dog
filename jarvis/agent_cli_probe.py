@@ -248,9 +248,9 @@ def test_grok_build() -> AgentCliTestResult:
 def test_kilo_code() -> AgentCliTestResult:
     """Probe the Kilo Code binary.
 
-    The binary name ``kilo-code`` is a placeholder that must be confirmed
-    against a live install. No auth service exists for this product yet, so
-    the probe only checks that the binary is present and answers ``--version``.
+    Binary is `kilo` (also `kilocode` alias from npm package @kilocode/cli).
+    No auth service exists for this product yet, so the probe only checks
+    that the binary is present and answers ``--version``.
     """
     from jarvis.agent_chat.runner_cli import CLI_BINARIES, _which
 
@@ -260,7 +260,7 @@ def test_kilo_code() -> AgentCliTestResult:
     if binary is None:
         return _not_installed(
             "kilo-code",
-            "Install the Kilo Code CLI and make sure ``kilo-code`` is on PATH.",
+            "Install the Kilo Code CLI and make sure ``kilo`` is on PATH.",
             t0,
         )
     version = _live_version([binary])
@@ -299,9 +299,9 @@ def test_kilo_code() -> AgentCliTestResult:
 def test_z_code() -> AgentCliTestResult:
     """Probe the Z Code binary.
 
-    The binary name ``z-code`` is a placeholder that must be confirmed
-    against a live install. No auth service exists for this product yet, so
-    the probe only checks that the binary is present and answers ``--version``.
+    Binary is `zcode` (from zai-org/ZCode).
+    No auth service exists for this product yet, so the probe only checks
+    that the binary is present and answers ``--version``.
     """
     from jarvis.agent_chat.runner_cli import CLI_BINARIES, _which
 
@@ -311,7 +311,7 @@ def test_z_code() -> AgentCliTestResult:
     if binary is None:
         return _not_installed(
             "z-code",
-            "Install the Z Code CLI and make sure ``z-code`` is on PATH.",
+            "Install the Z Code CLI and make sure ``zcode`` is on PATH.",
             t0,
         )
     version = _live_version([binary])

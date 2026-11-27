@@ -180,8 +180,8 @@ def test_kilo_code_and_z_code_are_registered() -> None:
     kilo = get_agent("kilo-code")
     assert kilo is not None
     assert kilo.display_name == "Kilo Code"
-    assert kilo.executable == "kilo-code"
-    assert kilo.launch_command == "kilo-code"
+    assert kilo.executable == "kilo"
+    assert kilo.launch_command == "kilo"
     assert kilo.needs_trust is False
     assert kilo.account is None
     assert kilo.file_reference == "at"
@@ -190,9 +190,9 @@ def test_kilo_code_and_z_code_are_registered() -> None:
 
     z = get_agent("z-code")
     assert z is not None
-    assert z.display_name == "Zed Code"
-    assert z.executable == "z-code"
-    assert z.launch_command == "z-code"
+    assert z.display_name == "Z Code"
+    assert z.executable == "zcode"
+    assert z.launch_command == "zcode"
     assert z.needs_trust is False
     assert z.account is None
     assert z.file_reference == "at"

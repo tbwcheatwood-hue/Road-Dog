@@ -517,43 +517,44 @@ def _cursor_cli_install() -> InstallMethods:
 
 
 def _kilo_code_install() -> InstallMethods:
-    """Official Kilo Code installer — URL to be confirmed (TBC)."""
-    url = (
-        "https://kilo.dev/install?win32=true"
-        if sys.platform == "win32"
-        else "https://kilo.dev/install"
+    """Official Kilo Code installer — npm and script install."""
+    return InstallMethods(
+        npm_package="@kilocode/cli",
+        script_url="https://kilo.ai/cli/install",
+        recommended="npm",
     )
-    return InstallMethods(script_url=url, recommended="script")
 
 
 def kilo_code_spawn_env() -> dict[str, str] | None:
-    """Environment for Kilo Code; None when not configured (safe default)."""
+    """Environment for Kilo Code; None when not configured (safe default).
+    Kilo Code uses config file ~/.config/kilo/kilo.jsonc for provider credentials.
+    """
     from jarvis.core.config import get_secret
 
-    token = (get_secret("kilocode_api_key", "KILOCODE_API_KEY") or "").strip()
-    if not token:
-        return None
-    return {"KILOCODE_API_KEY": token}
+    # Kilo Code doesn't use a simple API key env var; it uses /connect command
+    # or config file. Return None to allow interactive config.
+    return None
 
 
 def _z_code_install() -> InstallMethods:
-    """Official Z Code installer — URL to be confirmed (TBC)."""
+    """Official Z Code installer — script from releases."""
     url = (
-        "https://z-code.dev/install?win32=true"
+        "https://zcode.z.ai/install?win32=true"
         if sys.platform == "win32"
-        else "https://z-code.dev/install"
+        else "https://zcode.z.ai/install"
     )
     return InstallMethods(script_url=url, recommended="script")
 
 
 def z_code_spawn_env() -> dict[str, str] | None:
-    """Environment for Z Code; None when not configured (safe default)."""
+    """Environment for Z Code; None when not configured (safe default).
+    Z Code uses ~/.zcode/v2/provider_config.json for provider credentials.
+    """
     from jarvis.core.config import get_secret
 
-    token = (get_secret("zcode_api_key", "ZCODE_API_KEY") or "").strip()
-    if not token:
-        return None
-    return {"ZCODE_API_KEY": token}
+    # Z Code doesn't use a simple API key env var; it uses provider config file
+    # or zcode login. Return None to allow interactive config.
+    return None
 
 
 #: Kimi ships under two generations that both install a binary called ``kimi``.
@@ -794,6 +795,49 @@ _CURSOR_PICKS = LaunchPicks(
 _CURSOR_RUNTIME = RuntimePicks(model=f"/model {picks_value}")
 
 
+#: Kilo Code takes ``-m/--model provider/model`` and ``--variant`` for reasoning
+#: effort; ``--auto`` for auto-approve (bypass permissions).
+_KILO_PICKS = LaunchPicks(
+    provider="kilo",
+    model_args=("-m", picks_value),
+    effort_args=("--variant", picks_value),
+    permission_args=(
+        ("auto", ("--auto",)),
+        ("plan", ("--mode", "plan")),
+        ("ask", ("--mode", "ask")),
+    ),
+    ladder="kilo",
+)
+_KILO_RUNTIME = RuntimePicks(
+    model="/model {value}",
+    effort="/variant {value}",
+    permission_mode="/mode {value}",
+)
+
+#: Z Code takes ``--model account:provider/model`` and ``--effort`` with
+#: ``--prompt``; permissions via ``--mode build|edit|plan|yolo|guarded``.
+#: No model/effort flags without ``--prompt`` (headless only).
+_ZCODE_PICKS = LaunchPicks(
+    provider="zcode",
+    model_args=("--model", picks_value),
+    effort_args=("--effort", picks_value),
+    permission_args=(
+        ("auto", ("--mode", "yolo")),
+        ("guarded", ("--mode", "guarded")),
+        ("plan", ("--mode", "plan")),
+        ("ask", ("--mode", "ask")),
+        ("edit", ("--mode", "edit")),
+        ("build", ("--mode", "build")),
+    ),
+    ladder="zcode",
+)
+_ZCODE_RUNTIME = RuntimePicks(
+    model="/model {value}",
+    effort="/effort {value}",
+    permission_mode="/mode {value}",
+)
+
+
 _AGENTS: dict[str, WorkspaceAgent] = {
     "claude": make_cli_agent(
         "claude",
@@ -906,50 +950,45 @@ _AGENTS: dict[str, WorkspaceAgent] = {
 ),
 # ------------------------------------------------------------------ Kilo Code
 #
-# NOTE: this product is not referenced anywhere in the repo or its docs.
-# The binary name, install URL and CLI flags below are PLACEHOLDERS that
-# MUST be confirmed against a live install before Kilo Code will spawn.
-# The entry registers safely and degrades to "not configured" until then:
-# spawn_env_factory returns None when no key is present, so a pane of it
-# cannot start talking to the wrong vendor.
+# Kilo Code CLI (kilocode/cli) — binary is `kilo` (also `kilocode` alias from npm).
+# Config in ~/.config/kilo/kilo.jsonc; provider credentials via `/connect` command.
     "kilo-code": make_cli_agent(
         "kilo-code",
         "Kilo Code",
-        binary="kilo-code",
-        install=_kilo_code_install(),
-        homepage="https://kilo.dev",
-        description="Kilo Code terminal coding agent — binary name and install URL TBC.",
+        launch_picks=_KILO_PICKS,
+        runtime_picks=_KILO_RUNTIME,
+        binary="kilo",
+        npm_package="@kilocode/cli",
+        homepage="https://kilo.ai",
+        description="Kilo Code terminal coding agent — AI-powered coding assistant.",
         needs_trust=False,
         extra_path_dirs=("~/.local/bin",),
         file_reference="at",
         instruction_filename="AGENTS.md",
         input_markers=("→",),
         version_regex=_LOOSE_SEMVER_RE,
-        # DELIBERATELY no AccountSpec — credential layout not verified.
         spawn_env_factory=kilo_code_spawn_env,
-        spawn_env=(("KILOCODE_NO_AUTO_UPDATE", "1"),),
+        spawn_env=(("KILO_NO_AUTO_UPDATE", "1"),),
         spoken_aliases=("kilo", "kilo code", "kilocode"),
     ),
     # ------------------------------------------------------------------ Z Code
     #
-    # NOTE: this product is not referenced anywhere in the repo or its docs.
-    # The binary name, install URL and CLI flags below are PLACEHOLDERS that
-    # MUST be confirmed against a live install before Z Code will spawn.
-    # Same safe-default design: spawn_env_factory returns None when unconfigured.
+    # Z Code CLI (zai-org/ZCode) — binary is `zcode`. Provider config in
+    # ~/.zcode/v2/provider_config.json; headless requires --prompt with --model/--effort.
     "z-code": make_cli_agent(
         "z-code",
-        "Zed Code",
-        binary="z-code",
-        install=_z_code_install(),
-        homepage="https://z-code.dev",
-        description="Z Code terminal coding agent — binary name and install URL TBC.",
+        "Z Code",
+        launch_picks=_ZCODE_PICKS,
+        runtime_picks=_ZCODE_RUNTIME,
+        binary="zcode",
+        homepage="https://zcode.z.ai",
+        description="Z Code terminal coding agent — AI coding workspace with TUI and headless modes.",
         needs_trust=False,
         extra_path_dirs=("~/.local/bin",),
         file_reference="at",
         instruction_filename="AGENTS.md",
         input_markers=("→",),
         version_regex=_LOOSE_SEMVER_RE,
-        # DELIBERATELY no AccountSpec — credential layout not verified.
         spawn_env_factory=z_code_spawn_env,
         spawn_env=(("ZCODE_NO_AUTO_UPDATE", "1"),),
         spoken_aliases=("z code", "zcode", "zed"),
