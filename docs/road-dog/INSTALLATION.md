@@ -21,7 +21,7 @@ pip install -r requirements.txt        # hash-pinned, platform-universal lockfil
 cp jarvis.toml.example jarvis.toml     # optional; every default is built in
 ```
 
-Launch with `roaddog` (desktop app) or `roaddog serve` (headless, port 8442).
+Launch with `roaddog` (desktop app) or `roaddog serve` (headless, http://127.0.0.1:47821). If that port is taken, pass `--port`.
 The `jarvis` commands remain aliases.
 
 ## What the installer does
@@ -41,7 +41,7 @@ The `jarvis` commands remain aliases.
 ## Headless server deployment
 1. Any Linux box or `python:3.11`-slim container (no GPU/audio required).
 2. `python install/install.sh --headless` or the manual steps above.
-3. `roaddog serve` → `http://localhost:8442`. Remote access is opt-in — see
+3. `roaddog serve` → `http://127.0.0.1:47821` (or `--port` when that port is taken). Remote access is opt-in — see
    the security review for the listener binding rules.
 4. `Dockerfile` / `docker-compose.yml` are provided for container hosting.
 

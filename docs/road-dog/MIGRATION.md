@@ -21,11 +21,11 @@ Either REST:
 
 ```bash
 # 1. plan (dry run — nothing written)
-curl -X POST localhost:8442/api/migration/plan \
+curl -X POST 127.0.0.1:47821/api/migration/plan \
   -H 'Content-Type: application/json' \
   -d '{"source": "/home/you/.jarvis"}'
 # 2. execute only when the plan looks right
-curl -X POST localhost:8442/api/migration/import \
+curl -X POST 127.0.0.1:47821/api/migration/import \
   -H 'Content-Type: application/json' \
   -d '{"source": "/home/you/.jarvis", "execute": true}'
 ```

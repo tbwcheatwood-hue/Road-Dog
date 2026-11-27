@@ -37,13 +37,23 @@ pip install -e . --no-deps
 pip install -r requirements.txt
 ```
 
-**Launch** — `roaddog serve` (headless, http://localhost:8442) or `roaddog` (desktop). `jarvis`/`jarvis serve` remain aliases.
+**Launch** — `roaddog serve` (headless, http://127.0.0.1:47821) or `roaddog` (desktop). If 47821 is already taken, start with `--port`. `jarvis`/`jarvis serve` remain aliases. The Python environment stays on the machine: `.venv/` is gitignored, and this tree does not pin a virtualenv from another install.
 
 **Connect a model** — exactly one of: an API key, a subscription, or a local server (Ollama, LM Studio, llama.cpp, any OpenAI-compatible endpoint). Add/test/select endpoints in the UI (`/api/local-endpoints`); the onboarding wizard tests them with zero-spend metadata probes.
 
-## What is new in v1.1.0
+## What is new in v1.3.0
 
-See [`ROAD_DOG_CHANGELOG.md`](ROAD_DOG_CHANGELOG.md) and [`docs/road-dog/UPGRADE-REPORT.md`](docs/road-dog/UPGRADE-REPORT.md). Highlights:
+This tree is Road Dog 1.3.0. The release notes are in [`ROAD_DOG_CHANGELOG.md`](ROAD_DOG_CHANGELOG.md). On top of that release, this branch also does the following:
+
+- **Local chat stays inside the model.** An Ollama chat raises the running context allocation when it is smaller than the model's own window, so a selected local model is not refused for a 4096-token cap.
+- **Front-page chat leaves the crew alone.** Society tools and the team card stay off that chat while `ENABLED` in `jarvis/society/chat_gate.py` is `False`. Society chats and spoken turns still have them. Set `ENABLED` to `True` to put them back on the next chat turn.
+- **Antigravity 1.5 sign-in is recognized** from its current config directory.
+- **The in-app tool server keeps Antigravity connected.** A listener `GET` is answered with 405, which is the signal that there is no event stream to retry. Tool calls continue over the normal connection (`jarvis-hands`).
+- **Speech recognition is pinned to English** in `scripts/config-soll.json`. The config drift guard writes that pin back into the live config.
+
+## Earlier, in v1.1.0
+
+See [`docs/road-dog/UPGRADE-REPORT.md`](docs/road-dog/UPGRADE-REPORT.md). Highlights:
 
 - **Independent identity:** Road Dog-owned data root (`~/.road-dog/data`, overridable via `ROAD_DOG_DATA_DIR`), own endpoint registry and config copies — coexists with a Personal Jarvis/Hue install. Explicit, authorized upstream import (`jarvis/migration/upstream_import.py`, `/api/migration/*`): plan-first, never touches credentials, never auto-runs.
 - **First-class local endpoints:** add/edit/remove/test/select inference servers in the UI; capability-aware routing (`pick`) over declared/probed capabilities; test = GET metadata only (never launches a server, never downloads a model, never spends).
